@@ -1,7 +1,11 @@
 /* global plodback, localizeHtmlPage, utilAsync, optionsLoad, optionsSave */
-async function onOptionChanged(e) {
+function onOptionChanged(e) {
     if (!e.originalEvent) return;
-    let options = await optionsLoad();
+    onOptionChanged_internal();   
+}
+
+async function onOptionChanged_internal() {
+    let options = {};
     var firstflag = 0;
     if($('#enabled').prop('checked')) firstflag|=0x1;
     if($('#slicable').prop('checked')) firstflag|=0x2;
@@ -17,8 +21,7 @@ async function onOptionChanged(e) {
     if($('#hotT').prop('checked')) firstflag|=0x80;
     if($('#editable').prop('checked')) firstflag|=0x100;
     options.firstflag = firstflag;
-    let newOptions = await plodback().opt_optionsChanged(options);
-    optionsSave(newOptions);
+    await plodback().opt_optionsChanged(options, true);
 }
 
 function onMoreOptions() {

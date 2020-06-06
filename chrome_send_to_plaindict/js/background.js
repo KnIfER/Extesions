@@ -1,13 +1,10 @@
 ﻿class PLODBack {
 	constructor() {
-        this.options = null;
-		this.agent = new Agent(window.contentWindow);
+		this.options = {};
 		
-        chrome.tabs.onCreated.addListener((tab) => this.onTabCreated(tab.id));
         chrome.tabs.onUpdated.addListener(this.onTabUpdated.bind(this));
 
 		chrome.runtime.onMessage.addListener(this.onMessage.bind(this));
-		window.addEventListener('message', e => this.onSandboxMessage(e));
 		
 		const options = {
 			type: 'normal',
@@ -17,29 +14,26 @@
 			visible: true,
 			onclick: this.sendText.bind(this)
 		}
-		chrome.contextMenus.create(options, null);
-		chrome.browserAction.setPopup(
-			{
-				popup:'js/popup/popup.html'
-			}
-		)
-		
-		chrome.browserAction.onClicked.addListener(function(tab) {
 
-		});
+		chrome.contextMenus.create(options, null);
+		
+		//chrome.browserAction.setPopup({ popup:'js/popup/popup.html'});
+		
+		//chrome.browserAction.onClicked.addListener(function(tab) { });
+		
+        chrome.storage.local.get(null, (options) => {
+			this.opt_optionsChanged(sanitizeOptions(options), false);
+        });
 	}
 
     onTabUpdated(tabId) {
-		//console.log("onUpdated..."+tabId);
+		console.log("onUpdated..."+tabId, this.options.firstflag&0x1);
 		chrome.tabs.executeScript(tabId, {code:"window.pdFlag="+this.options.firstflag});
         //this.tabInvoke(tabId, 'setFrontendOptions', { options: this.options });
     }
-	
-    onTabCreated(tabId) {
-        this.tabInvoke(tabId, 'setFrontendOptions', { options: this.options });
-    }
 
 	sendText(exp, source) {
+		console.log(exp);
         if(!exp) return;
 		if(exp.selectionText) {
 			exp = exp.selectionText;
@@ -84,23 +78,7 @@
 		return true;
 	}
 		
-	onSandboxMessage(e) {
-		const {
-			action,
-			params
-		} = e.data;
-		const method = this[action];
-		if (typeof(method) === 'function')
-			method.call(this, params);
-
-	}
-	
 	//APIs
-	async initBackend(params) {
-		let options = await optionsLoad();
-		this.opt_optionsChanged(options);
-	}
-		
 	async sendToPD(params) {
 		// Fix https://github.com/ninja33/ODH/issues/97
 		//console.log("api_sendToPDapi_sendToPD");
@@ -132,18 +110,13 @@
     }
 	
     // Option page and Brower Action page requests handlers.
-    async opt_optionsChanged(options) {
-        this.setFrontendOptions(options);
-        this.options = options;
-        await this.setScriptsOptions(this.options);
-        optionsSave(this.options);
+    async opt_optionsChanged(options, save) {
+        this.options.firstflag = options.firstflag;
+		this.setFrontendOptions(options);
+		if(save){
+			optionsSave(this.options);
+		}
         return this.options;
-    }
-	
-	async setScriptsOptions(options) {
-        return new Promise((resolve, reject) => {
-            this.agent.postMessage('setScriptsOptions', { options }, result => resolve(result));
-        });
     }
 }
 

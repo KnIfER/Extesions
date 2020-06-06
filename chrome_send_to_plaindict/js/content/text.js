@@ -5,7 +5,10 @@ function selectedText() {
 
 function isValidElement() {
     if (window.pdFlag&0x100) return true;
-    
+    return isValidReadonlyElement();
+}
+
+function isValidReadonlyElement() {
     // if (document.activeElement.getAttribute('contenteditable')) 
     //     return false;
 

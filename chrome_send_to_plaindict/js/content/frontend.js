@@ -5,7 +5,7 @@ class PLODFront {
         this.notes = null;
         this.sentence = null;
         this.audio = {};
-        win.pdFlag = 247;
+        //win.pdFlag = 247;
         //window.activateKey = 16; // shift 16, ctl 17, alt 18
         this.timeout = null;
         this.mousemoved = false;
@@ -43,7 +43,7 @@ class PLODFront {
     }
     
     onKeyDown(e) {
-        if (!isValidElement()) return;
+        if (!isValidReadonlyElement()) return;
         
         console.log("onKeyDown", );
 
@@ -161,14 +161,3 @@ class PLODFront {
 }
 
 window.plodfront = new PLODFront(window);
-
-//var _Frames_ = window.frames;
-//Object.keys(_Frames_).forEach(key => {
-//    var win = _Frames_[key];
-//    if(win && win.addEventListener) {
-//        win.plodfront = new PLODFront(win);
-//    }
-//});
-//window.plodfront = new PLODFront(window);
-
-//console.log(window.plodfront);

@@ -1,6 +1,6 @@
 {
     "name": "发送文本至安卓平典",
-    "version": "2.0",
+    "version": "2.4",
     "default_locale": "en",
     "manifest_version": 2,
     "description": "发送文本至安卓平典",
@@ -11,17 +11,15 @@
         "128": "images/icon128.png"
     },
     "browser_action": {
-        "default_icon": "images/icon19.png"
+        "default_icon": "images/icon19.png",
+        "default_popup": "js/popup/popup.html"
     },
     "permissions": [
       "contextMenus"
       , "tabs"
       , "https://*/*"
-      , "debugger"
-      , "experimental"
       , "bookmarks"
       , "storage"
-      , "contextMenus"
     ],
     "background": {
         "page": "js/background.html"
@@ -35,9 +33,6 @@
             "js/content/frontend.js"
         ],
         "all_frames": true
-    }],
-	"sandbox": {
-        "pages": ["js/sandbox/sandbox.html"]
-    }
+    }]
 
 }
