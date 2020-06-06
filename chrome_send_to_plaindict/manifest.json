@@ -1,0 +1,43 @@
+{
+    "name": "发送文本至安卓平典",
+    "version": "2.0",
+    "default_locale": "en",
+    "manifest_version": 2,
+    "description": "发送文本至安卓平典",
+    "author": "302772670@qq.com",
+    "icons": {
+        "16": "images/icon16.png",
+        "48": "images/icon48.png",
+        "128": "images/icon128.png"
+    },
+    "browser_action": {
+        "default_icon": "images/icon19.png"
+    },
+    "permissions": [
+      "contextMenus"
+      , "tabs"
+      , "https://*/*"
+      , "debugger"
+      , "experimental"
+      , "bookmarks"
+      , "storage"
+      , "contextMenus"
+    ],
+    "background": {
+        "page": "js/background.html"
+    },
+    "content_scripts": [{
+        "matches": ["*://*/*", "file://*/*"],
+        "js": [
+            "js/content/api.js",
+            "js/content/range.js",
+            "js/content/text.js",
+            "js/content/frontend.js"
+        ],
+        "all_frames": true
+    }],
+	"sandbox": {
+        "pages": ["js/sandbox/sandbox.html"]
+    }
+
+}

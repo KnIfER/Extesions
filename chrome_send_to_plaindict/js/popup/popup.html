@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="css/popup.css">
+    <link rel="stylesheet" href="css/checkbox.css">
+    <title data-i18n="optTitle">PlainDict Connect</title>
+</head>
+
+<body>
+    <div class='container'>
+        <form>
+            <div class="grouppanel">
+                <div class="grouptitle">
+                    <span class="title" data-i18n="baTitle">Options</span>
+                    <span class="more" id="more">...</span>
+                </div>
+				<hr/>
+                <div class="crosspanel">
+                    <label data-i18n="baEnabled">Double Click</label>
+                    <div class="enabled">
+                        <input type="checkbox" value=true id="enabled">
+                        <label for="enabled"></label>
+                    </div>
+					
+					
+                    <label data-i18n="baSelection">Selection</label>
+                    <div class="enabled">
+                        <input type="checkbox" value=true id="slicable">
+                        <label for="slicable"></label>
+                    </div>
+    
+                    <label data-i18n="baHotKey">AuoSel.</label>
+                    <select id="hotkey">
+                        <option value="0">Off</option>
+                        <option value="16">Shift</option>
+                        <option value="17">Ctrl</option>
+                        <option value="18">Alt</option>
+                    </select>
+					
+                    <label data-i18n="doubleT">d</label>
+                    <div class="share">
+						<input type="checkbox" value=true id="doubleT">
+						<label for="doubleT"></label>
+                    </div>
+					
+                    <label data-i18n="sliceT">s</label>
+                    <div class="share">
+						<input type="checkbox" value=true id="sliceT">
+						<label for="sliceT"></label>
+                    </div>
+					
+                    <label data-i18n="menuT">m</label>
+                    <div class="share">
+						<input type="checkbox" value=true id="menuT">
+						<label for="menuT"></label>
+                    </div>
+					
+                    <label data-i18n="hotT">Selection</label>
+                    <div class="share">
+						<input type="checkbox" value=true id="hotT">
+						<label for="hotT"></label>
+                    </div>
+					
+                    <label data-i18n="editable">E.</label>
+                    <div class="enabled">
+						<input type="checkbox" value=true id="editable">
+						<label for="editable"></label>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!--script src="js/polyfill.js"></script-->
+    <script src="../lib/jquery-3.0.0.min.js"></script>
+    <script src="../utils.js"></script>
+    <script src="popup.js"></script>
+</body>
+
+</html>

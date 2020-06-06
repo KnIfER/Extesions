@@ -1,0 +1,70 @@
+input[type=checkbox] {
+    visibility: hidden;
+}
+
+.crosspanel div{
+    width: 65px;
+    height: 26px;
+    display:inline-block;
+    background: #888;
+    margin: 3px;
+    border-radius: 25px;
+    top:-2px;
+    position: relative;
+}
+
+.crosspanel div:before {
+    position: absolute;
+    top: 5px;
+    left: 10px;
+    height: 1px;
+    color: #f9f9f9;
+    font-weight: bold;
+}
+
+.crosspanel div:after {
+    position: absolute;
+    top: 5px;
+    left: 35px;
+    height: 1px;
+    color: #f9f9f9;
+    font-weight: bold;
+}
+
+.enabled:before {
+    content: 'On';
+}
+
+.enabled:after {
+    content: 'Off';
+}
+
+.share:before {
+    content: 'PD';
+}
+
+.share:after {
+    content: '3rd';
+}
+
+
+
+.crosspanel div label {
+    display: block;
+    width: 26px;
+    height: 16px;
+    border: none;
+    border-radius: 37px;
+    transition: all .5s ease;
+    cursor: pointer;
+    position: absolute;
+    top: 2px;
+    z-index: 1;
+    left: 4px;
+    background: #ddd;
+}
+
+.crosspanel div input[type=checkbox]:checked+label {
+    left: 28px;
+    background: #f9f9f9;
+}
