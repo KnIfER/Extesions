@@ -1,6 +1,6 @@
 function sanitizeOptions(options) {
     const defaults = {
-        firstflag: 499
+        firstflag: 503
     };
 
     for (const key in defaults) {
@@ -12,6 +12,11 @@ function sanitizeOptions(options) {
 }
 
 const KeyMap = [0, 16, 17, 18];
+
+/* "check" error */
+function checkLastError(){
+    chrome.runtime.lastError
+}
 
 async function optionsLoad() {
     return new Promise((resolve, reject) => {

@@ -1,6 +1,7 @@
 /* global plodback, localizeHtmlPage, utilAsync, optionsLoad, optionsSave */
 function onOptionChanged(e) {
     if (!e.originalEvent) return;
+    //todo lazy save?
     onOptionChanged_internal();   
 }
 

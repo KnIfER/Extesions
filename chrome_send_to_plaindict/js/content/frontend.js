@@ -2,18 +2,13 @@
 class PLODFront {
     constructor(win) {
         this.point = null;
-        this.notes = null;
-        this.sentence = null;
-        this.audio = {};
-        //win.pdFlag = 247;
-        //window.activateKey = 16; // shift 16, ctl 17, alt 18
         this.timeout = null;
         this.mousemoved = false;
         this.selecting = false;
         
         this.win = win;
     
-        this.KeyMap = [0, 16, 17, 18];
+        this.KeyMap = [0, 16, 17, 18]; // shift 16, ctl 17, alt 18
 
         win.addEventListener('mousemove', e => this.onMouseMove(e));
         //window.addEventListener('mousedown', e => this.onMouseDown(e));
@@ -22,19 +17,8 @@ class PLODFront {
 
         chrome.runtime.onMessage.addListener(this.onBgMessage.bind(this));
         win.addEventListener('message', e => this.onFrameMessage(e));
-        //document.addEventListener('selectionend', e => this.userSelectionChanged(e));
-        //document.addEventListener('"selectstart"', e => this.uponSelectionStart(e));
-       // if(win.document) {
-            win.document.addEventListener('selectionchange', e => this.uponSelectionChanged(e));
-            win.document.addEventListener('mouseup', e => this.uponMouseup(e));
-        //} else {
-        //    window.addEventListener('onload',this.wrappedOnLoadFunc.bind(this));
-        //}
-    }
-    
-    wrappedOnLoadFunc(){
-        this.win.document.addEventListener('selectionchange', e => this.uponSelectionChanged(e));
-        this.win.document.addEventListener('mouseup', e => this.uponMouseup(e));
+        win.document.addEventListener('selectionchange', e => this.uponSelectionChanged(e));
+        win.document.addEventListener('mouseup', e => this.uponMouseup(e));
     }
 
     onMouseMove(e) {
@@ -45,9 +29,9 @@ class PLODFront {
     onKeyDown(e) {
         if (!isValidReadonlyElement()) return;
         
-        console.log("onKeyDown", );
+        //console.log("onKeyDown", );
 
-        if (this.point !== null && (e.keyCode || e.charCode)===this.KeyMap[(window.pdFlag>>2)&0x3]) {
+        if (this.point!=null && (e.keyCode || e.charCode)===this.KeyMap[(window.pdFlag>>2)&0x3]) {
 			var exp = 0;//selectedText();
 			if(!exp) {
 				const range = rangeFromPoint({x:this.point.clientX, y:this.point.clientY});
@@ -75,7 +59,7 @@ class PLODFront {
 		
         if (!isValidElement()) return;
 
-		console.log('onDoubleClick');
+		//console.log('onDoubleClick');
 			
 		this.SendSelection(0)
     }
@@ -97,14 +81,8 @@ class PLODFront {
 			// wait 180 ms after the last selection change event
 			this.timeout = setTimeout(() => {
 			    this.onSelectionEnd(e);
-			    //var selEndEvent = new CustomEvent('selectionend');
-			    //window.dispatchEvent(selEndEvent);
 			}, 180);
 		}
-    }
-	
-    uponSelectionStart(e) {
-        console.log("uponSelectionStart");
     }
 	
     async onSelectionEnd(e) {
@@ -114,9 +92,8 @@ class PLODFront {
         if (!isValidElement())
             return;
 		
-		console.log('onSelectionEnd');
+		//console.log('onSelectionEnd');
 		
-        // reset selection timeout
         this.timeout = null;
 		this.selecting = false;
 
@@ -146,7 +123,7 @@ class PLODFront {
     setFrontendOptions(params) {
         let { options, callback } = params;
         this.win.pdFlag = options.firstflag;
-		console.log("api_setFrontendOptions"+options.enabled)
+		//console.log("api_setFrontendOptions"+options.enabled)
         //callback();
     }
 	
@@ -157,7 +134,6 @@ class PLODFront {
             method.call(this, params);
         }
     }
-
 }
 
 window.plodfront = new PLODFront(window);

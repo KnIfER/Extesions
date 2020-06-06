@@ -17,8 +17,6 @@
 
 		chrome.contextMenus.create(options, null);
 		
-		//chrome.browserAction.setPopup({ popup:'js/popup/popup.html'});
-		
 		//chrome.browserAction.onClicked.addListener(function(tab) { });
 		
         chrome.storage.local.get(null, (options) => {
@@ -27,9 +25,8 @@
 	}
 
     onTabUpdated(tabId) {
-		//console.log("onUpdated..."+tabId, this.options.firstflag&0x1);
-		chrome.tabs.executeScript(tabId, {code:"window.pdFlag="+this.options.firstflag}, _=>chrome.runtime.lastError /* "check" error */);
-        //this.tabInvoke(tabId, 'setFrontendOptions', { options: this.options });
+		//console.log("onUpdated..."+tabId);
+		chrome.tabs.executeScript(tabId, {code:"window.pdFlag="+this.options.firstflag}, _=>checkLastError());
     }
 
 	sendText(exp, source) {
@@ -82,7 +79,6 @@
 	async sendToPD(params) {
 		// Fix https://github.com/ninja33/ODH/issues/97
 		//console.log("api_sendToPDapi_sendToPD");
-		//console.log(expression);
 		this.sendText(params.exp, params.extra);
 	};
 
@@ -101,12 +97,7 @@
     }
 	
 	tabInvoke(tabId, action, params) {
-        const callback = () => this.checkLastError(chrome.runtime.lastError);
-        chrome.tabs.sendMessage(tabId, { action, params }, callback);
-    }
-	
-    checkLastError(){
-        // NOP
+        chrome.tabs.sendMessage(tabId, { action, params }, _=>checkLastError());
     }
 	
     // Option page and Brower Action page requests handlers.
