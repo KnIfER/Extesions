@@ -81,6 +81,10 @@
 		//console.log("api_sendToPDapi_sendToPD");
 		this.sendText(params.exp, params.extra);
 	};
+	
+	async getFlag(params) {
+		params.callback(this.options.firstflag);
+	};
 
     setFrontendOptions(options) {
         this.tabInvokeAll('setFrontendOptions', {

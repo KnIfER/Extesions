@@ -8,7 +8,8 @@ class PLODFront {
         
         this.win = win;
     
-        this.KeyMap = [0, 16, 17, 18]; // shift 16, ctl 17, alt 18
+        this.KeyMap = [0, 16, 17, 18]; 
+        // shift 16, ctl 17, alt 18
 
         win.addEventListener('mousemove', e => this.onMouseMove(e));
         //window.addEventListener('mousedown', e => this.onMouseDown(e));
@@ -19,6 +20,10 @@ class PLODFront {
         win.addEventListener('message', e => this.onFrameMessage(e));
         win.document.addEventListener('selectionchange', e => this.uponSelectionChanged(e));
         win.document.addEventListener('mouseup', e => this.uponMouseup(e));
+        
+        if(win.pdFlag==undefined) {
+            getFlag(win);
+        }
     }
 
     onMouseMove(e) {

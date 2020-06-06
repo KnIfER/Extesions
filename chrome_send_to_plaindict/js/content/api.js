@@ -14,3 +14,11 @@ async function sendToPD(expression, type){
         return null;
     }
 }
+
+function getFlag(win){
+    chrome.runtime.sendMessage({action:'getFlag', params:{}}, 
+        function(response) {
+            win.pdFlag = response;
+        }
+    );
+}
