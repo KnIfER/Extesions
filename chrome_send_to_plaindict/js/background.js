@@ -27,8 +27,8 @@
 	}
 
     onTabUpdated(tabId) {
-		console.log("onUpdated..."+tabId, this.options.firstflag&0x1);
-		chrome.tabs.executeScript(tabId, {code:"window.pdFlag="+this.options.firstflag});
+		//console.log("onUpdated..."+tabId, this.options.firstflag&0x1);
+		chrome.tabs.executeScript(tabId, {code:"window.pdFlag="+this.options.firstflag}, _=>chrome.runtime.lastError /* "check" error */);
         //this.tabInvoke(tabId, 'setFrontendOptions', { options: this.options });
     }
 
