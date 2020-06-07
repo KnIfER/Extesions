@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ImportGroup Label="PropertySheets" />
+  <PropertyGroup Label="UserMacros">
+    <SDKSupport>D:\Code\FigureOut\pdf\Adobe\Acrobat XI SDK\Version 1\PluginSupport</SDKSupport>
+  </PropertyGroup>
+  <PropertyGroup />
+  <ItemDefinitionGroup />
+  <ItemGroup>
+    <BuildMacro Include="SDKSupport">
+      <Value>$(SDKSupport)</Value>
+    </BuildMacro>
+  </ItemGroup>
+</Project>

@@ -23,6 +23,7 @@
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC71.props" />
+    <Import Project="PropertySheet.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
@@ -47,9 +48,9 @@
       </HeaderFileName>
     </Midl>
     <ClCompile>
-      <AdditionalOptions>%40"..\..\AcroDspOptions.rsp" %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>%40"$(SDKSupport)\Samples\AcroDspOptions.rsp" %(AdditionalOptions)</AdditionalOptions>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>.\;..\sources;..\..\..\Headers;..\..\..\Headers\SDK;..\..\..\Headers\ADM; ..\..\..\Headers\API;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\;..\sources;$(SDKSupport)\Headers;$(SDKSupport)\Headers\SDK;$(SDKSupport)\Headers\ADM;$(SDKSupport)\Headers\API;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_DEBUG;WIN_PLATFORM;WIN32;_WINDOWS;WIN_ENV;ACRO_SDK_LEVEL=0x00060000;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <BufferSecurityCheck>true</BufferSecurityCheck>
@@ -99,7 +100,7 @@ if "%SDKPIDir%"a == ""a echo not performed. SDKPIDir environment variable not se
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">_DEBUG;WIN_PLATFORM;WIN32;_WINDOWS;WIN_ENV;ACRO_SDK_LEVEL=0x00060000;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</BrowseInformation>
     </ClCompile>
-    <ClCompile Include="..\..\..\Headers\Api\PIMain.c" />
+    <ClCompile Include="$(SDKSupport)\Headers\Api\PIMain.c" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
