@@ -42,6 +42,9 @@
         if(exp.indexOf('?')>=0){
             exp = exp.replace('?', '%3F');
         }
+        if(exp.indexOf('\n')>=0){
+            exp = exp.replace('\n', '%0A');
+        }
         var target = (this.options.firstflag>>4 + (source&3))&0x1;
         if(!target) exp += '&t=1';
 		//console.log("send source : ", source, target);
