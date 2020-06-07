@@ -26,25 +26,18 @@
 #else
 #include "SafeResources.cpp"
 #endif
+#include "PIMain.h" // for gHINSTANCE
 
 #ifdef WIN32
 #pragma comment(lib,"ws2_32.lib")
 #endif
 
-#include "shelfUI.h"
-
-#include "PIMain.h" // for gHINSTANCE
-
-
 using nlohmann::json;
-
 
 /*-------------------------------------------------------
 	Constants/
 	Declarations
-	.
 -------------------------------------------------------*/
-
 static int capacity=1024;
 static char* buffer = (char*)malloc(capacity);
 static int length;
@@ -76,6 +69,20 @@ ACCB1 ASBool ACCB2 PluginMenuItem(const char* MyMenuItemTitle, const char* MyMen
 
 /* Callback on each run of the text selection. */
 static ACCB1 ASBool ACCB2 PDTextSelectEnumTextProcCB (void* procObj, PDFont font, ASFixed size, PDColorValue color, char* text, ASInt32 textLen);
+
+static AVToolButton shelfToolButton;
+
+// UI Callbacks
+static AVExecuteProc cbActivateShelfTool;
+
+// For mac cursor
+#define CURSShelfCursor			150
+
+// For windows
+#define IDC_CURSOR1                     101
+#define IDI_ICON1                       102
+#define IDB_BITMAP1                     103
+#define IDB_BITMAP2                     104
 /*-------------------------------------------------------
 	Functions.
 	MyPluginCommand is the function to be called when executing a menu,
@@ -331,8 +338,6 @@ ACCB1 void ACCB2 MyPluginCommand(void *clientData)
 			case '2':
 				RunOnTextSelection(2);
 			break;
-			case '3':
-			break;
 		}
 	}
 }
@@ -349,51 +354,25 @@ ACCB1 ASBool ACCB2 MyPluginIsEnabled(void *clientData)
 
 
 
-
-
-
-
-
-
-
-
-#include "PIMain.h" // for gHINSTANCE
-#include "ShelfUI.h"
-
 /*-------------------------------------------------------
-Constants/Declarations
+** Shelf
+** UI 
+** Callbacks
 -------------------------------------------------------*/
 
-ASAtom shelf_K;
-
-AVToolRec shelfTool;
-
-static AVToolButton shelfToolButton;
-
-// UI Callbacks
-static AVExecuteProc cbActivateshelfTool;
-
-// For mac cursor
-#define CURSshelfCursor			150
-
-// For windows
-#define IDC_CURSOR1                     101
-#define IDI_ICON1                       102
-#define IDB_BITMAP1                     103
-#define IDB_BITMAP2                     104
-
-/*-------------------------------------------------------
-Utility Methods
--------------------------------------------------------*/
-
-/* GetshelfToolButtonIcon
-** ------------------------------------------------------
-** */ 
-/** @return the too button icon
-*/
-void *GetshelfToolButtonIcon(void)
+static ACCB1 void ACCB2 ActivateshelfTool (void *clientData)
 {
+	CheckConfig();
+	RunOnTextSelection(0);
+}
 
+/*-------------------------------------------------------
+** Shelf 
+** UI 
+** Initialization/Cleanup
+-------------------------------------------------------*/
+void *GetShelfToolButtonIcon(void)
+{
 #ifdef MAC_PLATFORM
 
 	extern CFBundleRef gPluginBundle;
@@ -424,62 +403,25 @@ void *GetshelfToolButtonIcon(void)
 #elif WIN_PLATFORM
 	return(AVCursor)LoadBitmap(gHINSTANCE, MAKEINTRESOURCE(IDB_BITMAP1));
 #endif
-
-}
-
-
-/*-------------------------------------------------------
-** UI 
-** Callbacks
--------------------------------------------------------*/
-
-/* ActivateshelfTool
-** ------------------------------------------------------
-** */ 
-/** This is the AVExecuteProc associated with the AVMenuItem and AVToolButton
-** created by the shelf.
-**
-** @see AVAppSetActiveTool
-*/
-static ACCB1 void ACCB2 ActivateshelfTool (void *clientData)
-{
-	CheckConfig();
-	RunOnTextSelection(0);
-}
-
-/*-------------------------------------------------------
-UI Initialization/Cleanup
--------------------------------------------------------*/
-
-static void SetUpTool(void)
-{
-	memset(&shelfTool, 0, sizeof(AVToolRec));
-	shelfTool.size = sizeof(AVToolRec);
-	AVAppRegisterTool(&shelfTool);
-}
-
-static void SetUpToolButton(void)
-{
-	// Insert the shelf tool button just before the "endToolsGroup"
-	// AVToolButton separator.
-
-	void *shelfIcon = GetshelfToolButtonIcon();
-	AVToolBar toolBar = AVAppGetToolBar();
-	AVToolButton separator = AVToolBarGetButtonByName (toolBar, ASAtomFromString("endToolsGroup"));
-
-	shelfToolButton = AVToolButtonNew (shelf_K, shelfIcon, true, false);
-	AVToolButtonSetExecuteProc (shelfToolButton, cbActivateshelfTool, NULL);
-	AVToolButtonSetHelpText (shelfToolButton, "Send selection to PlainDict");
-
-	AVToolBarAddButton(toolBar, shelfToolButton, true, separator);
 }
 
 void SetUpUI(void)
 {
-	/* Create the execute, computeEnabled, and computeMarked callbacks here because they're shared between the AVTool and AVToolButton */
-	cbActivateshelfTool = ASCallbackCreateProto (AVExecuteProc, &ActivateshelfTool);
+	cbActivateShelfTool = ASCallbackCreateProto (AVExecuteProc, &ActivateshelfTool);
 
-	SetUpToolButton();
+	// Insert the shelf tool button just before the "endToolsGroup"
+	// AVToolButton separator.
+
+	void *shelfIcon = GetShelfToolButtonIcon();
+	AVToolBar toolBar = AVAppGetToolBar();
+	AVToolButton separator = AVToolBarGetButtonByName (toolBar, ASAtomFromString("endToolsGroup"));
+
+	ASAtom shelf_K;
+	shelfToolButton = AVToolButtonNew (shelf_K, shelfIcon, true, false);
+	AVToolButtonSetExecuteProc (shelfToolButton, cbActivateShelfTool, NULL);
+	AVToolButtonSetHelpText (shelfToolButton, "Send selection to PlainDict");
+
+	AVToolBarAddButton(toolBar, shelfToolButton, true, separator);
 }
 
 /** Unregister notifications and remove the toolbutton. */

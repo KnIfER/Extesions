@@ -29,7 +29,6 @@ using nlohmann::json;
 /*-------------------------------------------------------
 	Constants/
 	Declarations
-	.
 -------------------------------------------------------*/
 const char* pageContext = "Page";
 
@@ -54,22 +53,20 @@ extern ACCB1 ASBool ACCB2 MyPluginSetmenu();
 
 extern void CheckConfig();
 
-extern const char* MyPluginExtensionName;
+extern void SetUpUI();
 
-HFT gDebugWindowHFT;
+extern void CleanUpUI();
+
+extern const char* MyPluginExtensionName;
 /*-------------------------------------------------------
 	Core 
 	Handshake 
 	Callbacks.
 -------------------------------------------------------*/
-
-#include "DebugWindowHFT.h"
-#include "ShelfUI.h"
 /** Callback invoked by the application to give the plug-in an opportunity to register an HFTServer with the application.
 	@return true to indicate the plug-in should continue loading. */
 ACCB1 ASBool ACCB2 PluginExportHFTs(void)
 {
-	gDebugWindowHFT = InitDebugWindowHFT;
 	return true;
 }
 
