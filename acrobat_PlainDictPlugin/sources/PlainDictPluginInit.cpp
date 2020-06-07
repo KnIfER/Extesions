@@ -64,16 +64,23 @@ extern char* textFileRead(FILE* file);
 
 extern const char* MyPluginExtensionName;
 
+ASAtom shelf_K;
+ASAtom Annotation_K;
+
+HFT gDebugWindowHFT;
 /*-------------------------------------------------------
 	Core 
 	Handshake 
 	Callbacks.
 -------------------------------------------------------*/
 
+#include "DebugWindowHFT.h"
+#include "ShelfUI.h"
 /** Callback invoked by the application to give the plug-in an opportunity to register an HFTServer with the application.
 	@return true to indicate the plug-in should continue loading. */
 ACCB1 ASBool ACCB2 PluginExportHFTs(void)
 {
+	gDebugWindowHFT = InitDebugWindowHFT;
 	return true;
 }
 
@@ -88,6 +95,7 @@ ACCB1 ASBool ACCB2 PluginImportReplaceAndRegister(void)
 	@return true to continue loading the plug-in , false to cause plug-in loading to stop. */
 ACCB1 ASBool ACCB2 PluginInit(void)
 {
+	SetUpUI();
 	return MyPluginSetmenu();
 }
 
@@ -96,6 +104,8 @@ ACCB1 ASBool ACCB2 PluginInit(void)
 	@return false will cause an alert to display that unloading failed, true to indicate the plug-in unloaded. */
 ACCB1 ASBool ACCB2 PluginUnload(void)
 {
+	CleanUpUI();
+
 	if (menuItem)
 		AVMenuItemRemove(menuItem);
 
@@ -159,6 +169,9 @@ struct stat buf;
 
 ACCB1 void ACCB2 myAVContentMenuAdditionProc(ASAtom menuName, AVMenu menu, void* menuData, void* clientData)
 { 
+	if(verbose>3) {
+		AVAlertNote("hello world");
+	}
 	AVMenuItem commonMenu = NULL;
 	DURING
 		FILE * file=fopen("C:\\Program Files\\Adobe\\plod.ini","r");
@@ -270,7 +283,7 @@ ACCB1 ASBool ACCB2 PluginMenuItem(const char* MyMenuItemTitle, const char* MyMen
 
 	DURING
 		//AVAppRegisterForContextMenuAddition( ASAtomFromString("Page"), myAVContentMenuAdditionProc, (void*)pageContext);
-		AVAppRegisterForContextMenuAddition( ASAtomFromString("Select"), myAVContentMenuAdditionProc, (void*)selectionContext);
+		AVAppRegisterForContextMenuAddition( ASAtomFromString(selectionContext), myAVContentMenuAdditionProc, (void*)selectionContext);
 
 	   	//// Create our menuitem
 		//menuItem = AVMenuItemNew (MyMenuItemTitle, MyMenuItemName, NULL, true, NO_SHORTCUT, 0, NULL, gExtensionID);

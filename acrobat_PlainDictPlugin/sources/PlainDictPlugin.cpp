@@ -23,11 +23,17 @@
 // Acrobat Headers.
 #ifndef MAC_PLATFORM
 #include "PIHeaders.h"
+#else
+#include "SafeResources.cpp"
 #endif
 
 #ifdef WIN32
 #pragma comment(lib,"ws2_32.lib")
 #endif
+
+#include "shelfUI.h"
+
+#include "PIMain.h" // for gHINSTANCE
 
 #include <json.hpp>
 using nlohmann::json;
@@ -67,7 +73,6 @@ ACCB1 ASBool ACCB2 PluginMenuItem(const char* MyMenuItemTitle, const char* MyMen
 
 /* Callback on each run of the text selection. */
 static ACCB1 ASBool ACCB2 PDTextSelectEnumTextProcCB (void* procObj, PDFont font, ASFixed size, PDColorValue color, char* text, ASInt32 textLen);
-
 /*-------------------------------------------------------
 	Functions.
 	MyPluginCommand is the function to be called when executing a menu,
@@ -266,4 +271,297 @@ ACCB1 ASBool ACCB2 MyPluginIsEnabled(void *clientData)
 {
 	//return (AVAppGetActiveDoc() != NULL); // enabled only if there is a open PDF document. 
 	return true; // always enabled.
+}
+
+
+
+
+
+
+
+
+
+
+
+
+#include "PIMain.h" // for gHINSTANCE
+#include "ShelfUI.h"
+
+/*-------------------------------------------------------
+Constants/Declarations
+-------------------------------------------------------*/
+
+extern ASAtom shelf_K;
+extern ASAtom Annotation_K;
+
+AVToolRec shelfTool;
+ASBool gshelfToolSelected;
+static AVToolButton shelfToolButton;
+
+// UI Callbacks
+static AVExecuteProc cbActivateshelfTool;
+
+// For mac cursor
+#define CURSshelfCursor			150
+
+// For windows
+#define IDC_CURSOR1                     101
+#define IDI_ICON1                       102
+#define IDB_BITMAP1                     103
+#define IDB_BITMAP2                     104
+
+/*-------------------------------------------------------
+Utility Methods
+-------------------------------------------------------*/
+
+/* GetshelfToolButtonIcon
+** ------------------------------------------------------
+** */ 
+/** @return the too button icon
+*/
+void *GetshelfToolButtonIcon(void)
+{
+
+#ifdef MAC_PLATFORM
+
+	extern CFBundleRef gPluginBundle;
+	AVIconDataRec iconData;
+
+	// Find a resource in the plugin bundle by name and type.
+	CFURLRef pingURL = CFBundleCopyResourceURL( gPluginBundle, 
+		CFSTR("shelfIcon"), 
+		CFSTR("png"), 
+		NULL );
+
+	ASFile asf = NULL;
+	ASPathName aspn = ASFileSysCreatePathName (NULL,ASAtomFromString("CFURLRef"),
+		pingURL, NULL);
+	ASFileSysOpenFile(NULL, aspn, ASFILE_READ, &asf);
+
+	ASUns32 dataSize = ASFileGetEOF(asf);
+
+	ASUns8 *data = (ASUns8 *)ASmalloc(dataSize + 1);
+	ASFileRead(asf, (char *)data, dataSize);
+	ASFileClose(asf);
+
+	iconData.dataStm = ASMemStmRdOpen((char *)data, dataSize);
+	iconData.eColorFormat = kAVIconColor;
+
+	return AVAppCreateIconBundle6(kAVIconPNG, &iconData, 1); 
+
+#elif WIN_PLATFORM
+	return(AVCursor)LoadBitmap(gHINSTANCE, MAKEINTRESOURCE(IDB_BITMAP1));
+#endif
+
+}
+
+/* GetshelfMenuItemIcon
+** ------------------------------------------------------
+** */ 
+/** @return the menu item icon
+*/
+void *GetshelfMenuItemIcon(void)
+{
+#ifdef MAC_PLATFORM
+	//On Mac, use same image as for toolbar button
+	extern CFBundleRef gPluginBundle;
+	AVIconDataRec iconData;
+
+	//Locate resource in plugin bundle by name and type.
+	CFURLRef pingURL = CFBundleCopyResourceURL( gPluginBundle, 
+		CFSTR("shelfIcon"), 
+		CFSTR("png"), 
+		NULL );
+
+	ASFile asf = NULL;
+	ASPathName aspn = ASFileSysCreatePathName (NULL,ASAtomFromString("CFURLRef"),
+		pingURL, NULL);
+	ASFileSysOpenFile(NULL, aspn, ASFILE_READ, &asf);
+
+	ASUns32 dataSize = ASFileGetEOF(asf);
+
+	ASUns8 *data = (ASUns8 *)ASmalloc(dataSize + 1);
+	ASFileRead(asf, (char *)data, dataSize);
+	ASFileClose(asf);
+
+	iconData.dataStm = ASMemStmRdOpen((char *)data, dataSize);
+	iconData.eColorFormat = kAVIconColor;
+
+	return AVAppCreateIconBundle6(kAVIconPNG, &iconData, 1); 
+
+#elif WIN_PLATFORM
+	return(AVCursor)LoadBitmap(gHINSTANCE, MAKEINTRESOURCE(IDI_ICON1));
+#endif
+
+}
+
+/* RedrawCurrentPage
+** ------------------------------------------------------
+** */ 
+/** Redraw current page so that annots redraw.
+**
+** @see AVPageViewInvalidateRect
+** @see AVPageViewDrawNow
+*/
+static ACCB1 ASBool ACCB2 RedrawCurrentPage (AVDoc doc, void* clientData)
+{
+	AVPageView page = AVDocGetPageView(doc);
+	AVPageViewInvalidateRect (page, NULL);
+	AVPageViewDrawNow(page);
+
+	return true;
+}
+
+/*-------------------------------------------------------
+AVTool Callbacks
+-------------------------------------------------------*/
+
+/* ToolActivate
+** ------------------------------------------------------
+** */ 
+/** Set persistant global upon activation.
+*/
+static ACCB1 void ACCB2 ToolActivate(AVTool tool, ASBool persistent)
+{
+	AVAlertNote("ToolActivate");
+	//gshelfToolSelected = persistent;
+}
+static ACCB1 void ACCB2 ToolDeactivate (AVTool tool)
+{
+	gshelfToolSelected = false;
+}
+static ACCB1 ASAtom ACCB2 ToolGetType(AVTool tool)
+{
+	return shelf_K;
+}
+
+
+/*-------------------------------------------------------
+UI Callbacks
+-------------------------------------------------------*/
+
+/* ActivateshelfTool
+** ------------------------------------------------------
+** */ 
+/** This is the AVExecuteProc associated with the AVMenuItem and AVToolButton
+** created by the shelf.
+**
+** @see AVAppSetActiveTool
+*/
+static ACCB1 void ACCB2 ActivateshelfTool (void *clientData)
+{
+	AVAlertNote("ActivateshelfTool");
+	//AVAppSetActiveTool (&shelfTool, true);
+	//xxx
+}
+
+/* shelfIsEnabled
+** ------------------------------------------------------
+** */ 
+/** Returns true if the user has the required permissions
+** to edit the document.
+**
+** @see AVAppGetActiveDoc
+** @see PDDocGetPermissions
+** @see AVDocGetPDDoc
+*/
+static ACCB1 ASBool ACCB2 shelfIsEnabled (void *permRequired)
+{
+	return true;
+}
+
+/* shelfIsMarked
+** ------------------------------------------------------
+** */ 
+/** Returns true to mark the toolbutton as active.
+*/
+static ACCB1 ASBool ACCB2 shelfIsMarked (void *clientData)
+{
+	return gshelfToolSelected;
+}
+
+/*-------------------------------------------------------
+UI Initialization/Cleanup
+-------------------------------------------------------*/
+
+/* SetUpTool
+** ------------------------------------------------------
+** */ 
+/** Sets up the shelf's AVToolRec.  Note that AVTools
+** are distinct from, but often invoked by, AVToolButtons.
+*/
+static void SetUpTool(void)
+{
+	/* Set up the AVToolRec.  Don't forget to set the size field! */
+	memset(&shelfTool, 0, sizeof(AVToolRec));
+	shelfTool.size = sizeof(AVToolRec);
+	AVAppRegisterTool(&shelfTool);
+}
+
+/* SetUpToolButton
+** ------------------------------------------------------
+** */ 
+/** Create the tool button.
+**
+** @see AVAppGetToolBar
+** @see AVToolBarGetButtonByName
+** @see AVToolButtonNew
+** @see AVToolBarAddButton
+*/
+static void SetUpToolButton(void)
+{
+	// Insert the shelf tool button just before the "endToolsGroup"
+	// AVToolButton separator.
+
+	void *shelfIcon = GetshelfToolButtonIcon();
+	AVToolBar toolBar = AVAppGetToolBar();
+	AVToolButton separator = AVToolBarGetButtonByName (toolBar, ASAtomFromString("endToolsGroup"));
+
+	shelfToolButton = AVToolButtonNew (shelf_K, shelfIcon, true, false);
+	AVToolButtonSetExecuteProc (shelfToolButton, cbActivateshelfTool, NULL);
+	AVToolButtonSetHelpText (shelfToolButton, "Send selection to PlainDict");
+
+	AVToolBarAddButton(toolBar, shelfToolButton, true, separator);
+}
+
+/* SetUpUI
+** ------------------------------------------------------
+** */ 
+/** Performs all the necessary UI initialization for the
+** plug-in:
+**
+** Register for the AVAppDidInitialize notification and
+** create the shelf toolbutton.
+**
+** @see AVAppRegisterNotification
+** @see ASGetConfiguration
+** @see ASAtomFromString
+*/
+void SetUpUI(void)
+{
+	AVAppRegisterNotification(AVAppDidInitializeNSEL, 0, (char *)SetUpTool, NULL);
+
+	/* Create the execute, computeEnabled, and computeMarked callbacks here
+	** because they're shared between the AVTool and AVToolButton.
+	*/
+	cbActivateshelfTool = ASCallbackCreateProto (AVExecuteProc, &ActivateshelfTool);
+
+	SetUpToolButton();
+}
+
+/* CleanUpUI
+** ------------------------------------------------------
+** */ 
+/** Unregister notifications and remove the toolbutton.
+**
+** @see AVAppUnregisterNotification
+** @see AVToolButtonDestroy
+** @see AVMenuItemRemove
+*/
+void CleanUpUI(void)
+{
+	AVAppUnregisterNotification(AVAppDidInitializeNSEL, 0, (char *)SetUpTool, NULL);
+
+	if(shelfToolButton)
+		AVToolButtonDestroy (shelfToolButton);
 }
