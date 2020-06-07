@@ -35,19 +35,11 @@ const char* pageContext = "Page";
 
 const char*  selectionContext = "Select";
 
-time_t last_ini_read_time;
-
-extern char host[];
-
-extern int port;
-
 extern int sharetype;
 
 extern int desiredSlot;
 
 extern int verbose;
-
-extern int timeout;
 
 // stuff for Menu set up 
 static AVMenuItem menuItem = NULL;
@@ -60,12 +52,9 @@ extern ACCB1 ASBool ACCB2 MyPluginIsEnabled(void *clientData);
 
 extern ACCB1 ASBool ACCB2 MyPluginSetmenu();
 
-extern char* textFileRead(FILE* file);
+extern void CheckConfig();
 
 extern const char* MyPluginExtensionName;
-
-ASAtom shelf_K;
-ASAtom Annotation_K;
 
 HFT gDebugWindowHFT;
 /*-------------------------------------------------------
@@ -165,8 +154,6 @@ ACCB1 ASBool ACCB2 PIHandshake(Uns32 handshakeVersion, void *handshakeData)
 	return false;
 }
 
-struct stat buf;
-
 ACCB1 void ACCB2 myAVContentMenuAdditionProc(ASAtom menuName, AVMenu menu, void* menuData, void* clientData)
 { 
 	if(verbose>3) {
@@ -174,64 +161,7 @@ ACCB1 void ACCB2 myAVContentMenuAdditionProc(ASAtom menuName, AVMenu menu, void*
 	}
 	AVMenuItem commonMenu = NULL;
 	DURING
-		FILE * file=fopen("C:\\Program Files\\Adobe\\plod.ini","r");
-		if(NULL != file)
-		{
-			int fd=fileno(file);
-			fstat(fd, &buf);
-			long modify_time=buf.st_mtime;	
-			if(modify_time!=last_ini_read_time){
-				last_ini_read_time=modify_time;
-				auto j3 = json::parse(textFileRead(file));
-				auto val = j3["host"];
-				if(!val.empty() && val.is_string()) {
-					auto value = val.get<std::string>();
-					if(verbose>2) {
-						AVAlertNote(value.c_str());
-					}
-					int start=0;
-					int end = value.length();
-					if(value.compare(0, 4, "http") == 0){
-						start = value.find("/")+2;
-					}
-					if(value[end-1]=='/') {
-						end -= 1;
-					}
-					if(start<end){
-						int portDeli = value.find_last_of(":");
-						if(portDeli>start) {
-							if(portDeli<end){
-								auto portStr = value.substr(portDeli+1, end);
-								port = atoi(portStr.data());
-							}
-							end = portDeli;
-						}
-					}
-					memset(host, 0, 128);
-					memcpy(host, value.c_str()+start, end-start);
-				}
-
-				val = j3["sendto"];
-				if(!val.empty() && val.is_number_integer()) {
-					sharetype = val.get<int>();
-				}
-
-				val = j3["slot"];
-				if(!val.empty() && val.is_number_integer()) {
-					desiredSlot = val.get<int>();
-				}
-
-				val = j3["verbose"];
-				if(!val.empty() && val.is_number_integer()) {
-					verbose = val.get<int>();
-				}
-
-				val = j3["timeout"];
-				if(!val.empty() && val.is_number_integer()) {
-					timeout = val.get<int>();
-				}
-			}
-		}
+		CheckConfig();
 
 		commonMenu = AVMenuItemNew ("Send To PlainDict", "topd", NULL, true, NO_SHORTCUT, 0, NULL, gExtensionID);
 		AVMenuItemSetExecuteProc (commonMenu, ASCallbackCreateProto(AVExecuteProc, MyPluginCommand), "1");

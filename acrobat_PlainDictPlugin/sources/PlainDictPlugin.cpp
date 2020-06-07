@@ -53,6 +53,9 @@ struct sockaddr_in address;
 struct hostent *server;
 int WSA=-1;
 
+time_t last_ini_read_time;
+
+struct stat buf;
 
 char host[128]={0};
 
@@ -84,6 +87,67 @@ r-------------------------------------------------------*/
 ACCB1 ASBool ACCB2 MyPluginSetmenu()
 {
 	return PluginMenuItem("Plain Dictionary", MyPluginExtensionName); 
+}
+
+void CheckConfig() {
+	FILE * file=fopen("C:\\Program Files\\Adobe\\plod.ini","r");
+	if(NULL != file)
+	{
+		int fd=fileno(file);
+		fstat(fd, &buf);
+		long modify_time=buf.st_mtime;	
+		if(modify_time!=last_ini_read_time){
+			last_ini_read_time=modify_time;
+			auto j3 = json::parse(textFileRead(file));
+			auto val = j3["host"];
+			if(!val.empty() && val.is_string()) {
+				auto value = val.get<std::string>();
+				if(verbose>2) {
+					AVAlertNote(value.c_str());
+				}
+				int start=0;
+				int end = value.length();
+				if(value.compare(0, 4, "http") == 0){
+					start = value.find("/")+2;
+				}
+				if(value[end-1]=='/') {
+					end -= 1;
+				}
+				if(start<end){
+					int portDeli = value.find_last_of(":");
+					if(portDeli>start) {
+						if(portDeli<end){
+							auto portStr = value.substr(portDeli+1, end);
+							port = atoi(portStr.data());
+						}
+						end = portDeli;
+					}
+				}
+				memset(host, 0, 128);
+				memcpy(host, value.c_str()+start, end-start);
+			}
+
+			val = j3["sendto"];
+			if(!val.empty() && val.is_number_integer()) {
+				sharetype = val.get<int>();
+			}
+
+			val = j3["slot"];
+			if(!val.empty() && val.is_number_integer()) {
+				desiredSlot = val.get<int>();
+			}
+
+			val = j3["verbose"];
+			if(!val.empty() && val.is_number_integer()) {
+				verbose = val.get<int>();
+			}
+
+			val = j3["timeout"];
+			if(!val.empty() && val.is_number_integer()) {
+				timeout = val.get<int>();
+			}
+		}
+	}
 }
 
 static ACCB1 ASBool ACCB2 PDTextSelectEnumTextProcCB(void* procObj, PDFont font, ASFixed size, PDColorValue color, char* text, ASInt32 textLen)
@@ -142,6 +206,14 @@ void GetText() {
 	//sprintf(buffer,"%s\n\nTotal Page Count : %d %d", buffer, PDDocGetNumPages (pdDoc), length);
 
 	//AVAlertNote(buffer);
+}
+
+void PushSelections() {
+	start=1;
+
+	memset(buffer, length=0, 1);
+
+	GetText();
 }
 
 char* textFileRead(FILE* file) {
@@ -291,11 +363,10 @@ ACCB1 ASBool ACCB2 MyPluginIsEnabled(void *clientData)
 Constants/Declarations
 -------------------------------------------------------*/
 
-extern ASAtom shelf_K;
-extern ASAtom Annotation_K;
+ASAtom shelf_K;
 
 AVToolRec shelfTool;
-ASBool gshelfToolSelected;
+
 static AVToolButton shelfToolButton;
 
 // UI Callbacks
@@ -355,89 +426,10 @@ void *GetshelfToolButtonIcon(void)
 
 }
 
-/* GetshelfMenuItemIcon
-** ------------------------------------------------------
-** */ 
-/** @return the menu item icon
-*/
-void *GetshelfMenuItemIcon(void)
-{
-#ifdef MAC_PLATFORM
-	//On Mac, use same image as for toolbar button
-	extern CFBundleRef gPluginBundle;
-	AVIconDataRec iconData;
-
-	//Locate resource in plugin bundle by name and type.
-	CFURLRef pingURL = CFBundleCopyResourceURL( gPluginBundle, 
-		CFSTR("shelfIcon"), 
-		CFSTR("png"), 
-		NULL );
-
-	ASFile asf = NULL;
-	ASPathName aspn = ASFileSysCreatePathName (NULL,ASAtomFromString("CFURLRef"),
-		pingURL, NULL);
-	ASFileSysOpenFile(NULL, aspn, ASFILE_READ, &asf);
-
-	ASUns32 dataSize = ASFileGetEOF(asf);
-
-	ASUns8 *data = (ASUns8 *)ASmalloc(dataSize + 1);
-	ASFileRead(asf, (char *)data, dataSize);
-	ASFileClose(asf);
-
-	iconData.dataStm = ASMemStmRdOpen((char *)data, dataSize);
-	iconData.eColorFormat = kAVIconColor;
-
-	return AVAppCreateIconBundle6(kAVIconPNG, &iconData, 1); 
-
-#elif WIN_PLATFORM
-	return(AVCursor)LoadBitmap(gHINSTANCE, MAKEINTRESOURCE(IDI_ICON1));
-#endif
-
-}
-
-/* RedrawCurrentPage
-** ------------------------------------------------------
-** */ 
-/** Redraw current page so that annots redraw.
-**
-** @see AVPageViewInvalidateRect
-** @see AVPageViewDrawNow
-*/
-static ACCB1 ASBool ACCB2 RedrawCurrentPage (AVDoc doc, void* clientData)
-{
-	AVPageView page = AVDocGetPageView(doc);
-	AVPageViewInvalidateRect (page, NULL);
-	AVPageViewDrawNow(page);
-
-	return true;
-}
 
 /*-------------------------------------------------------
-AVTool Callbacks
--------------------------------------------------------*/
-
-/* ToolActivate
-** ------------------------------------------------------
-** */ 
-/** Set persistant global upon activation.
-*/
-static ACCB1 void ACCB2 ToolActivate(AVTool tool, ASBool persistent)
-{
-	AVAlertNote("ToolActivate");
-	//gshelfToolSelected = persistent;
-}
-static ACCB1 void ACCB2 ToolDeactivate (AVTool tool)
-{
-	gshelfToolSelected = false;
-}
-static ACCB1 ASAtom ACCB2 ToolGetType(AVTool tool)
-{
-	return shelf_K;
-}
-
-
-/*-------------------------------------------------------
-UI Callbacks
+** UI 
+** Callbacks
 -------------------------------------------------------*/
 
 /* ActivateshelfTool
@@ -451,63 +443,21 @@ UI Callbacks
 static ACCB1 void ACCB2 ActivateshelfTool (void *clientData)
 {
 	AVAlertNote("ActivateshelfTool");
-	//AVAppSetActiveTool (&shelfTool, true);
-	//xxx
-}
-
-/* shelfIsEnabled
-** ------------------------------------------------------
-** */ 
-/** Returns true if the user has the required permissions
-** to edit the document.
-**
-** @see AVAppGetActiveDoc
-** @see PDDocGetPermissions
-** @see AVDocGetPDDoc
-*/
-static ACCB1 ASBool ACCB2 shelfIsEnabled (void *permRequired)
-{
-	return true;
-}
-
-/* shelfIsMarked
-** ------------------------------------------------------
-** */ 
-/** Returns true to mark the toolbutton as active.
-*/
-static ACCB1 ASBool ACCB2 shelfIsMarked (void *clientData)
-{
-	return gshelfToolSelected;
+	RunOnTextSelection(0);
+	AVAlertNote("ActivateshelfTool1");
 }
 
 /*-------------------------------------------------------
 UI Initialization/Cleanup
 -------------------------------------------------------*/
 
-/* SetUpTool
-** ------------------------------------------------------
-** */ 
-/** Sets up the shelf's AVToolRec.  Note that AVTools
-** are distinct from, but often invoked by, AVToolButtons.
-*/
 static void SetUpTool(void)
 {
-	/* Set up the AVToolRec.  Don't forget to set the size field! */
 	memset(&shelfTool, 0, sizeof(AVToolRec));
 	shelfTool.size = sizeof(AVToolRec);
 	AVAppRegisterTool(&shelfTool);
 }
 
-/* SetUpToolButton
-** ------------------------------------------------------
-** */ 
-/** Create the tool button.
-**
-** @see AVAppGetToolBar
-** @see AVToolBarGetButtonByName
-** @see AVToolButtonNew
-** @see AVToolBarAddButton
-*/
 static void SetUpToolButton(void)
 {
 	// Insert the shelf tool button just before the "endToolsGroup"
@@ -524,40 +474,17 @@ static void SetUpToolButton(void)
 	AVToolBarAddButton(toolBar, shelfToolButton, true, separator);
 }
 
-/* SetUpUI
-** ------------------------------------------------------
-** */ 
-/** Performs all the necessary UI initialization for the
-** plug-in:
-**
-** Register for the AVAppDidInitialize notification and
-** create the shelf toolbutton.
-**
-** @see AVAppRegisterNotification
-** @see ASGetConfiguration
-** @see ASAtomFromString
-*/
 void SetUpUI(void)
 {
 	AVAppRegisterNotification(AVAppDidInitializeNSEL, 0, (char *)SetUpTool, NULL);
 
-	/* Create the execute, computeEnabled, and computeMarked callbacks here
-	** because they're shared between the AVTool and AVToolButton.
-	*/
+	/* Create the execute, computeEnabled, and computeMarked callbacks here because they're shared between the AVTool and AVToolButton */
 	cbActivateshelfTool = ASCallbackCreateProto (AVExecuteProc, &ActivateshelfTool);
 
 	SetUpToolButton();
 }
 
-/* CleanUpUI
-** ------------------------------------------------------
-** */ 
-/** Unregister notifications and remove the toolbutton.
-**
-** @see AVAppUnregisterNotification
-** @see AVToolButtonDestroy
-** @see AVMenuItemRemove
-*/
+/** Unregister notifications and remove the toolbutton. */
 void CleanUpUI(void)
 {
 	AVAppUnregisterNotification(AVAppDidInitializeNSEL, 0, (char *)SetUpTool, NULL);
