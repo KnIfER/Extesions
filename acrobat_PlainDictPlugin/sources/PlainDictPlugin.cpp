@@ -35,7 +35,7 @@
 
 #include "PIMain.h" // for gHINSTANCE
 
-#include <json.hpp>
+
 using nlohmann::json;
 
 
@@ -87,6 +87,18 @@ r-------------------------------------------------------*/
 ACCB1 ASBool ACCB2 MyPluginSetmenu()
 {
 	return PluginMenuItem("Plain Dictionary", MyPluginExtensionName); 
+}
+
+
+char* textFileRead(FILE* file) {
+	char* text;
+	fseek(file,0,SEEK_END);
+	long lSize = ftell(file);
+	text=(char*)malloc(lSize+1);
+	rewind(file); 
+	fread(text,sizeof(char),lSize,file);
+	text[lSize] = '\0';
+	return text;
 }
 
 void CheckConfig() {
@@ -214,17 +226,6 @@ void PushSelections() {
 	memset(buffer, length=0, 1);
 
 	GetText();
-}
-
-char* textFileRead(FILE* file) {
-	char* text;
-	fseek(file,0,SEEK_END);
-	long lSize = ftell(file);
-	text=(char*)malloc(lSize+1);
-	rewind(file); 
-	fread(text,sizeof(char),lSize,file);
-	text[lSize] = '\0';
-	return text;
 }
 
 void RunOnTextSelection(int sendTo){
@@ -442,9 +443,8 @@ void *GetshelfToolButtonIcon(void)
 */
 static ACCB1 void ACCB2 ActivateshelfTool (void *clientData)
 {
-	AVAlertNote("ActivateshelfTool");
+	CheckConfig();
 	RunOnTextSelection(0);
-	AVAlertNote("ActivateshelfTool1");
 }
 
 /*-------------------------------------------------------
@@ -476,8 +476,6 @@ static void SetUpToolButton(void)
 
 void SetUpUI(void)
 {
-	AVAppRegisterNotification(AVAppDidInitializeNSEL, 0, (char *)SetUpTool, NULL);
-
 	/* Create the execute, computeEnabled, and computeMarked callbacks here because they're shared between the AVTool and AVToolButton */
 	cbActivateshelfTool = ASCallbackCreateProto (AVExecuteProc, &ActivateshelfTool);
 
@@ -487,8 +485,6 @@ void SetUpUI(void)
 /** Unregister notifications and remove the toolbutton. */
 void CleanUpUI(void)
 {
-	AVAppUnregisterNotification(AVAppDidInitializeNSEL, 0, (char *)SetUpTool, NULL);
-
 	if(shelfToolButton)
 		AVToolButtonDestroy (shelfToolButton);
 }
