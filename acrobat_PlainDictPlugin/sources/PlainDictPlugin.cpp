@@ -28,6 +28,8 @@
 #endif
 #include "PIMain.h" // for gHINSTANCE
 
+#include <string.h>
+
 #ifdef WIN32
 #pragma comment(lib,"ws2_32.lib")
 #endif
@@ -71,6 +73,13 @@ json extra_items;
 const char *errorJson = "[PlainDict] Error Parsing Json : ";
 
 const char *emptyJson = "NONE";
+
+char * CTRL = "CTRL";
+char * SHIFT = "SHIFT";
+char * ALT = "ALT";
+
+BYTE* keycodes;
+BYTE keycodes_len;
 
 const char* MyPluginExtensionName = "ADBE:PlainDictPlugin";
 
@@ -130,7 +139,12 @@ char* textFileRead(FILE* file)
 
 void CheckConfig() {
 	try {
+
+#ifdef _DEBUG
+		FILE * file=fopen("D:\\Code\\FigureOut\\chrome\\extesions\\acrobat_PlainDictPlugin\\plod.ini","r");
+#else
 		FILE * file=fopen("C:\\Program Files\\Adobe\\plod.ini","r");
+#endif
 		if(NULL != file)
 		{
 			int fd=fileno(file);
@@ -289,24 +303,7 @@ void PushSelections() {
 
 	GetText();
 }
-#include <string.h>
 
-char * CTRL = "CTRL";
-char * SHIFT = "SHIFT";
-char * ALT = "ALT";
-char * F10 = "F10";
-char * F11 = "F11";
-char * F12 = "F12";
-char * F1 = "F1";
-char * F2 = "F2";
-char * F3 = "F3";
-char * F4 = "F4";
-char * F5 = "F5";
-char * F6 = "F6";
-char * F7 = "F7";
-char * F8 = "F8";
-BYTE* keycodes;
-BYTE keycodes_len;
 void RunOnTextSelection(int sendTo){
 	if(sendTo>=3 && extra_items!=NULL && extra_items.size()>(sendTo=sendTo-3)) {
 		json extraI = extra_items[sendTo];
