@@ -34,6 +34,8 @@
 
 using nlohmann::json;
 
+using namespace::std;
+
 /*-------------------------------------------------------
 	Constants/
 	Declarations
@@ -61,6 +63,14 @@ int desiredSlot=1;
 int verbose;
 
 int timeout=1;
+
+bool singleline;
+
+json extra_items;
+
+const char *errorJson = "[PlainDict] Error Parsing Json : ";
+
+const char *emptyJson = "NONE";
 
 const char* MyPluginExtensionName = "ADBE:PlainDictPlugin";
 
@@ -96,75 +106,111 @@ ACCB1 ASBool ACCB2 MyPluginSetmenu()
 	return PluginMenuItem("Plain Dictionary", MyPluginExtensionName); 
 }
 
+char* textBuff;
+long textAcquired;
 
-char* textFileRead(FILE* file) {
-	char* text;
+char* textFileRead(FILE* file)
+{
 	fseek(file,0,SEEK_END);
 	long lSize = ftell(file);
-	text=(char*)malloc(lSize+1);
-	rewind(file); 
-	fread(text,sizeof(char),lSize,file);
-	text[lSize] = '\0';
+	char* text=textBuff;
+	if(!text || lSize>textAcquired){
+		if(text){
+			free(text);
+		}
+		text=(char*)malloc(textAcquired=sizeof(char)*(lSize+32));
+	}
+	if(text) {
+		rewind(file); 
+		lSize=fread(text,sizeof(char), lSize,file);
+		text[lSize] = '\0';
+	}
 	return text;
 }
 
 void CheckConfig() {
-	FILE * file=fopen("C:\\Program Files\\Adobe\\plod.ini","r");
-	if(NULL != file)
-	{
-		int fd=fileno(file);
-		fstat(fd, &buf);
-		long modify_time=buf.st_mtime;	
-		if(modify_time!=last_ini_read_time){
-			last_ini_read_time=modify_time;
-			auto j3 = json::parse(textFileRead(file));
-			auto val = j3["host"];
-			if(!val.empty() && val.is_string()) {
-				auto value = val.get<std::string>();
-				if(verbose>2) {
-					AVAlertNote(value.c_str());
+	try {
+		FILE * file=fopen("C:\\Program Files\\Adobe\\plod.ini","r");
+		if(NULL != file)
+		{
+			int fd=fileno(file);
+			fstat(fd, &buf);
+			long modify_time=buf.st_mtime;	
+			if(modify_time!=last_ini_read_time){
+				verbose=1;
+				extra_items=NULL;
+				last_ini_read_time=modify_time;
+				auto j3 = json::parse(textFileRead(file));
+
+				auto val = j3["verbose"];
+				if(!val.empty() && val.is_number_integer()) {
+					verbose = val.get<int>();
 				}
-				int start=0;
-				int end = value.length();
-				if(value.compare(0, 4, "http") == 0){
-					start = value.find("/")+2;
-				}
-				if(value[end-1]=='/') {
-					end -= 1;
-				}
-				if(start<end){
-					int portDeli = value.find_last_of(":");
-					if(portDeli>start) {
-						if(portDeli<end){
-							auto portStr = value.substr(portDeli+1, end);
-							port = atoi(portStr.data());
-						}
-						end = portDeli;
+
+				val = j3["host"];
+				if(!val.empty() && val.is_string()) {
+					auto value = val.get<string>();
+					if(verbose>2) {
+						AVAlertNote(value.c_str());
 					}
+					int start=0;
+					int end = value.length();
+					if(value.compare(0, 4, "http") == 0){
+						start = value.find("/")+2;
+					}
+					if(value[end-1]=='/') {
+						end -= 1;
+					}
+					if(start<end){
+						int portDeli = value.find_last_of(":");
+						if(portDeli>start) {
+							if(portDeli<end){
+								auto portStr = value.substr(portDeli+1, end);
+								port = atoi(portStr.data());
+							}
+							end = portDeli;
+						}
+					}
+					memset(host, 0, 128);
+					memcpy(host, value.c_str()+start, end-start);
 				}
-				memset(host, 0, 128);
-				memcpy(host, value.c_str()+start, end-start);
-			}
 
-			val = j3["sendto"];
-			if(!val.empty() && val.is_number_integer()) {
-				sharetype = val.get<int>();
-			}
+				val = j3["sendto"];
+				if(!val.empty() && val.is_number_integer()) {
+					sharetype = val.get<int>();
+				}
 
-			val = j3["slot"];
-			if(!val.empty() && val.is_number_integer()) {
-				desiredSlot = val.get<int>();
-			}
+				val = j3["slot"];
+				if(!val.empty() && val.is_number_integer()) {
+					desiredSlot = val.get<int>();
+				}
 
-			val = j3["verbose"];
-			if(!val.empty() && val.is_number_integer()) {
-				verbose = val.get<int>();
-			}
+				val = j3["timeout"];
+				if(!val.empty() && val.is_number_integer()) {
+					timeout = val.get<int>();
+				}
 
-			val = j3["timeout"];
-			if(!val.empty() && val.is_number_integer()) {
-				timeout = val.get<int>();
+				val = j3["singleline"];
+				if(!val.empty() && val.is_boolean()) {
+					singleline = val.get<bool>();
+				}
+
+				val = j3["extar"];
+				if(!val.empty() && val.is_array()) {
+					extra_items = val.get<json>();
+					auto itemI = extra_items[0];
+				}
 			}
+		}
+	} catch(exception e) {
+		if(verbose) {
+			const char *firstName = errorJson;
+			const char *lastName = e.what();
+			if(!lastName) lastName = emptyJson;
+			char *name = (char *) malloc(strlen(firstName) + strlen(lastName));
+			strcpy(name, firstName);
+			strcat(name, lastName);
+			AVAlertNote(name);
 		}
 	}
 }
@@ -236,6 +282,16 @@ void PushSelections() {
 }
 
 void RunOnTextSelection(int sendTo){
+	if(sendTo>=3 && extra_items!=NULL && extra_items.size()>(sendTo=sendTo-3)) {
+		json extraI = extra_items[sendTo];
+		auto val=extraI["cutshort"];
+		if(!val.empty() && val.is_string()) {
+			auto value = val.get<string>();
+			//AVAlertNote(value.data());
+			//todo handle short cuts
+		}
+		return;
+	}
 	if (WSA != 0) {
 		WSADATA wsaData;
 		WSA = WSAStartup(MAKEWORD(2, 2), &wsaData);
@@ -254,92 +310,107 @@ void RunOnTextSelection(int sendTo){
 		AVAlertNote(host);
 	}
 
-	server = gethostbyaddr((char *)&address.sin_addr, 4, AF_INET);
+	//server = gethostbyaddr((char *)&address.sin_addr, 4, AF_INET);
+	// if(server && verbose>2) AVAlertNote(server->h_name);
+	SOCKET sockClient = socket(AF_INET, SOCK_STREAM, 0);
 
-	if(server) {
-		if(verbose>2) {
-			AVAlertNote(server->h_name);
-		}
-		SOCKET sockClient = socket(AF_INET, SOCK_STREAM, 0);
+	int iMode = 1;  
 
-		int iMode = 1;  
+	ioctlsocket(sockClient, FIONBIO, (u_long FAR*)&iMode);  // 设置为非阻塞的socket  
 
-		ioctlsocket(sockClient, FIONBIO, (u_long FAR*)&iMode);  // 设置为非阻塞的socket  
+	int error=0;
 
-		int error=0;
+	if(-1 == connect(sockClient,(SOCKADDR *)&address,sizeof(SOCKADDR))) {
+		//printf("尝 试 去 连 接 服 务 端 \n ");
+		struct timeval time{timeout, 0}; // 超 时 时 间  
 
-		if(-1 == connect(sockClient,(SOCKADDR *)&address,sizeof(SOCKADDR))) {
-			//printf("尝 试 去 连 接 服 务 端 \n ");
-			struct timeval time{timeout, 0}; // 超 时 时 间  
+		fd_set set;  
+		FD_ZERO(&set);  
+		FD_SET(sockClient, &set);  
 
-			fd_set set;  
-			FD_ZERO(&set);  
-			FD_SET(sockClient, &set);  
+		error = 1;
 
-			error = 1;
+		if (select(-1, NULL, &set, NULL, &time) > 0) {
+			int optLen = sizeof(int);  
+			getsockopt(sockClient, SOL_SOCKET, SO_ERROR, (char*)&error, &optLen);   
+		}  
+	}
 
-			if (select(-1, NULL, &set, NULL, &time) > 0) {
-				int optLen = sizeof(int);  
-				getsockopt(sockClient, SOL_SOCKET, SO_ERROR, (char*)&error, &optLen);   
-			}  
-		}
-
-		if(error) {
-			if(verbose) {
-				AVAlertNote("Time out !");
-			}
-		} else { 
-			start=1;
-
-			memset(buffer, length=0, 1);
-
-			if(sendTo==1 && sharetype==1){
-				sendTo=2;
-			}
-
-			length = sprintf(buffer,"POST /PLOD/&f=%d HTTP/1.0\r\nHost: %s\r\nUser-Agent: Mozilla/5.0\r\nContent-Type:application/x-www-form-urlencoded\r\nContent-Length: -1\r\nConnection:close\r\n\r\n", sendTo, host);
-
-			GetText();
-
-			iMode = 0; 
-
-			ioctlsocket(sockClient, FIONBIO, (u_long FAR*)&iMode);  // 设置为阻塞socket 
-#ifdef WIN32
-			send(sockClient, buffer, length, 0);
-#else
-			write(sockClient,request.c_str(),request.size());
-#endif
-			if(verbose>1) {
-				AVAlertNote("done!");
-			}
-		}
-
-#ifdef WIN32
-		closesocket(sockClient);
-#else
-		close(sockClient);
-#endif
-	} else {
+	if(error) {
 		if(verbose) {
-			AVAlertNote("Server not found !");
+			AVAlertNote("Time out !");
+		}
+	} else { 
+		start=1;
+
+		memset(buffer, length=0, 1);
+
+		if(sendTo==1 && sharetype==1){
+			sendTo=2;
+		}
+
+		length = sprintf(buffer,"POST /PLOD/?f=%d HTTP/1.0\r\nHost: %s\r\nUser-Agent: Mozilla/5.0\r\nContent-Type:application/x-www-form-urlencoded\r\nContent-Length: -1\r\nConnection:close\r\n\r\n", sendTo, host);
+
+		int from = length;
+
+		GetText();
+
+		if(singleline) {
+			for(int i=from;i<length;i++) {
+				if(buffer[i]=='\n' || buffer[i]=='\r') {
+					buffer[i]=' ';
+				}
+			}
+		}
+
+		iMode = 0; 
+
+		ioctlsocket(sockClient, FIONBIO, (u_long FAR*)&iMode);  // 设置为阻塞socket 
+#ifdef WIN32
+		send(sockClient, buffer, length, 0);  
+#else
+		write(sockClient,request.c_str(),request.size());
+#endif
+		if(verbose>1) {
+			AVAlertNote("done!");
 		}
 	}
+
+#ifdef WIN32
+	closesocket(sockClient);
+#else
+	close(sockClient);
+#endif
 }
+#include <Windows.h>
 
 ACCB1 void ACCB2 MyPluginCommand(void *clientData)
 {
 	if(clientData){
 		//AVAlertNote((char*)clientData);
 		char code = *((char*)clientData);
-		switch(code){
-			case '1':
-				RunOnTextSelection(1);
-			break;
-			case '2':
-				RunOnTextSelection(2);
-			break;
-		}
+		RunOnTextSelection(code-'0');
 	}
+	if(1) return;
+	char cD[] ="qq34r6";
+	if(OpenClipboard(NULL))
+	{
+		HGLOBAL hmem=GlobalAlloc(GHND,7);
+		char *pmem=(char *)GlobalLock(hmem);
+		EmptyClipboard();
+		memcpy(pmem,cD,7);
+		SetClipboardData(CF_TEXT,hmem);
+		CloseClipboard();
+		GlobalFree(hmem);
+	}
+
+
+	keybd_event(VK_MENU,0, 0 ,0);
+	keybd_event('L',0,0,0);    // 按下l键
+	Sleep(100);
+	keybd_event(VK_MENU,0, KEYEVENTF_KEYUP ,0);
+	keybd_event('L',0,KEYEVENTF_KEYUP,0);// 松开l键
+
 }
 
 /* MyPluginIsEnabled Function to control if a menu item should be enabled.

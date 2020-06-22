@@ -40,6 +40,8 @@ extern int desiredSlot;
 
 extern int verbose;
 
+extern json extra_items;
+
 // stuff for Menu set up 
 static AVMenuItem menuItem = NULL;
 ACCB1 ASBool ACCB2 PluginMenuItem(const char* MyMenuItemTitle, const char* MyMenuItemName);
@@ -151,38 +153,77 @@ ACCB1 ASBool ACCB2 PIHandshake(Uns32 handshakeVersion, void *handshakeData)
 	return false;
 }
 
+const char id_1[2]={'0'+1};
+const char id_2[2]={'0'+2};
+char* extra_ids;
+int extra_id_count;
+
 ACCB1 void ACCB2 myAVContentMenuAdditionProc(ASAtom menuName, AVMenu menu, void* menuData, void* clientData)
 { 
-	if(verbose>3) {
+	if(verbose>5) {
 		AVAlertNote("hello world");
 	}
 	AVMenuItem commonMenu = NULL;
-	DURING
-		CheckConfig();
 
-		commonMenu = AVMenuItemNew ("Send To PlainDict", "topd", NULL, true, NO_SHORTCUT, 0, NULL, gExtensionID);
-		AVMenuItemSetExecuteProc (commonMenu, ASCallbackCreateProto(AVExecuteProc, MyPluginCommand), "1");
+	CheckConfig();
+
+	commonMenu = AVMenuItemNew ("Send To PlainDict", "topd", NULL, true, NO_SHORTCUT, 0, NULL, gExtensionID);
+	AVMenuItemSetExecuteProc (commonMenu, ASCallbackCreateProto(AVExecuteProc, MyPluginCommand), (void*)id_1);
+	AVMenuItemSetComputeEnabledProc (commonMenu,
+		ASCallbackCreateProto(AVComputeEnabledProc, MyPluginIsEnabled), (void *)pdPermEdit);
+
+	AVMenuAddMenuItem(menu, commonMenu, desiredSlot);
+
+	AVMenuItemRelease(commonMenu);
+
+	if(sharetype==2) {
+		commonMenu = AVMenuItemNew ("Send To PlainDict (3rd)", "topd2", NULL, true, NO_SHORTCUT, 0, NULL, gExtensionID);
+		AVMenuItemSetExecuteProc (commonMenu, ASCallbackCreateProto(AVExecuteProc, MyPluginCommand), (void*)id_2);
 		AVMenuItemSetComputeEnabledProc (commonMenu,
 			ASCallbackCreateProto(AVComputeEnabledProc, MyPluginIsEnabled), (void *)pdPermEdit);
 
-		AVMenuAddMenuItem(menu, commonMenu, desiredSlot);
+		AVMenuAddMenuItem(menu, commonMenu, desiredSlot+1);
 
 		AVMenuItemRelease(commonMenu);
+	}
 
-		if(sharetype==2) {
-			commonMenu = AVMenuItemNew ("Send To PlainDict (3rd)", "topd2", NULL, true, NO_SHORTCUT, 0, NULL, gExtensionID);
-			AVMenuItemSetExecuteProc (commonMenu, ASCallbackCreateProto(AVExecuteProc, MyPluginCommand), "2");
-			AVMenuItemSetComputeEnabledProc (commonMenu,
-				ASCallbackCreateProto(AVComputeEnabledProc, MyPluginIsEnabled), (void *)pdPermEdit);
-
-			AVMenuAddMenuItem(menu, commonMenu, desiredSlot+1);
-
-			AVMenuItemRelease(commonMenu);
+	if(extra_items!=NULL) {
+		int relativeSlot = desiredSlot;
+		if(sharetype==2) relativeSlot++;
+		int slot = relativeSlot;
+		int size = extra_items.size();
+		if(size>extra_id_count) {
+			//AVAlertNote("new items");
+			if(extra_ids) free(extra_ids);
+			extra_ids = (char*)malloc(extra_id_count=(size*1.2));
+			extra_ids[extra_id_count-1]='\0';
 		}
-	HANDLER
-		if (commonMenu)
-			AVMenuItemRelease (commonMenu);
-	END_HANDLER
+		for(int i=0;i<size;i++) {
+			auto extraI = extra_items[i];
+			auto val = extraI["name"];
+			if(!val.empty() && val.is_string()) {
+				commonMenu = AVMenuItemNew (val.get<std::string>().data(), "ext", NULL, true, NO_SHORTCUT, 0, NULL, gExtensionID);
+				extra_ids[i]='0'+3+i;
+				AVMenuItemSetExecuteProc (commonMenu, ASCallbackCreateProto(AVExecuteProc, MyPluginCommand), extra_ids+i);
+				AVMenuItemSetComputeEnabledProc (commonMenu,
+					ASCallbackCreateProto(AVComputeEnabledProc, MyPluginIsEnabled), (void *)pdPermEdit);
+				
+				val = extraI["slot"];
+				if(!val.empty() && val.is_number_integer()){
+					slot = val.get<int>();
+				} else {
+					val = extraI["slotrel"];
+					if(!val.empty() && val.is_number_integer()){
+						slot = relativeSlot+val.get<int>();
+					}
+				}
+
+				AVMenuAddMenuItem(menu, commonMenu, slot);
+
+				AVMenuItemRelease(commonMenu);
+			}
+		}
+	}
 }
 
 /*-------------------------------------------------------

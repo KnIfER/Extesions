@@ -36,17 +36,7 @@
 			exp = exp.selectionText;
 			source = 2;
 		}
-        if(exp.indexOf('&')>=0){
-            exp = exp.replace('&', '%26');
-        }
-        if(exp.indexOf('?')>=0){
-            exp = exp.replace('?', '%3F');
-        }
-        if(exp.indexOf('\n')>=0){
-            exp = exp.replace('\n', '%0A');
-        }
         var target = (this.options.firstflag>>4 + (source&3))&0x1;
-        if(!target) exp += '&t=1';
 		//console.log("send source : ", source, target);
 		chrome.bookmarks.search("PD", (res) => {
 			var host = "127.0.0.1"
@@ -57,12 +47,12 @@
 					break;
 				}
 			}
-			var url = host+"PLOD/"+exp;
+			var url = host+"PLOD/?f="+(target+1);
 			console.log(exp);
 			var xmlhttp=new XMLHttpRequest();
 			xmlhttp.open("POST", url , true);
 			//xmlhttp.setRequestHeader("Access-Control-Allow-Origin", "*");
-			xmlhttp.send();
+			xmlhttp.send(exp);
 		});
 	}
 
