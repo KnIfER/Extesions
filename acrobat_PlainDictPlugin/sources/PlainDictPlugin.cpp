@@ -243,6 +243,7 @@ static ACCB1 ASBool ACCB2 PDTextSelectEnumTextProcCB(void* procObj, PDFont font,
 }
 
 void GetText() {
+	int from = length;
 	// try to get front PDF document 
 	AVDoc avDoc = AVAppGetActiveDoc();
 
@@ -262,6 +263,14 @@ void GetText() {
 
 	PDTextSelectEnumText(ts, cbPDTextSelectEnumTextProc, NULL);
 
+
+	if(singleline) {
+		for(int i=from;i<length;i++) {
+			if(buffer[i]=='\n' || buffer[i]=='\r') {
+				buffer[i]=' ';
+			}
+		}
+	}
 	//if(verbose) {
 	//	AVAlertNote("Content too long!");
 	//}
@@ -280,13 +289,106 @@ void PushSelections() {
 
 	GetText();
 }
+#include <string.h>
 
+char * CTRL = "CTRL";
+char * SHIFT = "SHIFT";
+char * ALT = "ALT";
+char * F10 = "F10";
+char * F11 = "F11";
+char * F12 = "F12";
+char * F1 = "F1";
+char * F2 = "F2";
+char * F3 = "F3";
+char * F4 = "F4";
+char * F5 = "F5";
+char * F6 = "F6";
+char * F7 = "F7";
+char * F8 = "F8";
+BYTE* keycodes;
+BYTE keycodes_len;
 void RunOnTextSelection(int sendTo){
 	if(sendTo>=3 && extra_items!=NULL && extra_items.size()>(sendTo=sendTo-3)) {
 		json extraI = extra_items[sendTo];
-		auto val=extraI["cutshort"];
+		auto val=extraI["copy"];
+		if(!val.empty() && val.is_boolean()){
+			if(val.get<bool>()) {
+				PushSelections();
+				if(OpenClipboard(NULL))
+				{
+					HGLOBAL hmem=GlobalAlloc(GHND,length);
+					char *pmem=(char *)GlobalLock(hmem);
+					EmptyClipboard();
+					memcpy(pmem,buffer,length);
+					SetClipboardData(CF_TEXT,hmem);
+					CloseClipboard();
+					GlobalFree(hmem);
+				}
+			}
+		}
+		val=extraI["cutshort"];
 		if(!val.empty() && val.is_string()) {
+			if(keycodes==NULL) {
+				keycodes = (BYTE*)malloc(sizeof(BYTE)*(keycodes_len=12));
+			}
 			auto value = val.get<string>();
+			int len = value.length();
+			auto strVal = value.data();
+			int lastfound=0;
+			int findIdx;
+			BYTE keycode;
+			int cc=-1;
+			bool endNotreached=true;
+			while((findIdx=value.find('+', lastfound))>=0||endNotreached){
+				if(findIdx<0) {
+					if(lastfound<len){
+						endNotreached=false;
+						findIdx=len;
+					} else {
+						break;
+					}
+				}
+				int size=findIdx-lastfound;
+				auto tobon2b = strVal+lastfound;
+				//AVAlertNote(value.substr(lastfound, findIdx).data());
+				keycode=0;
+				if(size>=2){
+					if(strnicmp(tobon2b, CTRL, size)==0){
+						keycode=VK_CONTROL;
+					} else if(strnicmp(tobon2b, SHIFT, size)==0){
+						keycode=VK_SHIFT;
+					} else if(strnicmp(tobon2b, ALT, size)==0){
+						keycode=VK_MENU;
+					}
+				} else {
+					keycode=tobon2b[0];
+				}
+				cc++;
+				if(cc>keycodes_len){
+					int keycodes_len_new = cc*1.2;
+					BYTE* keycodes_new=(BYTE*)malloc(sizeof(BYTE)*keycodes_len_new);
+					memccpy(keycodes_new, keycodes, keycodes_len, sizeof(BYTE));
+					free(keycodes);
+					keycodes=keycodes_new;
+					keycodes_len=keycodes_len_new;
+				}
+				keycodes[cc]=keycode;
+				//char strVal[] = {'0'+keycode, 'K', 'K'};
+				//AVAlertNote(strVal);
+				if(!endNotreached) {
+					break;
+				} else {
+					lastfound = findIdx+1;
+				}
+			}
+			for(int i=0; i<=cc;i++){// 按下
+				keybd_event(keycodes[i],0, 0 ,0);
+			}
+			Sleep(100);
+			for(int i=cc; i>=0;i--){// 释放
+				keybd_event(keycodes[i],0, KEYEVENTF_KEYUP ,0);
+			}
+
 			//AVAlertNote(value.data());
 			//todo handle short cuts
 		}
@@ -351,17 +453,7 @@ void RunOnTextSelection(int sendTo){
 
 		length = sprintf(buffer,"POST /PLOD/?f=%d HTTP/1.0\r\nHost: %s\r\nUser-Agent: Mozilla/5.0\r\nContent-Type:application/x-www-form-urlencoded\r\nContent-Length: -1\r\nConnection:close\r\n\r\n", sendTo, host);
 
-		int from = length;
-
 		GetText();
-
-		if(singleline) {
-			for(int i=from;i<length;i++) {
-				if(buffer[i]=='\n' || buffer[i]=='\r') {
-					buffer[i]=' ';
-				}
-			}
-		}
 
 		iMode = 0; 
 
@@ -391,26 +483,6 @@ ACCB1 void ACCB2 MyPluginCommand(void *clientData)
 		char code = *((char*)clientData);
 		RunOnTextSelection(code-'0');
 	}
-	if(1) return;
-	char cD[] ="qq34r6";
-	if(OpenClipboard(NULL))
-	{
-		HGLOBAL hmem=GlobalAlloc(GHND,7);
-		char *pmem=(char *)GlobalLock(hmem);
-		EmptyClipboard();
-		memcpy(pmem,cD,7);
-		SetClipboardData(CF_TEXT,hmem);
-		CloseClipboard();
-		GlobalFree(hmem);
-	}
-
-
-	keybd_event(VK_MENU,0, 0 ,0);
-	keybd_event('L',0,0,0);    // 按下l键
-	Sleep(100);
-	keybd_event(VK_MENU,0, KEYEVENTF_KEYUP ,0);
-	keybd_event('L',0,KEYEVENTF_KEYUP,0);// 松开l键
-
 }
 
 /* MyPluginIsEnabled Function to control if a menu item should be enabled.
