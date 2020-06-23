@@ -43,7 +43,7 @@ extern int verbose;
 extern json extra_items;
 
 // stuff for Menu set up 
-static AVMenuItem menuItem = NULL;
+//static AVMenuItem menuItem = NULL;
 ACCB1 ASBool ACCB2 PluginMenuItem(const char* MyMenuItemTitle, const char* MyMenuItemName);
 
 // callback functions implemented in file "BasicPlugin.cpp"
@@ -93,10 +93,6 @@ ACCB1 ASBool ACCB2 PluginInit(void)
 ACCB1 ASBool ACCB2 PluginUnload(void)
 {
 	CleanUpUI();
-
-	if (menuItem)
-		AVMenuItemRemove(menuItem);
-
 	return true;
 }
 
@@ -196,6 +192,7 @@ ACCB1 void ACCB2 myAVContentMenuAdditionProc(ASAtom menuName, AVMenu menu, void*
 			//AVAlertNote("new items");
 			if(extra_ids) free(extra_ids);
 			extra_ids = (char*)malloc(extra_id_count=(size*1.2));
+			if(!extra_ids) return;
 			extra_ids[extra_id_count-1]='\0';
 		}
 		for(int i=0;i<size;i++) {
@@ -252,24 +249,6 @@ ACCB1 ASBool ACCB2 PluginMenuItem(const char* MyMenuItemTitle, const char* MyMen
 	DURING
 		//AVAppRegisterForContextMenuAddition( ASAtomFromString("Page"), myAVContentMenuAdditionProc, (void*)pageContext);
 		AVAppRegisterForContextMenuAddition( ASAtomFromString(selectionContext), myAVContentMenuAdditionProc, (void*)selectionContext);
-
-	   	//// Create our menuitem
-		//menuItem = AVMenuItemNew (MyMenuItemTitle, MyMenuItemName, NULL, true, NO_SHORTCUT, 0, NULL, gExtensionID);
-		//AVMenuItemSetExecuteProc (menuItem, ASCallbackCreateProto(AVExecuteProc, MyPluginCommand), NULL);
-		//AVMenuItemSetComputeEnabledProc (menuItem,
-		//			ASCallbackCreateProto(AVComputeEnabledProc, MyPluginIsEnabled), (void *)pdPermEdit);
-		//
-		//commonMenu = AVMenubarAcquireMenuByName (menubar, "ADBE:Acrobat_SDK");
-		//// if "Acrobat SDK" menu is not existing, create one.
-		//if (!commonMenu) {
-		//	commonMenu = AVMenuNew ("Acrobat SDK", "ADBE:Acrobat_SDK", gExtensionID);
-		//	AVMenubarAddMenu(menubar, commonMenu, APPEND_MENU);		
-		//}
-		//
-		////AVMenuAddMenuItem(commonMenu, menuItem, APPEND_MENUITEM);
-		//
-		//AVMenuRelease(commonMenu);
-
 	HANDLER
 		if (commonMenu)
 			AVMenuRelease (commonMenu);

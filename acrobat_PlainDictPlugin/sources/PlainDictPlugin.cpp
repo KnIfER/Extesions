@@ -540,7 +540,6 @@ ACCB1 ASBool ACCB2 MyPluginIsEnabled(void *clientData)
 
 
 
-
 /*-------------------------------------------------------
 ** Shelf
 ** UI 
@@ -597,16 +596,34 @@ AVToolRec shelfTool;
 // UI Callbacks
 static AVExecuteProc cbActivateshelfTool;
 
-void SetUpUI(void)
+ASAtom shelf_K;
+
+/* return the tool type. */
+static ACCB1 ASAtom ACCB2 ToolGetType(AVTool tool)
+{
+	return shelf_K;
+}
+
+void SetUpTool(void)
 {	
 	memset(&shelfTool, 0, sizeof(AVToolRec));
 	shelfTool.size = sizeof(AVToolRec);
-	AVAppRegisterTool(&shelfTool);
 
+	shelfTool.GetType = ASCallbackCreateProto(GetTypeProcType, &ToolGetType);
+
+	shelfTool.ComputeEnabled = cbShelfIsEnabled;
+
+	AVAppRegisterTool(&shelfTool);
+}
+
+/** Register for the AVAppDidInitialize notification and create the Shelf toolbutton. */
+void SetUpUI(void)
+{	
+
+	AVAppRegisterNotification(AVAppDidInitializeNSEL, 0, (char *)SetUpTool, NULL);
 	/* Create the execute, computeEnabled, and computeMarked callbacks here because they're shared between the AVTool and AVToolButton */
 	cbActivateShelfTool = ASCallbackCreateProto (AVExecuteProc, &ActivateshelfTool);
 	cbShelfIsEnabled = ASCallbackCreateProto (AVComputeEnabledProc, &MyPluginIsEnabled);
-
 	// Insert the shelf tool button just before the "endToolsGroup"
 	// AVToolButton separator.
 
@@ -614,13 +631,10 @@ void SetUpUI(void)
 	AVToolBar toolBar = AVAppGetToolBar();
 	AVToolButton separator = AVToolBarGetButtonByName (toolBar, ASAtomFromString("endToolsGroup"));
 
-	ASAtom shelf_K;
 	shelfToolButton = AVToolButtonNew (shelf_K, shelfIcon, true, false);
 	AVToolButtonSetComputeEnabledProc (shelfToolButton, cbShelfIsEnabled, (void *)pdPermOpen);
 	AVToolButtonSetExecuteProc (shelfToolButton, cbActivateShelfTool, NULL);
 	AVToolButtonSetHelpText (shelfToolButton, "Send selection to PlainDict");
-
-	shelfTool.ComputeEnabled = cbShelfIsEnabled;
 
 	AVToolBarAddButton(toolBar, shelfToolButton, true, separator);
 }
@@ -628,6 +642,8 @@ void SetUpUI(void)
 /** Unregister notifications and remove the toolbutton. */
 void CleanUpUI(void)
 {
+	AVAppUnregisterNotification(AVAppDidInitializeNSEL, 0, (char *)SetUpTool, NULL);
+
 	if(shelfToolButton)
 		AVToolButtonDestroy (shelfToolButton);
 }
