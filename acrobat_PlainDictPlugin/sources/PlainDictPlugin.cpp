@@ -109,10 +109,7 @@ static AVComputeEnabledProc cbShelfIsEnabled;
 #define CURSShelfCursor			150
 
 // For windows
-#define IDC_CURSOR1                     101
-#define IDI_ICON1                       102
-#define IDB_BITMAP1                     103
-#define IDB_BITMAP2                     104
+#define IDB_BITMAP1                     101
 /*-------------------------------------------------------
 	Functions.
 	MyPluginCommand is the function to be called when executing a menu,
@@ -574,7 +571,6 @@ static ACCB1 void ACCB2 ActivateshelfTool (void *clientData)
 void *GetShelfToolButtonIcon(void)
 {
 #ifdef MAC_PLATFORM
-
 	extern CFBundleRef gPluginBundle;
 	AVIconDataRec iconData;
 
@@ -641,7 +637,7 @@ void SetUpUI(void)
 	shelfToolButton = AVToolButtonNew (shelf_K, shelfIcon, true, false);
 	AVToolButtonSetComputeEnabledProc (shelfToolButton, cbShelfIsEnabled, (void *)pdPermOpen);
 	AVToolButtonSetExecuteProc (shelfToolButton, cbActivateShelfTool, NULL);
-	AVToolButtonSetHelpText (shelfToolButton, "Send selection to PlainDict");
+	AVToolButtonSetHelpText (shelfToolButton, "Send selection via PlainDict");
 
 	AVToolBarAddButton(toolBar, shelfToolButton, true, separator);
 }
