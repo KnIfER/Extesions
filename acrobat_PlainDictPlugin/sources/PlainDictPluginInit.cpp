@@ -15,7 +15,7 @@
 \ based on BasicPluginInit.cpp
 
 编译指南：下载 acrobat xi 开发包，解压，将 PropertySheet.props 中的 SDKSupport 宏定义修改为sdk目录
-将本项目添加至sdk/all总工程
+（可选）将本项目添加至sdk/all总工程
 下载nlohmann/json，解压，将json.hpp复制到 $(SDKSupport)/Headers/SDK/
 并改写sdk中的头文件PIHeaders，添加一句 #include "json.hpp"
 *********************************************************************/
