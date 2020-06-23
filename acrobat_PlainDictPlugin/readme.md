@@ -4,7 +4,7 @@
 
 详情见[配置文件](../acrobat_PlainDictPlugin/plod.ini)
 
-可联合的发送目标：安卓谷歌翻译、Ankidroid、Chrome Saladict等
+可联动的发送目标：安卓谷歌翻译、Ankidroid、Chrome Saladict等
 
 ![image](../screenshots/acrobat.jpg)
 
