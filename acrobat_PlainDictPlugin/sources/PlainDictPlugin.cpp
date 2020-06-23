@@ -150,9 +150,9 @@ void CheckConfig() {
 		FILE * file=fopen("C:\\Program Files\\Adobe\\plod.ini","r");
 		if(NULL != file)
 		{
-			int fd=fileno(file);
+			int fd=_fileno(file);
 			fstat(fd, &buf);
-			long modify_time=buf.st_mtime;	
+			time_t modify_time=buf.st_mtime;	
 			if(modify_time!=last_ini_read_time){
 				verbose=1;
 				extra_items=NULL;
@@ -323,7 +323,7 @@ void PushSelections() {
 	GetText();
 }
 
-void RunOnTextSelection(int sendTo){
+void RunOnTextSelection(std::size_t sendTo){
 	if(sendTo>=3 && extra_items!=NULL && extra_items.size()>(sendTo=sendTo-3)) {
 		json extraI = extra_items[sendTo];
 		/* Copy selected */
@@ -375,11 +375,11 @@ void RunOnTextSelection(int sendTo){
 				//AVAlertNote(value.substr(lastfound, findIdx).data());
 				keycode=0;
 				if(size>=2){
-					if(strnicmp(tobon2b, CTRL, size)==0){
+					if(_strnicmp(tobon2b, CTRL, size)==0){
 						keycode=VK_CONTROL;
-					} else if(strnicmp(tobon2b, SHIFT, size)==0){
+					} else if(_strnicmp(tobon2b, SHIFT, size)==0){
 						keycode=VK_SHIFT;
-					} else if(strnicmp(tobon2b, ALT, size)==0){
+					} else if(_strnicmp(tobon2b, ALT, size)==0){
 						keycode=VK_MENU;
 					}
 				} else {
@@ -389,7 +389,7 @@ void RunOnTextSelection(int sendTo){
 				if(cc>keycodes_len){
 					int keycodes_len_new = cc*1.2;
 					BYTE* keycodes_new=(BYTE*)malloc(sizeof(BYTE)*keycodes_len_new);
-					memccpy(keycodes_new, keycodes, keycodes_len, sizeof(BYTE));
+					memcpy(keycodes_new, keycodes, keycodes_len);
 					free(keycodes);
 					keycodes=keycodes_new;
 					keycodes_len=keycodes_len_new;
@@ -457,9 +457,10 @@ void RunOnTextSelection(int sendTo){
 		}
 	}
 
-	// todo 从Chrome书签取值
+	// todo 从Chrome书签取值;
 
-	address.sin_addr.s_addr = inet_addr(host);
+	//address.sin_addr.s_addr = inet_addr(host);
+	inet_pton(AF_INET, host, (void*)&address.sin_addr);
 	address.sin_family = AF_INET;
 	address.sin_port = htons(port); 
 
