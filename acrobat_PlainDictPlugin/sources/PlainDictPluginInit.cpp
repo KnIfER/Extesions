@@ -163,61 +163,69 @@ ACCB1 void ACCB2 myAVContentMenuAdditionProc(ASAtom menuName, AVMenu menu, void*
 
 	CheckConfig();
 
-	commonMenu = AVMenuItemNew ("Send To PlainDict", "topd", NULL, true, NO_SHORTCUT, 0, NULL, gExtensionID);
-	AVMenuItemSetExecuteProc (commonMenu, ASCallbackCreateProto(AVExecuteProc, MyPluginCommand), (void*)id_1);
-	AVMenuItemSetComputeEnabledProc (commonMenu,
-		ASCallbackCreateProto(AVComputeEnabledProc, MyPluginIsEnabled), (void *)pdPermEdit);
+	if(sharetype>=-1) {
+		if(sharetype>=0) {
+			commonMenu = AVMenuItemNew ("Send To PlainDict", "topd", NULL, true, NO_SHORTCUT, 0, NULL, gExtensionID);
+			AVMenuItemSetExecuteProc (commonMenu, ASCallbackCreateProto(AVExecuteProc, MyPluginCommand), (void*)id_1);
+			AVMenuItemSetComputeEnabledProc (commonMenu,
+				ASCallbackCreateProto(AVComputeEnabledProc, MyPluginIsEnabled), (void *)pdPermEdit);
 
-	AVMenuAddMenuItem(menu, commonMenu, desiredSlot);
+			AVMenuAddMenuItem(menu, commonMenu, desiredSlot);
 
-	AVMenuItemRelease(commonMenu);
+			AVMenuItemRelease(commonMenu);
 
-	if(sharetype==2) {
-		commonMenu = AVMenuItemNew ("Send To PlainDict (3rd)", "topd2", NULL, true, NO_SHORTCUT, 0, NULL, gExtensionID);
-		AVMenuItemSetExecuteProc (commonMenu, ASCallbackCreateProto(AVExecuteProc, MyPluginCommand), (void*)id_2);
-		AVMenuItemSetComputeEnabledProc (commonMenu,
-			ASCallbackCreateProto(AVComputeEnabledProc, MyPluginIsEnabled), (void *)pdPermEdit);
-
-		AVMenuAddMenuItem(menu, commonMenu, desiredSlot+1);
-
-		AVMenuItemRelease(commonMenu);
-	}
-
-	if(extra_items!=NULL) {
-		int relativeSlot = desiredSlot;
-		if(sharetype==2) relativeSlot++;
-		int slot = relativeSlot;
-		int size = extra_items.size();
-		if(size>extra_id_count) {
-			//AVAlertNote("new items");
-			if(extra_ids) free(extra_ids);
-			extra_ids = (char*)malloc(extra_id_count=(size*1.2));
-			if(!extra_ids) return;
-			extra_ids[extra_id_count-1]='\0';
-		}
-		for(int i=0;i<size;i++) {
-			auto extraI = extra_items[i];
-			auto val = extraI["name"];
-			if(!val.empty() && val.is_string()) {
-				commonMenu = AVMenuItemNew (val.get<std::string>().data(), "ext", NULL, true, NO_SHORTCUT, 0, NULL, gExtensionID);
-				extra_ids[i]='0'+3+i;
-				AVMenuItemSetExecuteProc (commonMenu, ASCallbackCreateProto(AVExecuteProc, MyPluginCommand), extra_ids+i);
+			if(sharetype==2) {
+				commonMenu = AVMenuItemNew ("Send To PlainDict (3rd)", "topd2", NULL, true, NO_SHORTCUT, 0, NULL, gExtensionID);
+				AVMenuItemSetExecuteProc (commonMenu, ASCallbackCreateProto(AVExecuteProc, MyPluginCommand), (void*)id_2);
 				AVMenuItemSetComputeEnabledProc (commonMenu,
 					ASCallbackCreateProto(AVComputeEnabledProc, MyPluginIsEnabled), (void *)pdPermEdit);
-				
-				val = extraI["slot"];
-				if(!val.empty() && val.is_number_integer()){
-					slot = val.get<int>();
-				} else {
-					val = extraI["slotrel"];
-					if(!val.empty() && val.is_number_integer()){
-						slot = relativeSlot+val.get<int>();
-					}
-				}
 
-				AVMenuAddMenuItem(menu, commonMenu, slot);
+				AVMenuAddMenuItem(menu, commonMenu, desiredSlot+1);
 
 				AVMenuItemRelease(commonMenu);
+			}
+		}
+
+		if(extra_items!=NULL) {
+			int relativeSlot = desiredSlot;
+			if(sharetype==2) relativeSlot++;
+			int slot = relativeSlot;
+			int size = extra_items.size();
+			if(size>extra_id_count) {
+				//AVAlertNote("new items");
+				if(extra_ids) free(extra_ids);
+				extra_ids = (char*)malloc(extra_id_count=(size*1.2));
+				if(!extra_ids) return;
+				extra_ids[extra_id_count-1]='\0';
+			}
+			int cc=0;
+			for(int i=0;i<size;i++) {
+				auto extraI = extra_items[i];
+				auto val = extraI["name"];
+				if(!val.empty() && val.is_string()) {
+					commonMenu = AVMenuItemNew (val.get<std::string>().data(), "ext", NULL, true, NO_SHORTCUT, 0, NULL, gExtensionID);
+					extra_ids[i]='0'+3+i;
+					AVMenuItemSetExecuteProc (commonMenu, ASCallbackCreateProto(AVExecuteProc, MyPluginCommand), extra_ids+i);
+					AVMenuItemSetComputeEnabledProc (commonMenu,
+						ASCallbackCreateProto(AVComputeEnabledProc, MyPluginIsEnabled), (void *)pdPermEdit);
+
+					val = extraI["slot"];
+					if(!val.empty() && val.is_number_integer()){
+						slot = val.get<int>();
+					} else {
+						val = extraI["slotrel"];
+						if(!val.empty() && val.is_number_integer()){
+							slot = relativeSlot+val.get<int>();
+						} else {
+							slot = relativeSlot+cc;
+							cc++;
+						}
+					}
+
+					AVMenuAddMenuItem(menu, commonMenu, slot);
+
+					AVMenuItemRelease(commonMenu);
+				}
 			}
 		}
 	}
