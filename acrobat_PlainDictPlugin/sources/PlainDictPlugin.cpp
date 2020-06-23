@@ -81,7 +81,7 @@ char * ALT = "ALT";
 BYTE* keycodes;
 BYTE keycodes_len;
 
-const char* MyPluginExtensionName = "ADBE:PlainDictPlugin";
+const char* MyPluginExtensionName = "PLDO:PlainDictPlugin";
 
 /* A convenient function to add a menu item for your plugin. */
 ACCB1 ASBool ACCB2 PluginMenuItem(const char* MyMenuItemTitle, const char* MyMenuItemName);
@@ -93,6 +93,8 @@ static AVToolButton shelfToolButton;
 
 // UI Callbacks
 static AVExecuteProc cbActivateShelfTool;
+
+static AVComputeEnabledProc cbShelfIsEnabled;
 
 // For mac cursor
 #define CURSShelfCursor			150
@@ -431,7 +433,7 @@ void RunOnTextSelection(int sendTo){
 				}
 				strVal =  buffer;
 			}
-			AVAlertNote(strVal);
+			//AVAlertNote(strVal);
 			WinExec(strVal, SW_HIDE);
 		}
 		return;
@@ -516,7 +518,7 @@ void RunOnTextSelection(int sendTo){
 
 ACCB1 void ACCB2 MyPluginCommand(void *clientData)
 {
-	if(clientData){
+	if(clientData) {
 		if(capacity==0) {
 			buffer = (char*)malloc(capacity=1024);
 			memset(buffer, 0, capacity);
@@ -532,8 +534,8 @@ ACCB1 void ACCB2 MyPluginCommand(void *clientData)
 */
 ACCB1 ASBool ACCB2 MyPluginIsEnabled(void *clientData)
 {
-	//return (AVAppGetActiveDoc() != NULL); // enabled only if there is a open PDF document. 
-	return true; // always enabled.
+	return (AVAppGetActiveDoc() != NULL); // enabled only if there is a open PDF document. 
+	//return true; // always enabled.
 }
 
 
@@ -590,9 +592,20 @@ void *GetShelfToolButtonIcon(void)
 #endif
 }
 
+AVToolRec shelfTool;
+
+// UI Callbacks
+static AVExecuteProc cbActivateshelfTool;
+
 void SetUpUI(void)
-{
+{	
+	memset(&shelfTool, 0, sizeof(AVToolRec));
+	shelfTool.size = sizeof(AVToolRec);
+	AVAppRegisterTool(&shelfTool);
+
+	/* Create the execute, computeEnabled, and computeMarked callbacks here because they're shared between the AVTool and AVToolButton */
 	cbActivateShelfTool = ASCallbackCreateProto (AVExecuteProc, &ActivateshelfTool);
+	cbShelfIsEnabled = ASCallbackCreateProto (AVComputeEnabledProc, &MyPluginIsEnabled);
 
 	// Insert the shelf tool button just before the "endToolsGroup"
 	// AVToolButton separator.
@@ -603,8 +616,11 @@ void SetUpUI(void)
 
 	ASAtom shelf_K;
 	shelfToolButton = AVToolButtonNew (shelf_K, shelfIcon, true, false);
+	AVToolButtonSetComputeEnabledProc (shelfToolButton, cbShelfIsEnabled, (void *)pdPermOpen);
 	AVToolButtonSetExecuteProc (shelfToolButton, cbActivateShelfTool, NULL);
 	AVToolButtonSetHelpText (shelfToolButton, "Send selection to PlainDict");
+
+	shelfTool.ComputeEnabled = cbShelfIsEnabled;
 
 	AVToolBarAddButton(toolBar, shelfToolButton, true, separator);
 }
