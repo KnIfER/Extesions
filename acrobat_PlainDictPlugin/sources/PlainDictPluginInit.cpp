@@ -149,8 +149,8 @@ ACCB1 ASBool ACCB2 PIHandshake(Uns32 handshakeVersion, void *handshakeData)
 	return false;
 }
 
-const char id_1[2]={'0'+1};
-const char id_2[2]={'0'+2};
+const char id_1[1]={'0'+1};
+const char id_2[1]={'0'+2};
 char* extra_ids;
 int extra_id_count;
 

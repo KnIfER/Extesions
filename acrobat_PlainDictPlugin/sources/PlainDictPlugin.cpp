@@ -81,6 +81,15 @@ char * ALT = "ALT";
 BYTE* keycodes;
 BYTE keycodes_len;
 
+AVToolRec shelfTool;
+
+// UI Callbacks
+static AVExecuteProc cbActivateshelfTool;
+
+ASAtom shelf_K;
+
+char id_3[1]={'0'+1};
+
 const char* MyPluginExtensionName = "PLDO:PlainDictPlugin";
 
 /* A convenient function to add a menu item for your plugin. */
@@ -210,6 +219,11 @@ void CheckConfig() {
 				if(!val.empty() && val.is_array()) {
 					extra_items = val.get<json>();
 					auto itemI = extra_items[0];
+				}
+
+				val = j3["butar"];
+				if(!val.empty() && val.is_number_integer()) {
+					id_3[0] = '0'+val.get<int>();
 				}
 			}
 		}
@@ -549,7 +563,7 @@ ACCB1 ASBool ACCB2 MyPluginIsEnabled(void *clientData)
 static ACCB1 void ACCB2 ActivateshelfTool (void *clientData)
 {
 	CheckConfig();
-	RunOnTextSelection(0);
+	MyPluginCommand(id_3);
 }
 
 /*-------------------------------------------------------
@@ -590,13 +604,6 @@ void *GetShelfToolButtonIcon(void)
 	return(AVCursor)LoadBitmap(gHINSTANCE, MAKEINTRESOURCE(IDB_BITMAP1));
 #endif
 }
-
-AVToolRec shelfTool;
-
-// UI Callbacks
-static AVExecuteProc cbActivateshelfTool;
-
-ASAtom shelf_K;
 
 /* return the tool type. */
 static ACCB1 ASAtom ACCB2 ToolGetType(AVTool tool)
