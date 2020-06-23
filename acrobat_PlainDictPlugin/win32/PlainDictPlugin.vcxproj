@@ -96,7 +96,7 @@
       <OutputFile>C:\Acrobat\plug_ins\$(ProjectName).api</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <ProgramDatabaseFile>.\Debug/PlainDictPlugin.pdb</ProgramDatabaseFile>
+      <ProgramDatabaseFile>.\$(Configuration)/PlainDictPlugin.pdb</ProgramDatabaseFile>
       <SubSystem>Windows</SubSystem>
       <ImportLibrary>.\$(Configuration)/PlainDictPlugin.lib</ImportLibrary>
     </Link>
