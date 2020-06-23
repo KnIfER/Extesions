@@ -42,8 +42,8 @@ using namespace::std;
 	Constants/
 	Declarations
 -------------------------------------------------------*/
-static int capacity=1024;
-static char* buffer = (char*)malloc(capacity);
+static int capacity=0;
+static char* buffer;
 static int length;
 boolean start;
 struct sockaddr_in address;
@@ -139,12 +139,7 @@ char* textFileRead(FILE* file)
 
 void CheckConfig() {
 	try {
-
-#ifdef _DEBUG
-		FILE * file=fopen("D:\\Code\\FigureOut\\chrome\\extesions\\acrobat_PlainDictPlugin\\plod.ini","r");
-#else
 		FILE * file=fopen("C:\\Program Files\\Adobe\\plod.ini","r");
-#endif
 		if(NULL != file)
 		{
 			int fd=fileno(file);
@@ -229,18 +224,18 @@ void CheckConfig() {
 	}
 }
 
-static ACCB1 ASBool ACCB2 PDTextSelectEnumTextProcCB(void* procObj, PDFont font, ASFixed size, PDColorValue color, char* text, ASInt32 textLen)
-{
-	int selen = strlen(text);
-	//char str[256];
-	//sprintf(str," %s %d \n", text, selen);
+bool ensureBufferCapacity(int estimate) {
 	int nowCap = capacity;
-	if(length+selen+10>nowCap) { // 扩 容
-		int elta = nowCap*2;
+	if(estimate>nowCap) { // 扩 容
+		int elta = max(nowCap*2, estimate);
 		if(elta>8192) elta=8192;
-		int estimate = elta+nowCap;
+		estimate = elta+nowCap;
 		if(estimate<128*1024){
 			char* buffer_new = (char*)malloc(capacity=estimate);
+			if(!buffer_new){
+				return false;
+			}
+			memset(buffer_new, 0, capacity);
 			memcpy(buffer_new, buffer, nowCap);
 			free(buffer);
 			buffer = buffer_new;
@@ -248,12 +243,21 @@ static ACCB1 ASBool ACCB2 PDTextSelectEnumTextProcCB(void* procObj, PDFont font,
 			return false;
 		}
 	}
-	//start?"%s%s":"%s %s"
-	length=sprintf(buffer, "%s%s", buffer, text);
-	start=0;
-	//sprintf(buffer,"%s", text);
-	//AVAlertNote(buffer);
 	return true;
+}
+
+static ACCB1 ASBool ACCB2 PDTextSelectEnumTextProcCB(void* procObj, PDFont font, ASFixed size, PDColorValue color, char* text, ASInt32 textLen)
+{
+	int selen = textLen;//strlen(text);
+	if(ensureBufferCapacity(length+selen+10)) {
+		//length=sprintf(buffer, "%s%s", buffer, text);
+		memcpy(buffer+length, text, selen);
+		length+=selen;
+		start=0;
+		//AVAlertNote(buffer);
+		return true;
+	}
+	return false;
 }
 
 void GetText() {
@@ -285,6 +289,13 @@ void GetText() {
 			}
 		}
 	}
+
+	if(capacity>=length){
+		buffer[length]='\0';
+	}
+	for(int i=length;i<capacity;i++) {
+		buffer[i]='\0';
+	}
 	//if(verbose) {
 	//	AVAlertNote("Content too long!");
 	//}
@@ -297,9 +308,7 @@ void GetText() {
 }
 
 void PushSelections() {
-	start=1;
-
-	memset(buffer, length=0, 1);
+	length=0;
 
 	GetText();
 }
@@ -308,18 +317,21 @@ void RunOnTextSelection(int sendTo){
 	if(sendTo>=3 && extra_items!=NULL && extra_items.size()>(sendTo=sendTo-3)) {
 		json extraI = extra_items[sendTo];
 		auto val=extraI["copy"];
+		bool copied = 0;
 		if(!val.empty() && val.is_boolean()){
 			if(val.get<bool>()) {
-				PushSelections();
 				if(OpenClipboard(NULL))
 				{
-					HGLOBAL hmem=GlobalAlloc(GHND,length);
-					char *pmem=(char *)GlobalLock(hmem);
+					PushSelections();
+					copied=1;
+					HGLOBAL global=GlobalAlloc(GHND,length+1);
+					char *global_m=(char *)GlobalLock(global);
+					memcpy(global_m,buffer,length);
 					EmptyClipboard();
-					memcpy(pmem,buffer,length);
-					SetClipboardData(CF_TEXT,hmem);
+					SetClipboardData(CF_TEXT, global);
+					GlobalUnlock(global);
 					CloseClipboard();
-					GlobalFree(hmem);
+					GlobalFree(global);
 				}
 			}
 		}
@@ -389,6 +401,23 @@ void RunOnTextSelection(int sendTo){
 			//AVAlertNote(value.data());
 			//todo handle short cuts
 		}
+
+		val=extraI["command"];
+		if(!val.empty() && val.is_string()) {
+			auto value = val.get<string>();
+			int idx = value.find("%s");
+			const char* strVal = value.data();
+			int len=strlen(strVal)-2;
+			if(idx==len && ensureBufferCapacity(len+12)) {	
+				memcpy(buffer, strVal, length = len);
+				
+				GetText();
+			
+				strVal =  buffer;
+			}
+			//AVAlertNote(strVal);
+			WinExec(strVal, SW_HIDE);
+		}
 		return;
 	}
 	if (WSA != 0) {
@@ -440,10 +469,6 @@ void RunOnTextSelection(int sendTo){
 			AVAlertNote("Time out !");
 		}
 	} else { 
-		start=1;
-
-		memset(buffer, length=0, 1);
-
 		if(sendTo==1 && sharetype==1){
 			sendTo=2;
 		}
@@ -476,6 +501,10 @@ void RunOnTextSelection(int sendTo){
 ACCB1 void ACCB2 MyPluginCommand(void *clientData)
 {
 	if(clientData){
+		if(capacity==0) {
+			buffer = (char*)malloc(capacity=1024);
+			memset(buffer, 0, capacity);
+		}
 		//AVAlertNote((char*)clientData);
 		char code = *((char*)clientData);
 		RunOnTextSelection(code-'0');
