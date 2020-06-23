@@ -293,9 +293,6 @@ void GetText() {
 	if(capacity>=length){
 		buffer[length]='\0';
 	}
-	for(int i=length;i<capacity;i++) {
-		buffer[i]='\0';
-	}
 	//if(verbose) {
 	//	AVAlertNote("Content too long!");
 	//}
@@ -316,6 +313,7 @@ void PushSelections() {
 void RunOnTextSelection(int sendTo){
 	if(sendTo>=3 && extra_items!=NULL && extra_items.size()>(sendTo=sendTo-3)) {
 		json extraI = extra_items[sendTo];
+		/* Copy selected */
 		auto val=extraI["copy"];
 		bool copied = 0;
 		if(!val.empty() && val.is_boolean()){
@@ -335,6 +333,8 @@ void RunOnTextSelection(int sendTo){
 				}
 			}
 		}
+
+		/* Simulate A ShortCut */
 		val=extraI["cutshort"];
 		if(!val.empty() && val.is_string()) {
 			if(keycodes==NULL) {
@@ -402,20 +402,36 @@ void RunOnTextSelection(int sendTo){
 			//todo handle short cuts
 		}
 
+		/* Execute A Command */
 		val=extraI["command"];
 		if(!val.empty() && val.is_string()) {
 			auto value = val.get<string>();
 			int idx = value.find("%s");
 			const char* strVal = value.data();
 			int len=strlen(strVal)-2;
-			if(idx==len && ensureBufferCapacity(len+12)) {	
-				memcpy(buffer, strVal, length = len);
+			bool addQuota=0;
+			if(idx==len-1) {
+				len--;
+				addQuota=1;
+			}
+			if(idx==len && ensureBufferCapacity(len+12)) {
+				int from = length = len;
+
+				memcpy(buffer, strVal, from);
 				
 				GetText();
-			
+
+				for(int i=from;i<length;i++) {
+					if(buffer[i]=='/')
+						buffer[i]=' ';
+				}
+				if(addQuota) {
+					buffer[length]='\"';
+					buffer[length+1]='\0';
+				}
 				strVal =  buffer;
 			}
-			//AVAlertNote(strVal);
+			AVAlertNote(strVal);
 			WinExec(strVal, SW_HIDE);
 		}
 		return;
