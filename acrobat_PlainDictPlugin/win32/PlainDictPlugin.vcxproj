@@ -65,7 +65,7 @@
       <MkTypLibCompatible>true</MkTypLibCompatible>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <TargetEnvironment>Win32</TargetEnvironment>
-      <TypeLibraryName>.\Debug/PlainDictPlugin.tlb</TypeLibraryName>
+      <TypeLibraryName>.\$(Configuration)/PlainDictPlugin.tlb</TypeLibraryName>
       <HeaderFileName>
       </HeaderFileName>
     </Midl>
@@ -115,7 +115,7 @@ if "%SDKPIDir%"a == ""a echo not performed. SDKPIDir environment variable not se
       <MkTypLibCompatible>true</MkTypLibCompatible>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <TargetEnvironment>Win32</TargetEnvironment>
-      <TypeLibraryName>.\Debug/PlainDictPlugin.tlb</TypeLibraryName>
+      <TypeLibraryName>.\$(Configuration)/PlainDictPlugin.tlb</TypeLibraryName>
       <HeaderFileName>
       </HeaderFileName>
     </Midl>
