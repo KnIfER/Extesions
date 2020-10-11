@@ -384,6 +384,9 @@ void RunOnTextSelection(std::size_t sendTo){
 					}
 				} else {
 					keycode=tobon2b[0];
+					if(keycode>='a'&&keycode<='z') {
+						keycode=keycode-32;
+					}
 				}
 				cc++;
 				if(cc>keycodes_len){

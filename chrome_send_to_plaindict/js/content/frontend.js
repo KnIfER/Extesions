@@ -10,14 +10,6 @@ class PLODFront {
     
         this.KeyMap = [0, 16, 17, 18]; 
         // shift 16, ctl 17, alt 18
-        
-        var betterZhihu = 1;
-        if(betterZhihu) {
-            const style = document.createElement("style");
-            style.innerHTML = ".Modal-wrapper{display:none;z-index=0;}";
-            document.head.appendChild(style);
-            document.querySelector("html").style=""
-        }
 
         win.addEventListener('mousemove', e => this.onMouseMove(e));
         //window.addEventListener('mousedown', e => this.onMouseDown(e));
@@ -31,9 +23,6 @@ class PLODFront {
 
         if(win.pdFlag==undefined) {
             getFlag(win);
-        }
-        if(betterZhihu) {
-            document.querySelector("html").style=""
         }
     }
 
