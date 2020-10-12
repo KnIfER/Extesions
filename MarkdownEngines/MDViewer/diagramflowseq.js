@@ -152,14 +152,17 @@ function renderKatex(srcMath, isDisplay) {
 function replaceMathString(src) {
     var out = src;
     var pattern = /(\$`)((?:\\.|[\s\S])+?)(`\$)|(\${1,2})((?:\\.|[\s\S])+?)\4|(\\\[)((?:\\.|[\s\S])+?)(\\])|(\\\()((?:\\.|[\s\S])+?)(\\\))/g;
-    var mc = null;
-    var codeBegin = src.search('<code>');
-    var codeEnd = src.search('</code>');
+    mc = null;
     while (null != (mc = pattern.exec(src))) {
         //I don't know how to build the regular expression to exclude the Code tag.
-        if(codeBegin > -1 && codeEnd > -1 && mc.index > codeBegin && mc.index < codeEnd) {
+        var sid = reduce(lineCount+mc.index, 0, codeMap.length);
+        var codeTag = codeMap[sid];
+        console.log(codeMap);
+        if(codeTag && mc.index>=codeTag[0]&&mc.index<codeTag[1]) {
             console.debug("math string[" + mc[0] + "] in code tag!");
-        } else {
+        }/*  else if(codeBegin > -1 && codeEnd > -1 && mc.index > codeBegin && mc.index < codeEnd) {
+            console.debug("math string[" + mc[0] + "] in code tag!");
+        }  */else {
             var srcMath = "";
             var isDisplay = false;
             if (mc[1]) { //match $` `$
@@ -230,7 +233,34 @@ function isEndMultiMath(src) {
     return ret;
 }
 
+var codeMap;
+
+function reduce(number, start, end){
+    var len = end-start;
+    if (len > 1) {
+        len = len >> 1;
+        return number > codeMap[start + len - 1][0]
+                    ? reduce(number,start+len,end)
+                    : reduce(number,start,start+len);
+    } else {
+        return start;
+    }
+}
+
+var lineCount;
+
 function prepareDiagram(data) {
+    //console.log(data);
+    //var data="asd<code>dsa</code>sadsdasd<code>dsa</code>";
+    codeMap = [];
+    var codePat = /<code.*?<\/code>/gs;
+    var mc = null;
+    while (null != (mc = codePat.exec(data))) {
+        var idx = codeMap.length;
+        codeMap[idx]=[mc.index, mc.index+mc[0].length, mc[0]];
+    }
+    //console.log(codeMap, codeMap[0].len, reduce(0, 0, codeMap.length));
+
     var lines = data.split('\n');
     var retStr = "";
     var curStatus = "";
@@ -270,9 +300,8 @@ function prepareDiagram(data) {
     }
 
     resetDivId();
-    for (var i = 0; i < lines.length; i++) {
-        var line = lines[i];
-
+    var line;
+    for (var i = 0; line=lines[i], i<lines.length; lineCount+=lines[i].length+1, i++) {
         if (isInCode() && isEndCode(line)) {
             var specialCode = prepareSpecialCode(lang, tmpCode);
             if (specialCode.length > 0) {

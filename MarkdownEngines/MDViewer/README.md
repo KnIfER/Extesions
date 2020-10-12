@@ -42,8 +42,6 @@ Features
 Usage
 -----
 
-$\sum$
-
 1. Install extension from [webstore][] (creates no new UI)
 2. Check "Allow access to file URLs" in `chrome://extensions` listing: ![fileurls](http://i.imgur.com/qth3K.png)
 3. Open local or remote .md file in Chrome.
@@ -51,6 +49,8 @@ $\sum$
 
 Math Syntax
 -----------
+
+$\sum$
 
 Markdown Preview Plus uses the KaTex engine to support rendering of
 mathematical expressions.  Markdown Preview Plus supports the following math
