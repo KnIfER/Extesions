@@ -74,7 +74,6 @@
             if (items.katex) {
                 config.markedOptions.katex = true;
                 preHtml = diagramFlowSeq.prepareDiagram(data);
-                console.log('preHtml', preHtml);
             }
             marked.setOptions(config.markedOptions);
             var html = marked(preHtml);

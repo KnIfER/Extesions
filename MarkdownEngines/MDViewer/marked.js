@@ -520,6 +520,11 @@
       }
     };
 
+    _proto.lineNumber = function(line) {
+      return '<span ln="' + line + '"></span>';
+    };
+    
+
     _proto.nptable = function nptable(src) {
       var cap = this.rules.block.nptable.exec(src);
 
@@ -2141,7 +2146,9 @@
               out += this.renderer.heading(this.parseInline(token.tokens), token.depth, unescape$1(this.parseInline(token.tokens, this.textRenderer)), this.slugger);
               continue;
             }
-
+          case 'line': {
+            return this.renderer.lineNumber(this.token.line);
+          }
           case 'code':
             {
               out += this.renderer.code(token.text, token.lang, token.escaped);
