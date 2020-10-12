@@ -1,8 +1,23 @@
+https://github.com/volca/markdown-preview
 
-- flowchart.js
-
-
-
+- [x] underscore.js  
+https://github.com/jashkenas/underscore/tree/1.8.3
+- [x] snap.svg  
+https://github.com/adobe-webplatform/Snap.svg/tree/v0.4.1
+- [x] js-sequence-diagram  
+https://github.com/bramp/js-sequence-diagrams/tree/v2.0.1
+- [ ] raphael.js  
+https://github.com/DmitryBaranovskiy/raphael/tree/v2.2.0
+<br>
+<br>
+<br>
+- [x] Katex.js  
+https://github.com/KaTeX/KaTeX/tree/v0.12.0
+- [x] mermaid.js  
+https://github.com/mermaid-js/mermaid/tree/8.7.0
+- [x] marked.js  
+https://github.com/markedjs/marked/tree/v1.20  
+https://github.com/volca/markdown-preview/commits/master/js/marked.js
 
 
 
