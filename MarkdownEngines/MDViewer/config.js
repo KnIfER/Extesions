@@ -12,7 +12,8 @@ window.config = (function(hljs) {
         highlight: function(code, language) {
             const languageSubset = language ? [language]: null;
             return hljs.highlightAuto(code, languageSubset).value;
-        }
+        },
+        lineNumbers: true,
     };
 
     return module;
