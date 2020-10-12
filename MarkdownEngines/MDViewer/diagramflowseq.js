@@ -155,11 +155,14 @@ function replaceMathString(src) {
     mc = null;
     while (null != (mc = pattern.exec(src))) {
         //I don't know how to build the regular expression to exclude the Code tag.
-        var sid = reduce(lineCount+mc.index, 0, codeMap.length);
+        var offset=lineCount+mc.index;
+        var sid = reduce(offset, 0, codeMap.length);
         var codeTag = codeMap[sid];
-        console.log(codeMap);
-        if(codeTag && mc.index>=codeTag[0]&&mc.index<codeTag[1]) {
-            console.debug("math string[" + mc[0] + "] in code tag!");
+        if(codeTag && codeTag[0]>offset)
+            codeTag = codeMap[--sid];
+        //console.log(codeMap, offset, sid, codeTag);
+        if(codeTag && offset>=codeTag[0]&&offset<codeTag[1]) {
+            //console.debug("math string[" + mc[0] + "] in code tag!");
         }/*  else if(codeBegin > -1 && codeEnd > -1 && mc.index > codeBegin && mc.index < codeEnd) {
             console.debug("math string[" + mc[0] + "] in code tag!");
         }  */else {
@@ -252,6 +255,7 @@ var lineCount;
 function prepareDiagram(data) {
     //console.log(data);
     //var data="asd<code>dsa</code>sadsdasd<code>dsa</code>";
+    lineCount = 0;
     codeMap = [];
     var codePat = /<code.*?<\/code>/gs;
     var mc = null;
