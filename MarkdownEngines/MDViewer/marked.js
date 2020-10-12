@@ -520,11 +520,6 @@
       }
     };
 
-    _proto.lineNumber = function(line) {
-      return '<span ln="' + line + '"></span>';
-    };
-    
-
     _proto.nptable = function nptable(src) {
       var cap = this.rules.block.nptable.exec(src);
 
@@ -1393,7 +1388,7 @@
 
     _proto.lex = function lex(src) {
       src = src.replace(/\r\n|\r/g, '\n').replace(/\t/g, '    ');
-      this.blockTokens(src, this.tokens, true);
+      this.blockTokens(src, this.tokens, true, 0);
       this.inline(this.tokens);
       return this.tokens;
     }
@@ -1406,6 +1401,9 @@
       if (tokens === void 0) {
         tokens = [];
       }
+
+      this.tokenizer.lnd = this.lnd||0;
+      this.tokenizer.td = tokens;
 
       if (top === void 0) {
         top = true;
@@ -1884,6 +1882,10 @@
       return '<tr>\n' + content + '</tr>\n';
     };
 
+    _proto.lineNumber = function lineNumber(line) {
+      return '<span ln="' + line + '"></span>';
+    };
+    
     _proto.tablecell = function tablecell(content, flags) {
       var type = flags.header ? 'th' : 'td';
       var tag = flags.align ? '<' + type + ' align="' + flags.align + '">' : '<' + type + '>';
@@ -2147,7 +2149,8 @@
               continue;
             }
           case 'line': {
-            return this.renderer.lineNumber(this.token.line);
+            out += this.renderer.lineNumber(token.line);
+            continue;
           }
           case 'code':
             {
