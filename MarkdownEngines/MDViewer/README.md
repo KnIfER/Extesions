@@ -42,6 +42,8 @@ Features
 Usage
 -----
 
+$\sum$
+
 1. Install extension from [webstore][] (creates no new UI)
 2. Check "Allow access to file URLs" in `chrome://extensions` listing: ![fileurls](http://i.imgur.com/qth3K.png)
 3. Open local or remote .md file in Chrome.

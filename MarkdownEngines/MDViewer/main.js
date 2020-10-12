@@ -18,7 +18,18 @@
 	function init(name){
 		console.log(name.src);
 		var src_url=name.src+"/../";
-		var jss=["jquery.js", "marked.js", "highlight.js", "config.js", "markdownify.js", "webfont.js", "snap.svg-min.js", "underscore-min.js", "sequence-diagram-min.js", "raphael.min.js", "flowchart.min.js", "diagramflowseq.js", "katex.min.js", "rawdeflate.js", "platumlencode.js", "mermaid.min.js" ];
+		var jss=["jquery.js"
+		, "marked.js"
+		, "highlight.js"
+		, "config.js"
+		, "markdownify.js"
+		, "raphael.min.js"
+		, "flowchart.min.js"
+		, "diagramflowseq.js"
+		, "katex.min.js"
+		, "rawdeflate.js"
+		, "platumlencode.js"
+		, "mermaid.min.js" ];
 		for(var j in jss){
 			loadJs(src_url+jss[j], j==jss.length-1);
 		}

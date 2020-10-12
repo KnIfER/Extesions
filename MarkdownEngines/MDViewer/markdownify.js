@@ -3,8 +3,8 @@
     var mpp = {},
         interval,
         defaultReloadFreq = 3,
-        previousText,
-        storage = chrome.storage.local;
+        previousText;
+        //storage = chrome.storage.local;
 
     mpp.ajax = (options) => {
         if (options.url.protocol == "file:") {
@@ -60,7 +60,12 @@
     // Onload, take the DOM of the page, get the markdown formatted text out and
     // apply the converter.
     function makeHtml(data) {
-        storage.get(['supportMath', 'katex', 'html', 'toc'], function(items) {
+        //storage.get(['supportMath', 'katex', 'html', 'toc'], function(items) {
+			var items={};
+			//items.supportMath=1;
+			items.katex=1;
+			items.html=1;
+			items.toc=1;
             // Convert MarkDown to HTML
             var preHtml = data;
             if (items.html) {
@@ -68,7 +73,7 @@
             }
             if (items.katex) {
                 config.markedOptions.katex = true;
-                preHtml = diagramFlowSeq.prepareDiagram(data);
+                //preHtml = diagramFlowSeq.prepareDiagram(data);
             }
             marked.setOptions(config.markedOptions);
             var html = marked(preHtml);
@@ -87,8 +92,9 @@
             diagramFlowSeq.drawAllMermaid();
 
             postRender();
-        });
+        //});
     }
+	window.APMD = makeHtml;
 
     function getThemeCss(theme) {
         return chrome.extension.getURL('theme/' + theme + '.css');
@@ -113,7 +119,8 @@
         } else {
             var themePrefix = 'theme_',
                 key = themePrefix + theme;
-            storage.get(key, function(items) {
+            //storage.get(key, function(items) {
+				var items={};
                 if(items[key]) {
                     $('#theme').remove();
                     var theme = $('#custom-theme');
@@ -125,38 +132,12 @@
                         theme.html(items[key]);
                     }
                 }
-            });
+            //});
         }
     }
 
     function stopAutoReload() {
         clearInterval(interval);
-    }
-
-    function startAutoReload() {
-        stopAutoReload();
-
-        var freq = defaultReloadFreq;
-        storage.get('reload_freq', function(items) {
-            if(items.reload_freq) {
-                freq = items.reload_freq;
-            }
-        });
-
-        interval = setInterval(function() {
-            mpp.ajax({
-                url: location,
-                cache: false,
-                complete: (response) => {
-                    var data = response.data;
-                    if (previousText == data) {
-                        return;
-                    }
-                    makeHtml(data);
-                    previousText = data;
-                }
-            });
-        }, freq * 1000);
     }
 
     function render() {
@@ -173,83 +154,49 @@
                 makeHtml(document.body.innerText);
                 var specialThemePrefix = 'special_',
                     pageKey = specialThemePrefix + location.href;
-                storage.get(['theme', pageKey], function(items) {
-                    theme = items.theme ? items.theme : 'Clearness';
-                    if(items[pageKey]) {
-                        theme = items[pageKey];
-                    }
-                    setTheme(theme);
-                });
+					
+                //storage.get(['theme', pageKey], function(items) {
+                //    theme = items.theme ? items.theme : 'Clearness';
+                //    if(items[pageKey]) {
+                //        theme = items[pageKey];
+                //    }
+                //    setTheme(theme);
+                //});
 
-                storage.get('auto_reload', function(items) {
-                    if(items.auto_reload) {
-                        startAutoReload();
-                    }
-                });
+                //storage.get('auto_reload', function(items) {
+                //    if(items.auto_reload) {
+                //        startAutoReload();
+                //    }
+                //});
             }
         });
     }
 
-    storage.get(['exclude_exts', 'disable_markdown', 'katex', 'html'], function(items) {
-        if (items.disable_markdown) {
-            return;
-        }
-
-        if (items.katex) {
-            var mjc = document.createElement('link');
-            mjc.rel = 'stylesheet';
-            mjc.href = chrome.extension.getURL('theme/katex.min.css');
-            $(document.head).append(mjc);
-        }
-
-        var allExtentions = ["md", "text", "markdown", "mdown", "txt", "mkd", "rst", "rmd"];
-        var exts = items.exclude_exts;
-        if(!exts) {
-            render();
-            return;
-        }
-
-        var fileExt = getExtension(location.href);
-        if (($.inArray(fileExt, allExtentions) != -1) &&
-            (typeof exts[fileExt] == "undefined")) {
-            render();
-        }
-    });
-
-    chrome.storage.onChanged.addListener(function(changes, namespace) {
-        var specialThemePrefix = 'special_',
-            pageKey = specialThemePrefix + location.href;
-        for (key in changes) {
-            var value = changes[key];
-            if(key == pageKey) {
-                setTheme(value.newValue);
-            } else if(key == 'theme') {
-                storage.get(pageKey, function(items) {
-                    if(!items[pageKey]) {
-                        setTheme(value.newValue);
-                    }
-                });
-            } else if(key == 'toc') {
-                location.reload();
-            } else if(key == 'reload_freq') {
-                storage.get('auto_reload', function(items) {
-                    startAutoReload();
-                });
-            } else if(key == 'auto_reload') {
-                if(value.newValue) {
-                    startAutoReload();
-                } else {
-                    stopAutoReload();
-                }
-            } else if(key == 'disable_markdown') {
-                location.reload();
-            } else if(key == 'supportMath') {
-                location.reload();
-            } else if(key == 'katex') {
-                location.reload();
-            }
-        }
-    });
+    //storage.get(['exclude_exts', 'disable_markdown', 'katex', 'html'], function(items) {
+    //    if (items.disable_markdown) {
+    //        return;
+    //    }
+	//
+    //    if (items.katex) {
+    //        var mjc = document.createElement('link');
+    //        mjc.rel = 'stylesheet';
+    //        mjc.href = chrome.extension.getURL('theme/katex.min.css');
+    //        $(document.head).append(mjc);
+    //    }
+	//
+    //    var allExtentions = ["md", "text", "markdown", "mdown", "txt", "mkd", "rst", "rmd"];
+    //    var exts = items.exclude_exts;
+    //    if(!exts) {
+    //        render();
+    //        return;
+    //    }
+	//
+    //    var fileExt = getExtension(location.href);
+    //    if (($.inArray(fileExt, allExtentions) != -1) &&
+    //        (typeof exts[fileExt] == "undefined")) {
+    //        render();
+    //    }
+    //});
 
     // {{{ Start of TOC code
     var showNavBar = true;
