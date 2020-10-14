@@ -257,7 +257,8 @@ function prepareDiagram(data) {
     //var data="asd<code>dsa</code>sadsdasd<code>dsa</code>";
     lineCount = 0;
     codeMap = [];
-    var codePat = /<code.*?<\/code>/gs;
+    //var codePat = /<code.*?<\/code>/gs;
+    var codePat = /<code[\s\S]*?<\/code>/g;
     var mc = null;
     while (null != (mc = codePat.exec(data))) {
         var idx = codeMap.length;
@@ -304,8 +305,12 @@ function prepareDiagram(data) {
     }
 
     resetDivId();
-    var line;
+    var line; // offset 与 line 挂钩！
+    var war = window.articleRemap=[];
     for (var i = 0; line=lines[i], i<lines.length; lineCount+=lines[i].length+1, i++) {
+        war[i]=retStr.length;
+        line = line.replace(/^ +$/gm, '');
+        line = line.replace(/\r\n|\r/g, '\n').replace(/\t/g, '    ');
         if (isInCode() && isEndCode(line)) {
             var specialCode = prepareSpecialCode(lang, tmpCode);
             if (specialCode.length > 0) {
