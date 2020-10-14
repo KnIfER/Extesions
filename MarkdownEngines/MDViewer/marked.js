@@ -464,7 +464,7 @@
         }
 
         return {
-          raw: '\n'
+          raw: cap[0]
         };
       }
     };
@@ -1387,35 +1387,86 @@
     var _proto = Lexer.prototype;
 
     _proto.lex = function lex(src) {
-      src = src.replace(/\r\n|\r/g, '\n').replace(/\t/g, '    ');
+      //src = src.replace(/\r\n|\r/g, '\n').replace(/\t/g, '    ');
+      console.log('lexlex');
+      this.haha = 1;
+      this.dat = src;
+      this.od = 0;
+      this.lnd = 0;
+      this.td = this.tokens;
       this.blockTokens(src, this.tokens, true, 0);
       this.inline(this.tokens);
+      //console.log(src);
       return this.tokens;
     }
     /**
      * Lexing
      */
     ;
+    _proto.trimSrc = function trimSrc(src, cap) {
+      if(this.lnd==0) console.log('asdsasadsad'+src.split("\n").length);
+        var delta = cap.split("\n").length - 1;
+        if(delta>0) {
+          this.td.push({ type: 'line', line: this.lnd });
+          this.lnd += delta;
+          console.log('delta', delta);
+        }
+        return src.substring(cap.length);
+    }
+
+    _proto.trimSrc1 = function trimSrc1(src, cap) {
+      return src.substring(cap.length);
+    }
+
+    _proto.reduce = function reduce(w, number, start, end){
+      var len = end-start;
+      if (len > 1) {
+          len = len >> 1;
+          return number > w[start + len - 1]
+                      ? this.reduce(w, number,start+len,end)
+                      : this.reduce(w, number,start,start+len);
+      } else {
+          return start;
+      }
+    }
+
+    _proto.trimSrc2 = function trimSrc2(src, cap) {
+        var ln = this.reduce(this.war, this.od, 0, this.war.length);
+        //console.log('trimSrc2', this.od, ln, cap, this.war);
+        if(ln>1&&this.war[ln-1]<this.od&&this.war[ln]>this.od)
+          ln--;
+        this.td.push({ type: 'line', line: ln });
+        this.od += cap.length;
+        return src.substring(cap.length);
+    }
 
     _proto.blockTokens = function blockTokens(src, tokens, top) {
       if (tokens === void 0) {
         tokens = [];
       }
 
-      this.tokenizer.lnd = this.lnd||0;
-      this.tokenizer.td = tokens;
+      var trimSrc=this.trimSrc1;
 
       if (top === void 0) {
         top = true;
       }
+      if(top) {
+        if(window.articleRemap)
+        {
+          this.war=window.articleRemap;
+          trimSrc = this.trimSrc2.bind(this);
+        }
+        else
+          trimSrc = this.trimSrc.bind(this);
+      }
 
-      src = src.replace(/^ +$/gm, '');
+      //src = src.replace(/^ +$/gm, '');
       var token, i, l, lastToken;
 
       while (src) {
         // newline
         if (token = this.tokenizer.space(src)) {
-          src = src.substring(token.raw.length);
+          src = trimSrc(src, token.raw);
 
           if (token.type) {
             tokens.push(token);
@@ -1426,7 +1477,7 @@
 
 
         if (token = this.tokenizer.code(src, tokens)) {
-          src = src.substring(token.raw.length);
+          src = trimSrc(src, token.raw);
 
           if (token.type) {
             tokens.push(token);
@@ -1441,35 +1492,35 @@
 
 
         if (token = this.tokenizer.fences(src)) {
-          src = src.substring(token.raw.length);
+          src = trimSrc(src, token.raw);
           tokens.push(token);
           continue;
         } // heading
 
 
         if (token = this.tokenizer.heading(src)) {
-          src = src.substring(token.raw.length);
+          src = trimSrc(src, token.raw);
           tokens.push(token);
           continue;
         } // table no leading pipe (gfm)
 
 
         if (token = this.tokenizer.nptable(src)) {
-          src = src.substring(token.raw.length);
+          src = trimSrc(src, token.raw);
           tokens.push(token);
           continue;
         } // hr
 
 
         if (token = this.tokenizer.hr(src)) {
-          src = src.substring(token.raw.length);
+          src = trimSrc(src, token.raw);
           tokens.push(token);
           continue;
         } // blockquote
 
 
         if (token = this.tokenizer.blockquote(src)) {
-          src = src.substring(token.raw.length);
+          src = trimSrc(src, token.raw);
           token.tokens = this.blockTokens(token.text, [], top);
           tokens.push(token);
           continue;
@@ -1477,7 +1528,7 @@
 
 
         if (token = this.tokenizer.list(src)) {
-          src = src.substring(token.raw.length);
+          src = trimSrc(src, token.raw);
           l = token.items.length;
 
           for (i = 0; i < l; i++) {
@@ -1490,14 +1541,14 @@
 
 
         if (token = this.tokenizer.html(src)) {
-          src = src.substring(token.raw.length);
+          src = trimSrc(src, token.raw);
           tokens.push(token);
           continue;
         } // def
 
 
         if (top && (token = this.tokenizer.def(src))) {
-          src = src.substring(token.raw.length);
+          src = trimSrc(src, token.raw);
 
           if (!this.tokens.links[token.tag]) {
             this.tokens.links[token.tag] = {
@@ -1511,28 +1562,28 @@
 
 
         if (token = this.tokenizer.table(src)) {
-          src = src.substring(token.raw.length);
+          src = trimSrc(src, token.raw);
           tokens.push(token);
           continue;
         } // lheading
 
 
         if (token = this.tokenizer.lheading(src)) {
-          src = src.substring(token.raw.length);
+          src = trimSrc(src, token.raw);
           tokens.push(token);
           continue;
         } // top-level paragraph
 
 
         if (top && (token = this.tokenizer.paragraph(src))) {
-          src = src.substring(token.raw.length);
+          src = trimSrc(src, token.raw);
           tokens.push(token);
           continue;
         } // text
 
 
         if (token = this.tokenizer.text(src, tokens)) {
-          src = src.substring(token.raw.length);
+          src = trimSrc(src, token.raw);
 
           if (token.type) {
             tokens.push(token);

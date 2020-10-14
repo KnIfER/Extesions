@@ -92,6 +92,9 @@
             diagramFlowSeq.drawAllMermaid();
 
             postRender();
+
+            if(window.MDAP)
+                window.MDAP();
         //});
     }
 	window.APMD = makeHtml;
