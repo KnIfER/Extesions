@@ -140,100 +140,7 @@ pre code {
     }
 }
 
-/*
-foundation.css
-Description: Foundation 4 docs style for highlight.js
-Author: Dan Allen <dan.j.allen@gmail.com>
-Website: http://foundation.zurb.com/docs/
-Version: 1.0
-Date: 2013-04-02
-*/
-
-.hljs {
-  display: block;
-  overflow-x: auto;
-  padding: 0.5em;
-  background: #eee; color: black;
-}
-
-.hljs-link,
-.hljs-emphasis,
-.hljs-attribute,
-.hljs-addition {
-  color: #070;
-}
-
-.hljs-emphasis {
-  font-style: italic;
-}
-
-strong {
-  font-weight: 700;
-}
-
-.hljs-strong,
-.hljs-string,
-.hljs-deletion {
-  color: #d14;
-}
-
-.hljs-strong {
-  font-weight: bold;
-}
-
-.hljs-quote,
-.hljs-comment {
-  color: #998;
-  font-style: italic;
-}
-
-.hljs-section,
-.hljs-title {
-  color: #900;
-}
-
-.hljs-class .hljs-title,
-.hljs-type {
-  color: #458;
-}
-
-.hljs-variable,
-.hljs-template-variable {
-  color: #336699;
-}
-
-.hljs-bullet {
-  color: #997700;
-}
-
-.hljs-meta {
-  color: #3344bb;
-}
-
-.hljs-code,
-.hljs-number,
-.hljs-literal,
-.hljs-keyword,
-.hljs-selector-tag {
-  color: #099;
-}
-
-.hljs-regexp {
-  background-color: #fff0ff;
-  color: #880088;
-}
-
-.hljs-symbol {
-  color: #990073;
-}
-
-.hljs-tag,
-.hljs-name,
-.hljs-selector-id,
-.hljs-selector-class {
-  color: #007700;
-}
-
+/* MDViewer */
 ol, ul {
   margin: 0 0 24px;
   padding: 0;
@@ -320,4 +227,180 @@ table tr:nth-child(2n) {
 .messageText {
   fill: #333;
   stroke: transparent!important;
+}
+
+/*
+foundation.css
+Description: Foundation 4 docs style for highlight.js
+Author: Dan Allen <dan.j.allen@gmail.com>
+Website: http://foundation.zurb.com/docs/
+Version: 1.0
+Date: 2013-04-02
+*/
+
+.hljs {
+  display: block;
+  overflow-x: auto;
+  padding: 0.5em;
+  background: #fff; 
+  color: #333;
+	overflow-x: auto
+}
+
+.hljs-link,
+.hljs-emphasis,
+.hljs-attribute,
+.hljs-addition {
+  color: #070;
+}
+
+.hljs-emphasis {
+  font-style: italic;
+}
+
+strong {
+  font-weight: 700;
+}
+
+.hljs-strong,
+.hljs-string,
+.hljs-deletion {
+  color: #d14;
+}
+
+.hljs-strong {
+  font-weight: bold;
+}
+
+.hljs-quote,
+.hljs-comment {
+  color: #998;
+  font-style: italic;
+}
+
+.hljs-section,
+.hljs-title {
+  color: #900;
+}
+
+.hljs-class .hljs-title,
+.hljs-type {
+  color: #458;
+}
+
+.hljs-variable,
+.hljs-template-variable {
+  color: #336699;
+}
+
+.hljs-bullet {
+  color: #997700;
+}
+
+.hljs-meta {
+  color: #3344bb;
+}
+
+.hljs-code,
+.hljs-number,
+.hljs-literal,
+.hljs-keyword,
+.hljs-selector-tag {
+  color: #099;
+}
+
+.hljs-regexp {
+  background-color: #fff0ff;
+  color: #880088;
+}
+
+.hljs-symbol {
+  color: #990073;
+}
+
+.hljs-tag,
+.hljs-name,
+.hljs-selector-id,
+.hljs-selector-class {
+  color: #007700;
+}
+/* GITHUB */
+h1,h2,h3,h4,h5,h6 {
+	margin-top: 24px;
+	margin-bottom: 16px;
+	font-weight: 600;
+	line-height: 1.25
+}
+h1 .octicon-link,h2 .octicon-link,h3 .octicon-link,h4 .octicon-link,h5 .octicon-link,h6 .octicon-link {
+	color: #1b1f23;
+	vertical-align: middle;
+	visibility: hidden
+}
+h1:hover .anchor,h2:hover .anchor,h3:hover .anchor,h4:hover .anchor,h5:hover .anchor,h6:hover .anchor {
+	text-decoration: none
+}
+h1:hover .anchor .octicon-link,h2:hover .anchor .octicon-link,h3:hover .anchor .octicon-link,h4:hover .anchor .octicon-link,h5:hover .anchor .octicon-link,h6:hover .anchor .octicon-link {
+	visibility: visible
+}
+h1 tt,h1 code,h2 tt,h2 code,h3 tt,h3 code,h4 tt,h4 code,h5 tt,h5 code,h6 tt,h6 code {
+	font-size: inherit
+}
+h1 {
+	padding-bottom: .3em;
+	font-size: 2em;
+	border-bottom: 1px solid #eaecef
+}
+h2 {
+	padding-bottom: .3em;
+	font-size: 1.5em;
+	border-bottom: 1px solid #eaecef
+}
+h3 {
+	font-size: 1.25em
+}
+h4 {
+	font-size: 1em
+}
+h5 {
+	font-size: .875em
+}
+h6 {
+	font-size: .85em;
+	color: #6a737d
+}
+/* code */
+.hljs-comment,.hljs-meta {
+	color: #969896
+}
+.hljs-string,.hljs-variable,.hljs-template-variable,.hljs-strong,.hljs-emphasis,.hljs-quote {
+	color: #df5000
+}
+.hljs-keyword,.hljs-selector-tag,.hljs-type {
+	color: #a71d5d
+}
+.hljs-literal,.hljs-symbol,.hljs-bullet,.hljs-attribute {
+	color: #0086b3
+}
+.hljs-section,.hljs-name {
+	color: #63a35c
+}
+.hljs-tag {
+	color: #333333
+}
+.hljs-title,.hljs-attr,.hljs-selector-id,.hljs-selector-class,.hljs-selector-attr,.hljs-selector-pseudo {
+	color: #795da3
+}
+.hljs-addition {
+	color: #55a532;
+	background-color: #eaffea
+}
+.hljs-deletion {
+	color: #bd2c00;
+	background-color: #ffecec
+}
+.hljs-link {
+	text-decoration: underline
+}
+.hljs-attribute, .hljs-doctag, .hljs-keyword, .hljs-meta-keyword, .hljs-name, .hljs-selector-tag {
+  font-weight: 600;
 }

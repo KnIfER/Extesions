@@ -311,7 +311,7 @@ function prepareDiagram(data) {
     for (var i = 0; line=lines[i], i<lines.length; lineCount+=lines[i].length+1, i++) {
         war[i]=retStr.length;
         line = line.replace(/^ +$/gm, '');
-        line = line.replace(/\r\n|\r/g, '\n');
+        //line = line.replace(/\r\n|\r/g, '\n');
         line = line.replace(/\t/g, '    ');
         if (isInCode() && isEndCode(line)) {
             var specialCode = prepareSpecialCode(lang, tmpCode);
