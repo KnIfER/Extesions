@@ -266,7 +266,8 @@ function prepareDiagram(data) {
     }
     //console.log(codeMap, codeMap[0].len, reduce(0, 0, codeMap.length));
 
-    var lines = data.split('\n');
+    //var lines = data.split('\r\n');
+    var lines = data.split(/\r\n|\n/);
     var retStr = "";
     var curStatus = "";
     var preLangs = ["flow", "sequence", "puml", "math", "mermaid"];
@@ -310,7 +311,8 @@ function prepareDiagram(data) {
     for (var i = 0; line=lines[i], i<lines.length; lineCount+=lines[i].length+1, i++) {
         war[i]=retStr.length;
         line = line.replace(/^ +$/gm, '');
-        line = line.replace(/\r\n|\r/g, '\n').replace(/\t/g, '    ');
+        line = line.replace(/\r\n|\r/g, '\n');
+        line = line.replace(/\t/g, '    ');
         if (isInCode() && isEndCode(line)) {
             var specialCode = prepareSpecialCode(lang, tmpCode);
             if (specialCode.length > 0) {
