@@ -33,7 +33,7 @@
 		for(var j in jss){
 			loadJs(src_url+jss[j], j==jss.length-1);
 		}
-		jss=["Clearness.css", "katex.min.css"];
+		jss=["style.css", "katex.min.css"];
 		for(var j in jss){
 			loadCss(src_url+"theme/"+jss[j]);
 		}
