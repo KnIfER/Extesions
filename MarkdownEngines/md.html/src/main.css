@@ -1,0 +1,52 @@
+@import '~github-markdown-css';
+@import '~katex/dist/katex.min.css';
+@import '~octicons/index.scss';
+@import '~highlight.js/styles/github.css';
+
+html,
+body {
+  margin: 0;
+}
+
+.markdown-body {
+  box-sizing: border-box;
+  min-width: 200px;
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 45px;
+}
+
+@media (max-width: 767px) {
+  .markdown-body {
+    padding: 15px;
+  }
+}
+
+.md-html-footer {
+  text-align: right;
+}
+
+.footnote-backref {
+  display: block;
+  text-align: right;
+}
+
+:target {
+  background-color: yellow;
+}
+
+.math {
+  overflow-x: auto;
+}
+
+@media print {
+  @page {
+    /* portrait A4 */
+    size: 210mm 297mm;
+    margin: 0;
+  }
+
+  .md-html-footer {
+    display: none;
+  }
+}

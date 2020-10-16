@@ -1,0 +1,29 @@
+language: node_js
+node_js:
+  - '11'
+
+script:
+  - yarn test
+  - yarn lint
+
+before_deploy:
+  - yarn build
+deploy:
+  - provider: pages
+    skip-cleanup: true
+    keep-history: true
+    target-branch: gh-pages
+    github-token: $GITHUB_TOKEN
+    local-dir: docs
+    name: TSUYUSATO Kitsune (bot)
+    email: make.just.on@gmail.com
+    on:
+      branch: master
+  - provider: npm
+    email: make.just.on@gmail.com
+    skip_cleanup: true
+    api_key:
+      secure: EPTebYuKDZSVrjOgEF/vccu82OvW/snCS9ghALJQciwD2FNJgPQ4YrQHwPF6PTIeLAsYSOp4j2tYxG+G8/1No54sqHI2bU6SpS96JaSCaHH7Ah6Rk0Ul2Rujs+t+eqCZH0sX+h2NARivcDMTJtviJQNe+7ceOPLjnF7j6RCEi98l8ufyetP6qi51Oal+GXGyL48kgQNvys+XjccjhinNKZbNrDkqoOHxd7jhhUrCqhs1ASDzJX02WI+oH9t3o8eKs75Vfcg78YMizoambQElF7FnNP8jaraoDy3N9CwJQf7sOxwGRyS5VPydFTF51SX0qs9CY7p4YL7kyJ3iGmy8uhnQz7XVFjg+APjVJexWIkkZMQfcEh13PAGvMQ6Q1m4kFPFQKE0XlW+mlp2GGa5+fEh9SOICx8t38L2yj3cxzJO5zxyjU2qd4os1WUJC8QmuFkUdZiIEWSQWJIxwifzB/OvLcYStd5wC6Jb+dtuFeMyTYnCjA0aEd1rqWy3Qs0XWIZkoMmPPC0UqxjigM9PBKfMfY0tylzUasWZsmKio/SK3VZ8L6HM23pdhS1bVMIiJ9AqIDiuB4YyE2u0ox7ZgKrtRnxYq4kLet1OnbmyMftC/3hTbQGX1KJh7M00QqOe8iTgYNJed4N/PETdjyWDasSMgd5it2hN2TvuvAKgC4tI=
+    on:
+      tags: true
+      repo: MakeNowJust/md.html

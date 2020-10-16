@@ -1,0 +1,7 @@
+# Node.js
+node_modules/
+*.log
+
+# Others
+/dist/
+/docs/
