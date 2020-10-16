@@ -11,17 +11,73 @@ w.addEventListener('mouseout', function(ev){
     llock=0;
 });
 var lns=[];
+var tbd = [];
+var tocti;
 w.MDAP = function() {
     lns=[];
+    tbd=[];
     var cs = document.body.childNodes;
+    var tp, tn, tc;
     for(var i in cs){
         var cI = cs[i];
-        if(cI.tagName=='SPAN'&&cI.hasAttribute('ln'))
-            lns.push(cI);
+        tn=cI.tagName;
+        if(tn && tn.length==2 && tn[0]=='H')
+        {
+            tc = tn.charAt(1);
+            if(tc>='1'&&tc<='9') {
+                tbd.push(cI);
+            }
+            else if(tc==='T') {
+                tp=cI;
+            }
+            else if(tc==='L'&&cI.hasAttribute('ln')) {
+                lns.push(cI);
+            }
+        }
     }
     //console.log('MDAP', lns);
     ind=1;
     llock=1;
+    if(tp) {
+        parseToc(tp, true);
+    }
+}
+
+function parseToc(tp, dp){
+    if(dp) {
+        tocti=tp.innerHTML;
+    }
+    if(tocti) {
+        tp.innerHTML='<h3>'+tocti+'</h3>';
+    }
+    var tocid=[];
+    tocid.push(0);
+    tocid.push(0);
+    var tidit=2;
+    for(var i in tbd) {
+        var hI=tbd[i];
+        var tn=hI.tagName[1];
+        var itI=parseInt(tn);// 1~9
+        var l=document.createElement('LI');
+        var a=document.createElement('A');
+        a.id=i;
+        a.href='#'+hI.id;
+        a.innerHTML=hI.innerHTML;
+        l.appendChild(a);
+        if(itI>=tidit) {
+            for(var it=tidit;it<=itI;it++){
+                var u=document.createElement('UL');
+                tocid.push(u);
+                if(tocid[it-1]) tocid[it-1].appendChild(u);
+                else if(it==2) tp.appendChild(u);
+            }
+        }
+        if(tocid[itI]) tocid[itI].appendChild(l);
+        else if(itI==1) tp.appendChild(l);
+        tocid.length=tidit=itI+1;
+        //var cn = 'item_h'+tn;
+        //tp.innerHTML+='<li><a id="'+i+'" class="nav_item '+cn+'" href="#'+hI.id+'">'+hI.innerText+'</a></li>';
+    }
 }
 
 var lastLn=0;
