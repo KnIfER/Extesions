@@ -1577,6 +1577,9 @@
 
         if (top && (token = this.tokenizer.paragraph(src))) {
           src = trimSrc(src, token.raw);
+          if(token.raw.charAt(2)==='t'&&token.raw.startsWith('<ht>')) {
+            token.type='html';
+          }
           tokens.push(token);
           continue;
         } // text
@@ -1889,7 +1892,7 @@
       return '<blockquote>\n' + quote + '</blockquote>\n';
     };
 
-    _proto.html = function html(_html) {
+    _proto.html = function html(_html) { //here
       return _html;
     };
 
@@ -1934,7 +1937,7 @@
     };
 
     _proto.lineNumber = function lineNumber(line) {
-      return '<span ln="' + line + '"></span>';
+      return '<hl ln="' + line + '"></hl>';
     };
     
     _proto.tablecell = function tablecell(content, flags) {
