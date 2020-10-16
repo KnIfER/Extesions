@@ -17,9 +17,12 @@ w.MDAP = function() {
     lns=[];
     tbd=[];
     var cs = document.body.childNodes;
-    var tp, tn, tc;
+    if(cs.length==1&&cs[0].tagName=='DIV') {
+        cs=cs[0].childNodes;
+    }
+    var tp, tn, tc, cI;
     for(var i in cs){
-        var cI = cs[i];
+        cI = cs[i];
         tn=cI.tagName;
         if(tn && tn.length==2 && tn[0]=='H')
         {
@@ -38,6 +41,11 @@ w.MDAP = function() {
     //console.log('MDAP', lns);
     ind=1;
     llock=1;
+    console.log(cs[0].tagName==='P', cs[0].childNodes);
+    if(!tp) {
+        if(cs[0].tagName==='P'&&(cs=cs[0].childNodes).length==1&&cs[0].tagName==='HT')
+            tp=cs[0];
+    }
     if(tp) {
         parseToc(tp, true);
     }
