@@ -37,55 +37,59 @@ const compiler = unified()
   .use(katex)
   .use(html);
 
-document.addEventListener('DOMContentLoaded', async () => {
-  const noscript = document.querySelector('noscript');
-  if (!noscript) {
-    console.error('<noscript> is missing!');
-    return;
-  }
-
-  // Strip leading spaces and HTML comments for supporting both of modeline and frontmatter.
-  const text = noscript.textContent.replace(/^\s*((?:<!--.*?-->)\s*)*/, '');
-  // Remove `<noscript>` tag from the document.
-  noscript.remove();
-  // Split `<noscript>` text content with frontmatter and Markdown body.
-  const {data, content} = matter(text);
+window.APMD=function(md_text, append){
+  // Split md_text content with frontmatter and Markdown body.
+  const {data, content} = matter(md_text);
   // Convert Markdown into HTML.
-  const result = await compiler.process(content);
+  
+  compiler.process(content).then((result) => {
+	  // Insert `<meta name="viewport">` for mobile devies into the document head.
+		const viewport = document.createElement('meta');
+		viewport.name = 'viewport';
+		viewport.content = 'width=device-width,initial-scale=1';
+		document.head.appendChild(viewport);
 
-  // Show banner.
-  console.log(
-    `%c 📝 %cmd.html %cv${MD_HTML_VERSION}%cMarkdown inside HTML https://github.com/MakeNowJust/md.html/`,
-    'padding: 0.5em; background: green',
-    'padding: 0.5em; padding-right: 0; color: white; background: black',
-    'padding: 0.5em; padding-left: 0; color: silver; background: black',
-    'padding: 0.5em',
-  );
+		if(!append) {
+			document.body.innerHTML = "";
+		}
+		// Create wrapper element of converted Markdown.
+		const container = document.createElement('div');
+		container.classList.add('markdown-body');
+		container.innerHTML = result.contents;
 
-  // Insert `<meta name="viewport">` for mobile devies into the document head.
-  const viewport = document.createElement('meta');
-  viewport.name = 'viewport';
-  viewport.content = 'width=device-width,initial-scale=1';
-  document.head.appendChild(viewport);
+		// Create footer when frontmatter does not provide `footer` property or `footer` is `true`.
+		if (data.footer === undefined || data.footer === true) {
+			const footer = document.createElement('footer');
+			footer.classList.add('md-html-footer');
+			footer.innerHTML = `Powered by <a target="_blank" rel="nofollow noopener noreferrer" href="https://github.com/MakeNowJust/md.html/">📝 md.html</a> <sup>v${MD_HTML_VERSION}</sup>`;
+			container.appendChild(footer);
+		}
 
-  // Create wrapper element of converted Markdown.
-  const container = document.createElement('div');
-  container.classList.add('markdown-body');
-  container.innerHTML = result.contents;
+		// Insert wrapper element into the document.
+		document.body.appendChild(container);
 
-  // Create footer when frontmatter does not provide `footer` property or `footer` is `true`.
-  if (data.footer === undefined || data.footer === true) {
-    const footer = document.createElement('footer');
-    footer.classList.add('md-html-footer');
-    footer.innerHTML = `Powered by <a target="_blank" rel="nofollow noopener noreferrer" href="https://github.com/MakeNowJust/md.html/">📝 md.html</a> <sup>v${MD_HTML_VERSION}</sup>`;
-    container.appendChild(footer);
-  }
+		// Set `document.title` when frontmatter has `title` property.
+		if (data.title !== undefined) {
+			document.title = data.title;
+		}
+		
+		if(window.MDAP)
+			window.MDAP();
+	}, (err) => {
+		console.log(err)
+	})
+  //const result = await compiler.process(content);
+}
 
-  // Insert wrapper element into the document.
-  document.body.appendChild(container);
+if(window.update) {
+	window.update();
+}
 
-  // Set `document.title` when frontmatter has `title` property.
-  if (data.title !== undefined) {
-    document.title = data.title;
-  }
-});
+
+window.init=function(){
+
+	if(window.update) {
+		window.update();
+	}
+
+}
