@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+
+<meta charset="UTF-8">
+
+<script>
+function gid(id){
+	return document.getElementById(id);
+}
+window.addEventListener("click",function(e){
+	//console.log("click", e);
+	if(e.target.tagName==="IMG") {
+		if(e.target.className.indexOf("math")>=0){
+			//console.log(lt);
+			var lt = e.target.alt;
+			if(!window.initKaDlg){
+				var xmlhttp=new XMLHttpRequest();
+				xmlhttp.onreadystatechange=function(){
+					if (xmlhttp.readyState==4 && xmlhttp.status==200){
+						document.body.innerHTML+=xmlhttp.responseText;
+						eval(gid("KaTexDlg").innerText)
+						initKaDlg(lt);
+					}
+				}
+				xmlhttp.open("GET","katexEss.html",true);
+				xmlhttp.send();
+				console.log('sending...');
+			} else {
+				initKaDlg(lt);
+			}
+		}
+	}
+});
+</script>
+
+
+<img id="demo" src="https://wikimedia.org/api/rest_v1/media/math/render/svg/6786c8c1ac7956935793ba58d39cd0dddec65f0b" class="mwe-math-fallback-image-inline" aria-hidden="true" style="vertical-align: -2.505ex; width:18.379ex; height:6.009ex;" alt="{\displaystyle {\frac {\partial L}{\partial f}}-{\frac {d}{dx}}{\frac {\partial L}{\partial f'}}=0}">
+
+<script> gid("demo").click(); </script>
