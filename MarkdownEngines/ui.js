@@ -33,6 +33,7 @@ w.MDAP = function() {
             else if(tc==='T') {
                 tp=cI;
             }
+            // <hl ln="0"></hl>
             else if(tc==='L'&&cI.hasAttribute('ln')) {
                 lns.push(cI);
             }
@@ -117,18 +118,27 @@ function reduln(ln, start, end){
     }
 }
 
+//sync web to editor
 function doScintillo(bf) {
-    var top = parseInt(document.documentElement.scrollTop||document.body.scrollTop);
-    var i=reduce(top, 0, lns.length);
-    var dt=0, dl=0, lnc=0;
-    lnc = parseInt(lns[i].getAttribute('ln'));
-    if(lns[i].offsetTop!=top) {
-        if(i>0) {
-            dt=lns[i-1].offsetTop;
-            dl=parseInt(lns[i-1].getAttribute('ln'));
+    var lnc=0, top = parseInt(document.documentElement.scrollTop||document.body.scrollTop);
+    if(lns.length==0) {
+        var H=document.body.scrollHeight; 
+        if(H>0) {
+            // map percent to -1000~0
+            lnc = -Math.floor(top*1000.0/H);
         }
-        lnc = dl+(lnc-dl)*1.0*(top-dt)/(lns[i].offsetTop-dt);
-        lnc = Math.round(lnc);
+    } else {
+        var i=reduce(top, 0, lns.length);
+        var dt=0, dl=0;
+        lnc = parseInt(lns[i].getAttribute('ln'));
+        if(lns[i].offsetTop!=top) {
+            if(i>0) {
+                dt=lns[i-1].offsetTop;
+                dl=parseInt(lns[i-1].getAttribute('ln'));
+            }
+            lnc = dl+(lnc-dl)*1.0*(top-dt)/(lns[i].offsetTop-dt);
+            lnc = Math.round(lnc);
+        }
     }
     if(lastLn!=lnc||bf) {
         lastLn=lnc;
@@ -154,7 +164,7 @@ function wrappedOnScroll(ev) {
             lTm=0;
         }
     }
-    if(llock&&lns.length>0) {
+    if(llock) {
         //console.log('scroll', ev);
         doScintillo(false);
     }
@@ -163,7 +173,16 @@ function wrappedOnScroll(ev) {
     }
 }
 
-function syncLn(ln) {
+//sync editor to web
+function syncLn(ln, pct) {
+    if(lns.length==0) {
+        if(pct>=0) {
+            // simple percentage mapping. see SubratThakur/remark-preview
+            const nxtPos = document.body.scrollHeight * pct;
+            window.scroll(0, Math.ceil(nxtPos));
+        }
+        return;
+    }
     var i=reduln(ln, 0, lns.length);
     var dt=0, dl=0, lnc=0;
     var lnc = parseInt(lns[i].getAttribute('ln'));
@@ -175,7 +194,7 @@ function syncLn(ln) {
         }
         tc=dt+(lns[i].offsetTop-dt)*1.0*(ln-dl)/(lnc-dl);
     }
-    //console.log('syncLn', ln, lnc);
+    console.log('syncLn', ln, lnc);
     llock=0;
     document.body.scrollTop=tc;
     document.documentElement.scrollTop=tc;
