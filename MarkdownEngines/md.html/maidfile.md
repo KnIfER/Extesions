@@ -17,7 +17,7 @@ Build project.
 
 ```bash
 set -ex
-webpack --config webpack.config.js --env.production
+webpack --config webpack.config.js --env production
 
 
 ```
