@@ -19,38 +19,7 @@ Build project.
 set -ex
 webpack --config webpack.config.js --env.production
 
-# Copy built files to `docs`.
-mkdir -p docs
-cp -rT dist docs
 
-# Build `docs/index.html`.
-cat - readme.md <<HTML |
-<!doctype html><meta charset="utf-8"><script src="./main.js"></script><noscript>
-<!-- vim: set ft=markdown: -->
----
-title: md.html
----
-
-HTML
-  sed -Ee '1s/src="[^"]*"/src="main.js"/' \
-       -e 's/^.*<!-- MARKER 1 -->$/:sunglasses: **"[View Page Source][raw]" please!! You will see suprising result.**/' \
-       -e 's/^.*<!-- MARKER 2 -->$/See [`maidfile.md`](maidfile.md.html) tasks./' > docs/index.html
-
-# Build `docs/maidfile.md.html`.
-cat - maidfile.md <<HTML > docs/maidfile.md.html
-<!doctype html><meta charset="utf-8"><script src="./main.js"></script><noscript>
-<!-- vim: set ft=markdown: -->
----
-title: maidfile.md - md.html
----
-
-HTML
-
-# Build `docs/examples`.
-(cd examples && find . -type f) | while read filename; do
-  mkdir -p docs/examples/$(dirname $filename)
-  sed -E '1s/src="([^"]*)main.js"/src="\1..\/main.js"/' examples/$filename > docs/examples/$filename
-done
 ```
 
 ## analyze

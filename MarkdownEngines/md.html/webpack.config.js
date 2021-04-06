@@ -14,7 +14,7 @@ module.exports = (env = {}) => {
       main: path.join(__dirname, 'src/main.js'),
     },
     output: {
-      path: path.join(__dirname, 'dist'),
+      path: path.join(__dirname, '../'),
       filename: '[name].js',
     },
     module: {
