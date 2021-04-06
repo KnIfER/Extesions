@@ -6,10 +6,12 @@ const pkg = require('./package.json');
 
 module.exports = (env = {}) => {
   const MD_HTML_VERSION = env.production ? pkg.version : '0.0.0-dev';
+  
+  console.log('Production: ', env.production); 
 
   return {
     mode: env.production ? 'production' : 'development',
-    devtool: env.production ? 'source-maps' : 'eval',
+    devtool: env.production ? false : 'source-maps',
     entry: {
       main: path.join(__dirname, 'src/main.js'),
     },
@@ -30,7 +32,7 @@ module.exports = (env = {}) => {
                   [
                     '@babel/preset-env',
                     {
-                      useBuiltIns: 'usage',
+                      useBuiltIns: 'usage'
                     },
                   ],
                 ],
