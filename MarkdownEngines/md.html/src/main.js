@@ -14,6 +14,7 @@ import link from 'rehype-autolink-headings';
 import highlight from 'rehype-highlight';
 import katex from 'rehype-katex';
 import html from 'rehype-stringify';
+import table from 'remark-gfm';
 
 // Icons:
 import linkIcon from './icons/link';
@@ -35,6 +36,7 @@ const compiler = unified()
   .use(link, {properties: {className: 'anchor', ariaHidden: true}, content: linkIcon})
   .use(highlight, {ignoreMissing: true, subset: false})
   .use(katex)
+  .use(table)
   .use(html);
 
 window.APMD=function(md_text, append){
