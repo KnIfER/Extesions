@@ -1,0 +1,30 @@
+{
+    "name": "__MSG_appName__",
+    "description": "__MSG_appDesc__",
+    "version": "1.0.0",
+    "manifest_version": 2,
+    "default_locale": "en",
+    "author": "302772670@qq.com",
+    "icons": {
+        "16": "images/icon16.png",
+        "48": "images/icon48.png",
+        "128": "images/icon128.png"
+    },
+    "browser_action": {
+        "default_icon": "images/icon19.png"
+    },
+    "permissions": [
+      "contextMenus"
+      , "tabs"
+      , "https://*/*"
+      , "file://*/*"
+      , "storage"
+    ],
+	"content_security_policy": "script-src 'self' 'sha256-1sGlvuyKQBkx3M3ixm7q3ZQFu4LdCltk6Ib6u8raczI='",
+    "background": {
+        "scripts": [
+            "background.js"
+        ]
+    },
+    "options_page": "settings.html"
+}
