@@ -1,0 +1,65 @@
+{
+  "appName": {
+    "message": "Easy Scroll And Copy"
+  },
+  "appDesc": {
+    "message": "This extension supports fast auto-scroll and advanced copy (url and title, html, markdown...) functionality. You can invoke all of them by a single click or through right-click context menus on the toolbar icon."
+  },
+  "ultra": {
+    "message": "Auto Scroll ( Ultra-Fast )"
+  },
+  "fast": {
+    "message": "Auto Scroll ( Fast )"
+  },
+  "slow": {
+    "message": "Auto Scroll ( Slow )"
+  },
+  "top": {
+    "message": "Goto &Top ↑↑↑"
+  },
+  "c": {
+    "message": "Copy "
+  },
+  "a": {
+    "message": "Article"
+  },
+  "atom": {
+    "message": "Article ( Turn To &Markdown )"
+  },
+  "s": {
+    "message": "Selection"
+  },
+  "stom": {
+    "message": "Selection ( Turn To &Markdown )"
+  },
+  "t": {
+    "message": "Title"
+  },
+  "u": {
+    "message": "Url"
+  },
+  "ut": {
+    "message": "[ &Url ] ( Title )"
+  },
+  "tu": {
+    "message": "Title and Url (&Y)"
+  },
+  "settings": {
+    "message": "Easy Scroll and Copy Settings"
+  },
+  "feedback": {
+    "message": "Feedback"
+  },
+  "act": {
+    "message": "Extension Button Action"
+  },
+  "act_hint": {
+    "message": "On this page, right-click on the extension button and use it's context menu to choose the left-click action."
+  },
+  "sep": {
+    "message": "Separator"
+  },
+  "tf": {
+    "message": "Titile before Url"
+  }
+}

@@ -1,0 +1,127 @@
+<meta charset="utf8"/>
+<link rel="stylesheet" type="text/css" href="settings.css" />
+<link rel="stylesheet" type="text/css" href="anlite.css" />
+<body style="margin:0;">
+<div id="root" class="saladict-theme-bright saladict-theme-loaded">
+	<div style="background-color: rgb(240, 242, 245);width:100%;height:100%;">
+		<header class="ant-layout-header">
+			<div class="options-header">
+				<div class="options-header-title">
+					<h1 data-msg="settings">
+						一键复制/滚动设置
+					</h1>
+					<span>
+						v1.0.0
+					</span>
+				</div>
+				<a href="https://www.jianshu.com/u/77921c0f8d4f">
+					「 By KnIfER 」
+				</a>
+				<p></p><p></p><p></p><p></p><p></p><p></p>
+				<ul class="head-info">
+					<li>
+						<a id="fb" data-msg="feedback" href="https://github.com/KnIfER/Extesions/issues" target="_blank"
+						rel="nofollow noopener noreferrer">
+							提问
+						</a>
+					</li>
+				</ul>
+			</div>
+		</header>
+		<section class="ant-layout main-entry" style="max-width: 1400px; margin: 0px auto;">
+			<div class="ant-row">
+				<div class="ant-col" style="flex: 1 1 0%;">
+					<section class="ant-layout" style="padding: 24px;">
+						<main class="ant-layout-content" data-option-content="General" style="padding: 24px; background-color: var(--opt-background-color);">
+							<form class="ant-form ant-form-horizontal">
+								<div class="ant-row ant-form-item ant-form-item-with-help">
+									<div class="ant-col ant-form-item-label ant-col-xs-9 ant-col-sm-9 ant-col-lg-7">
+										<label data-msg="act" class="" title="一键操作">
+											一键操作
+										</label>
+									</div>
+									<div class="ant-col ant-form-item-control ant-col-xs-15 ant-col-sm-15 ant-col-lg-9">
+							
+										<div class="ant-form-item-control-input-content">
+											<div class="ant-select ant-select-single ant-select-show-arrow">
+												<div class="ant-select-selector" style="font-size: 16px;overflow:hidden;padding-top:2px">
+													<span id="opt_act" class="ant-select-selection-item" title="从不展开">
+														<!-- 复制标题和地址 -->
+													</span>
+												</div>
+											</div>
+										</div>
+										
+										<div class="ant-form-item-explain">
+											<div data-msg="act_hint">
+												在此界面，用插件按钮的右键菜单选择左键单击的具体操作。
+											</div>
+										</div>
+									</div>
+								</div>
+								
+								<div style="border: #b3b3b3bf 1px dashed; padding:20 100 20 20; margin:10 130 10 120;">
+									<div class="ant-row ant-form-item ant-form-item-with-help">
+										<div class="ant-col ant-form-item-label ant-col-xs-9 ant-col-sm-9 ant-col-lg-7">
+											<label for="config.active" class=""  data-msg="sep">
+												分隔符
+											</label>
+										</div>
+										<div class="ant-col ant-form-item-control ant-col-xs-15 ant-col-sm-15 ant-col-lg-9">
+											<div class="ant-form-item-control-input">
+												<div class="ant-form-item-control-input-content">
+													
+													<span data-msg="t" class="ant-form-item-explain">标题</span> &ensp;
+													<div class="ant-select-single" style="display:inline-block">
+														<input id="sep_t" class="ant-select-selector" 
+														style="font-size: 16px;overflow:hidden;padding-top:2px;color:#919191;">
+														</input>
+													</div>
+													<div style="height:6px;visibility:hidden;"></div>
+													
+													<span data-msg="u" class="ant-form-item-explain">地址</span> &ensp;
+													<div class="ant-select-single" style="display:inline-block">
+														<input id="sep_u" class="ant-select-selector" 
+														style="font-size: 16px;overflow:hidden;padding-top:2px;color:#919191;">
+														</input>
+													</div>
+												</div>
+											</div>
+											
+										</div>
+									</div>
+									<div style="height:6px;visibility:hidden;"></div>
+									<div class="ant-row ant-form-item ant-form-item-with-help">
+										<div class="ant-col ant-form-item-label ant-col-xs-9 ant-col-sm-9 ant-col-lg-7">
+											<label for="config.tfore" class=""  data-msg="tf">
+												标题在前
+											</label>
+										</div>
+										<div class="ant-col ant-form-item-control ant-col-xs-15 ant-col-sm-15 ant-col-lg-9">
+											<div class="ant-form-item-control-input">
+												<div class="ant-form-item-control-input-content">
+													<button id="config.tfore" class="ant-switch ant-switch-checked" type="button" role="switch" aria-checked="true">
+														<div class="ant-switch-handle"></div>
+														<span class="ant-switch-inner"></span>
+													</button>
+												</div>
+											</div>
+											<div class="ant-form-item-explain">
+												<div data-msg="tu" data-pfx="c">
+													复制标题和地址
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+								
+							</form>
+						</main>
+					</section>
+				</div>
+			</div>
+		</section>
+	</div>
+</div>
+<script src="settings.js"></script>
+</body>

@@ -1,0 +1,65 @@
+{
+  "appName": {
+    "message": "一键复制与自动滚动"
+  },
+  "appDesc": {
+    "message": "支持一键复制正文、标题地址、Markdown等.支持三个等级的自动滚动"
+  },
+  "ultra": {
+    "message": "自动滚动 ( 特快 ) (&A)"
+  },
+  "fast": {
+    "message": "自动滚动 ( 快 ) (&A)"
+  },
+  "slow": {
+    "message": "自动滚动 ( 慢 ) (&A)"
+  },
+  "top": {
+    "message": "回到顶部 ↑↑↑ (&T)"
+  },
+  "c": {
+    "message": "复制(&C)"
+  },
+  "a": {
+    "message": "正文 (&A)"
+  },
+  "atom": {
+    "message": "正文 ( 转化为 &Markdown )"
+  },
+  "s": {
+    "message": "选择 (&S)"
+  },
+  "stom": {
+    "message": "选择 ( 转化为 &Markdown )"
+  },
+  "t": {
+    "message": "标题 (&T)"
+  },
+  "u": {
+    "message": "地址 (&U)"
+  },
+  "ut": {
+    "message": "[ &Url ] ( 标题 )"
+  },
+  "tu": {
+    "message": "标题和地址 (&Y)"
+  },
+  "settings": {
+    "message": "一键复制/滚动设置"
+  },
+  "feedback": {
+    "message": "提问"
+  },
+  "act": {
+    "message": "一键操作"
+  },
+  "act_hint": {
+    "message": "在此界面，用扩展按钮的右键菜单选择左键单击的具体操作。"
+  },
+  "sep": {
+    "message": "分隔符"
+  },
+  "tf": {
+    "message": "标题在前"
+  }
+}
