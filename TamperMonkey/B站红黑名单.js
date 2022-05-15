@@ -7,6 +7,7 @@
 // @match        https://live.bilibili.com/*
 // @icon         data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==
 // @grant        unsafeWindow
+// @grant        GM_xmlhttpRequest
 // ==/UserScript==
 
 (function() {
@@ -25,30 +26,94 @@ if(pass)
 	var LstBoxId='SideLstPane';
 	var lstPanel,imgSty,tAutoScroll;
 	let win=window,doc=document;
-	function openDB (dao) {
-		var request=win.indexedDB.open(dao.name, dao.version || 1);
-		request.onerror=function(e){
-			log('Open Error!');
-		};
-		request.onsuccess=function(e){
-			dao.db=e.target.result;
-			//log(dao.db.version);
-			furtherLoading();
-		};
-		request.onupgradeneeded=function(e){
-			var db=e.target.result;
-			if(!db.objectStoreNames.contains('rid')){
-				db.createObjectStore('rid',{keyPath:"id"});
+
+	function FFDBC(data, cb){
+		// var x = new XMLHttpRequest();
+		// x.open('POST', 'http://127.0.0.1:8080/DB.jsp', true);
+		// x.responseType = 'json';
+		// x.onload = function(e) {
+		// 	if(cb) cb(e);
+		// };
+		// x.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8');
+		// x.send("data="+JSON.stringify(data));
+		GM_xmlhttpRequest({
+			method: "POST"
+			, url: 'http://127.0.0.1:8080/DB.jsp'
+			, data:"data="+JSON.stringify(data)
+			, onload: function(e) {
+				//debug(e);
+				if(cb)cb(e);
 			}
-			console.log('DB version changed to '+dao.version);
-		};
+			, headers : {
+				'Content-Type':'application/x-www-form-urlencoded; charset=UTF-8'
+			}
+		});
+	}
+
+	var FFDB = true;
+	function openDB (dao) {
+		if(FFDB) {
+			FFDBC({table:dao.name, json:{rowId:0,rid:'',fav:0,name:''}, indexed:{rid:1}}
+			, function(e){
+				dao.ffdbc(true);
+				furtherLoading();
+			});
+		}
+		else {
+			var request=win.indexedDB.open(dao.name, dao.version || 1);
+			request.onerror=function(e){
+				log('Open Error!');
+			};
+			request.onsuccess=function(e){
+				dao.db=e.target.result;
+				//log(dao.db.version);
+				furtherLoading();
+			};
+			request.onupgradeneeded=function(e){
+				var db=e.target.result;
+				if(!db.objectStoreNames.contains('rid')){
+					db.createObjectStore('rid',{keyPath:"id"});
+				}
+				console.log('DB version changed to '+dao.version);
+			};
+		}
 	}
 
 	var mdb={
-		name:'BBLst',
-		version:2,
-		db:null,
-		transact:function(e,v) {
+		name:'BBLst'
+		,version:2
+		,db:null
+		,ffdb : false
+		,ffdbc : function(e) {
+			if(e) mdb.ffdb = true;
+			else return mdb.ffdb;
+		}
+		,transact:function(e,v) {
+			//debug('transact', this);
+			if(mdb.ffdb) {
+				return {
+					objectStore : function() {
+						return {
+							get : function(d, w) {
+								FFDBC({table:mdb.name, json:d, where:w}, this.onsuccess);
+							}
+							, add : function(d) {
+								FFDBC({table:mdb.name, json:d}, this.onsuccess)
+							}
+							, put : function(d, xiaoJiejie) {
+								if(xiaoJiejie && d.fav>0) {
+									d.name = xiaoJiejie;
+								}
+								FFDBC({table:mdb.name, json:d}, this.onsuccess)
+							}
+							, putBatch : function(array) {
+								FFDBC({table:mdb.name, batch:array}, this.onsuccess)
+							}
+							, onsuccess : null
+						};
+					}
+				};
+			}
 			try {
 				return this.db.transaction(e,v);
 			} catch(err){
@@ -89,9 +154,9 @@ if(pass)
 								lv=3;
 							}
 							PinRoom(p,-1,lv);
-							dbo.put({id:rid,fav:lv});
+							dbo.put({rid:rid,fav:lv}, GetRoomName(p));
 						} else {
-							dbo.put({id:rid,fav:0});
+							dbo.put({rid:rid,fav:0}, GetRoomName(p));
 							AddRoomToLstPane(p);
 							p.remove();
 							blocked.push(p);
@@ -118,6 +183,8 @@ if(pass)
 		}
 	}
 	
+	if(!window.unsafeWindow) window.unsafeWindow=window;
+	unsafeWindow.mdb = mdb;
 	unsafeWindow.portFav = function(e, lv) {
 		e=e.split('\n');
 		if(lv) {
@@ -140,13 +207,13 @@ if(pass)
 				var dbo=transaction.objectStore('rid');
 				if(fav==='0') {
 					log('block::'+rid);
-					dbo.put({id:rid,fav:0});
+					dbo.put({rid:rid,fav:0});
 				} else if(lv) {
 					log(rid, "fav="+lv);
-					dbo.put({id:rid,fav:lv});
+					dbo.put({rid:rid,fav:lv});
 				} else {
 					log(rid, "fav="+fav);
-					dbo.add({id:rid,fav:4});
+					dbo.add({rid:rid,fav:4});
 				}
 			}
 		}
@@ -155,6 +222,8 @@ if(pass)
 	unsafeWindow.restoreBk = function(e) {
 		e=e.split('\n');
 		var transaction=mdb.transact('rid','readwrite');
+		var cc=0;
+		var batch = [];
 		for(var i=0;i<e.length;i++){
 			var rid = /[0-9]+/.exec(e[i])
 			if(rid) rid=rid[0];
@@ -163,15 +232,18 @@ if(pass)
 				if(fav) fav=fav[1];
 				else fav='0';
 				var dbo=transaction.objectStore('rid');
-				if(fav==='0') {
-					log('block::'+rid);
-					dbo.put({id:rid,fav:0});
+				fav = parseInt(fav)||0;
+				if(fav===0) {
+					log('block::'+rid, '\t', cc++);
+					//dbo.put({rid:rid,fav:0});
 				} else {
-					log(rid, "fav="+fav);
-					dbo.put({id:rid,fav:fav});
+					log(rid, "fav="+fav, '\t', cc++);
+					//dbo.put({rid:rid,fav:fav});
 				}
+				batch.push({rid:rid,fav:fav});
 			}
 		}
+		dbo.putBatch(batch);
 	}
 
 	win.addEventListener('keydown', (e)=>{
@@ -241,32 +313,46 @@ if(pass)
 			}
 			blocked = [];
 		}
+		function tpRoom(p, rid, fav, idx) {
+			if(still) {
+				tintRoom(p, fav);
+			} else {
+				if(fav===0) {
+					p.style.display='none';
+					p.remove();
+					AddRoomToLstPane(p);
+					blocked.push(p);
+					log("安宁哈塞哟！", rid, fav, GetRoomName(p));
+				} else {
+					//log("Beautiful Girl！", p);
+					PinRoom(p, idx, fav);
+				}
+			}
+		}
 		for(var i=0;i<rooms.length;i++) {
 			let p = rooms[i];
 			let idx=i;
 			if(p.style.display!=='none') {
 				let rid = GetRoomID(p);
-				var request=dbo.get(rid+'');
-				request.onsuccess=function(e){
-					var ret=e.target.result;
-					if(ret) {
-						//console.log(ret);
-						if(still) {
-							tintRoom(p, ret.fav||0);
-						} else {
-							if((ret.fav||0)===0) {
-								p.style.display='none';
-								p.remove();
-								AddRoomToLstPane(p);
-								blocked.push(p);
-								log("安宁哈塞哟！", rid, ret.fav, GetRoomName(p));
-							} else {
-								PinRoom(p, idx, parseInt(ret.fav)||0);
-							}
+				if(mdb.ffdbc()) {
+					dbo.onsuccess=function(e){
+						var ret=JSON.parse(e.response);
+						//debug('onsuccess!!!', ret);
+						if(ret.fav>=0) {
+							tpRoom(p, rid, ret.fav, idx);
 						}
-						
 					}
-				};
+					dbo.get({fav:-1}, {rid:rid});
+				} else {
+					var request=dbo.get(rid+'');
+					request.onsuccess=function(e){
+						var ret=e.target.result;
+						if(ret) {
+							//console.log('ret='+ret);
+							tpRoom(p, rid, parseInt(ret.fav)||0, idx);
+						}
+					};
+				}
 				//break;
 			}
 		}

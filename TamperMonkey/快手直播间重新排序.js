@@ -133,7 +133,7 @@
 			else return mdb.ffdb;
 		}
 		, transact:function(e,v) {
-			debug('transact', this);
+			//debug('transact', this);
 			if(mdb.ffdb) {
 				return {
 					objectStore : function() {
