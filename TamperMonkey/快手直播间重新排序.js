@@ -44,15 +44,24 @@
 	var win=window;
 	var doc=document;
 	var PinIdx=0;
+	var FavPinIdx=0;
 
-	function PinRoom(p) {
+	function PinRoom(p, moreLove) {
 		if(!roomLst)
 			roomLst = doc.getElementsByClassName('live-card-list')[0];
 		var idx = Array.prototype.indexOf.call(roomLst.children,p);
-		if(idx>=0&&idx<=PinIdx) return;
+		var already = p.getAttribute('fav')!=undefined;
+		p.setAttribute('fav', moreLove);
+		if(idx>=0&&idx<=(moreLove?FavPinIdx:PinIdx)) return;
 		p.remove();
-		roomLst.insertBefore(p, roomLst.childNodes[PinIdx]);
-		PinIdx++;
+		roomLst.insertBefore(p, roomLst.childNodes[moreLove?FavPinIdx:PinIdx]);
+		if(moreLove){
+			FavPinIdx++;
+			if(!already) {
+				PinIdx++;
+			}
+		}
+		else PinIdx++;
 	}
 
 	function FFDBC(data, cb){
@@ -160,10 +169,10 @@
 		var p=FindRoomTopElement(e.srcElement);
 		if(p) {
 			var rid=GetRoomID(p);
-			PinRoom(p);
+			PinRoom(p, e.shiftKey);
 			var transaction=mdb.transact('rid','readwrite');
 			var dbo=transaction.objectStore('rid');
-			dbo.add({rid:rid});
+			dbo.add({rid:rid, fav:(e.shiftKey?1:0)});
 			log("美丽天堂！", rid);
 			e.preventDefault();
 			var nam = p.getElementsByClassName(NamCName)[0];
@@ -199,7 +208,7 @@
 						var ret=JSON.parse(e.response);
 						//debug('onsuccess!!!', ret);
 						if(ret.fav>=0) {
-							PinRoom(p);
+							PinRoom(p, ret.fav>0);
 							log("Beautiful Girl！", GetRoomID(p));
 						}
 					}
