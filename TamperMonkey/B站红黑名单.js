@@ -56,6 +56,7 @@ if(pass)
 			FFDBC({table:dao.name, json:{rowId:0,rid:'',fav:0,name:''}, indexed:{rid:1}}
 			, function(e){
 				dao.ffdbc(true);
+				prepareBatch();
 				furtherLoading();
 			});
 		}
@@ -83,6 +84,7 @@ if(pass)
 		name:'BBLst'
 		,version:2
 		,db:null
+		,useCache : true
 		,ffdb : false
 		,ffdbc : function(e) {
 			if(e) mdb.ffdb = true;
@@ -95,7 +97,18 @@ if(pass)
 					objectStore : function() {
 						return {
 							get : function(d, w) {
+								if(mdb.cached) {
+									var ret = mdb.cached[w.rid];
+									if(ret!=undefined){
+										d.fav = ret;
+										this.onsuccess({response:JSON.stringify(d)});
+										//return;
+									}
+								}
 								FFDBC({table:mdb.name, json:d, where:w}, this.onsuccess);
+							}
+							, getBatch : function(d, array) {
+								FFDBC({table:mdb.name, json:d, where:{}, batch:array}, this.onsuccess)
 							}
 							, add : function(d) {
 								FFDBC({table:mdb.name, json:d}, this.onsuccess)
@@ -134,13 +147,90 @@ if(pass)
 	}
 	
 	var blocked=[];
+	var selected=[];
+	var lastSelected;
+
+	function select(p, s) {
+		if(s) {
+			selected.push(p);
+			p.classList.add('selected');
+		} else {
+			selected.splice(selected.indexOf(p), 1);
+			p.classList.remove('selected');
+		}
+	}
+	
+	function clearSelection() {
+		for(var i=0;i<selected.length;i++) {
+			selected[i].classList.remove('selected');
+		}
+		selected=[];
+	}
+	
+	function removeAll() {
+		for(var i=0;i<selected.length;i++) {
+			var p = selected[i];
+			p.style.display='none';
+			p.classList.add('removed');
+			p.remove();
+			AddRoomToLstPane(p);
+			blocked.push(p);
+		}
+		selected=[];
+	}
+	
+	function selectAll() {
+		let rooms = Array.prototype.slice.call(doc.getElementsByClassName(TopCName));
+		for(var i=0;i<rooms.length;i++) {
+			var p = rooms[i];
+			if(!p.classList.contains('selected') && p.getAttribute('fav')==undefined)
+				select(p, true);
+		}
+	}
 
 	function initLBox() {
 		if(!lstPanel) {
 			lstPanel = doc.createElement('DIV');
 			lstPanel.id=LstBoxId;
+			win.addEventListener('click', (e)=>{
+				if(e.button===0) { // 左键
+					var p=FindRoomTopElement(e.srcElement);
+					if(p) {
+						if(e.ctrlKey) { 
+							var shift = e.shiftKey;
+							var push = !p.classList.contains('selected');
+							if(push || !shift) {
+								select(p, push);
+							}
+							e.stopPropagation();
+							e.preventDefault();
+							if(shift && lastSelected) {
+								var children=p.parentNode.children;
+								var st = Array.prototype.indexOf.call(children,lastSelected);
+								if(st>=0) {
+									push = !e.altKey;
+									var ed = Array.prototype.indexOf.call(children,p);
+									for(var i=Math.min(st, ed); i<=Math.max(st, ed); i++) {
+										var child = children[i];
+										if(child) {
+											if(push ^ child.classList.contains('selected')) {
+												select(child, push);
+											}
+										}
+									}
+								}
+							}
+							lastSelected = p;
+						}
+					}
+				}
+            }, true)
 			win.addEventListener('mousedown', (e)=>{
-				if(e.button===2) {
+				if(e.button===0) { // 左键
+					if(e.ctrlKey) {
+					}
+				}
+				if(e.button===2) { // 右键
 					//log(e.srcElement);
 					var p=FindRoomTopElement(e.srcElement);
 					if(p) {
@@ -156,12 +246,15 @@ if(pass)
 							PinRoom(p,-1,lv);
 							dbo.put({rid:rid,fav:lv}, GetRoomName(p));
 						} else {
-							dbo.put({rid:rid,fav:0}, GetRoomName(p));
-							AddRoomToLstPane(p);
-							p.remove();
-							blocked.push(p);
+							if(e.ctrlKey) {
+							} else {
+								dbo.put({rid:rid,fav:0}, GetRoomName(p));
+								AddRoomToLstPane(p);
+								p.remove();
+								blocked.push(p);
+							}
 						}
-						log("撒哟娜拉！", rid, p.getElementsByClassName('Item_QAOnosoB')[0].innerText);
+						//log("撒哟娜拉！", rid, p.getElementsByClassName('Item_QAOnosoB')[0].innerText);
 					}
 				}
 			});
@@ -246,8 +339,23 @@ if(pass)
 		dbo.putBatch(batch);
 	}
 
-	win.addEventListener('keydown', (e)=>{
-		if(e.code==='KeyL'){
+	window.addEventListener('keydown', (e)=>{
+		debug('keydown', e);
+		if(e.code==='Delete') {
+			removeAll();
+		}
+		else if(e.code==='Backspace'){
+		}
+		else if(e.code==='KeyA'){
+			e.stopPropagation();
+			e.preventDefault();
+			if(e.altKey) {
+				clearSelection();
+			} else if(true){ // e.ctrlKey
+				selectAll();
+			}
+		}
+		else if(e.code==='KeyL'){
 			initLBox();
 			var sty=lstPanel.style; log(sty.display);
 			if(sty.display==='none') sty.display='block';
@@ -299,7 +407,38 @@ if(pass)
 		if(e)e.click();
 	}
 
+	function prepareBatch(revive, still){
+		if(!mdb.caching && mdb.ffdbc()) {
+			var transaction=mdb.transact('rid');
+			var dbo=transaction.objectStore('rid');
+			let rooms = Array.prototype.slice.call(doc.getElementsByClassName(TopCName));
+			mdb.caching = true;
+			var batch = [];
+			for(var i=0;i<rooms.length;i++) {
+				batch.push({rid:GetRoomID(rooms[i])});
+			}
+			dbo.onsuccess = function(e) {
+				debug('getBatch::onsuccess', e);
+				e = JSON.parse(e.response);
+				mdb.cached = {};
+				for(var i=0;i<e.length;i++) {
+					var ret = e[i];
+					if(ret.rid) {
+						mdb.cached[ret.rid] = ret.fav;
+					}
+				}
+				if(revive)
+					restore(still);
+			}
+			dbo.getBatch({rid:-1, fav:-1}, batch);
+		}
+	}
+
 	function restore(still){
+		if(mdb.useCache && !mdb.cached) {
+			prepareBatch(true, still);
+			return;
+		}
 		var transaction=mdb.transact('rid');
 		var dbo=transaction.objectStore('rid');
 		let rooms = Array.prototype.slice.call(doc.getElementsByClassName(TopCName));
@@ -322,7 +461,8 @@ if(pass)
 					p.remove();
 					AddRoomToLstPane(p);
 					blocked.push(p);
-					log("安宁哈塞哟！", rid, fav, GetRoomName(p));
+					p.setAttribute('fav', 0);
+					//log("安宁哈塞哟！", rid, fav, GetRoomName(p));
 				} else {
 					//log("Beautiful Girl！", p);
 					PinRoom(p, idx, fav);
@@ -335,7 +475,7 @@ if(pass)
 			if(p.style.display!=='none') {
 				let rid = GetRoomID(p);
 				if(mdb.ffdbc()) {
-					dbo.onsuccess=function(e){
+					dbo.onsuccess = function(e){
 						var ret=JSON.parse(e.response);
 						//debug('onsuccess!!!', ret);
 						if(ret.fav>=0) {
@@ -375,6 +515,7 @@ if(pass)
 	
 	function PinRoom(p, idx, lv) {
 		log('PinRoom lv=', GetRoomName(p), lv);
+		p.setAttribute('fav', lv);
 		tintRoom(p, lv);
 		var PLv; // 0=lv5 顶级; 1=lv4 导入; <=3次级 
 		if(lv>=5) PLv=0;
@@ -411,7 +552,7 @@ if(pass)
 
 	function FindRoomTopElement(p) {
 		while(p) {
-			if(p.className===TopCName){
+			if(p.classList.contains(TopCName)){
 				return p;
 			}
 			p=p.parentElement;

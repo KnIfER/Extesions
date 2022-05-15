@@ -65,7 +65,7 @@
 	}
 
 	function FFDBC(data, cb){
-		// var x = new GM_xmlhttpRequest();
+		// var x = new XMLHttpRequest();
 		// x.open('POST', 'http://127.0.0.1:8080/DB.jsp', true);
 		// x.responseType = 'json';
 		// if(cb)x.onload = function(e) {
@@ -126,7 +126,6 @@
 		name:'FavLst'
 		,version:2
 		,db:null
-		,onsuccess:null
 		,ffdb : false
 		,ffdbc : function(e) {
 			if(e) mdb.ffdb = true;
