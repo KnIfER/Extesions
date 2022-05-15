@@ -90,6 +90,7 @@ if(pass)
 			if(e) mdb.ffdb = true;
 			else return mdb.ffdb;
 		}
+		,removed: {}
 		,transact:function(e,v) {
 			//debug('transact', this);
 			if(mdb.ffdb) {
@@ -121,6 +122,16 @@ if(pass)
 							}
 							, putBatch : function(array) {
 								FFDBC({table:mdb.name, batch:array}, this.onsuccess)
+							}
+							, fSet : function(array) {
+								FFDBC({fSet:array}, function(e) {
+									if(array.length==0) {
+										e = e.responseText.split('\n');
+										for(var i=0;i<e.length;i++) {
+											mdb.removed[e[i]]=1;
+										}
+									}
+								})
 							}
 							, onsuccess : null
 						};
@@ -167,16 +178,49 @@ if(pass)
 		selected=[];
 	}
 	
+	function removeRoom(p) {
+		p.style.display='none';
+		p.classList.add('removed');
+		p.remove();
+		AddRoomToLstPane(p);
+		blocked.push(p);
+	}
+
 	function removeAll() {
-		for(var i=0;i<selected.length;i++) {
-			var p = selected[i];
-			p.style.display='none';
-			p.classList.add('removed');
-			p.remove();
-			AddRoomToLstPane(p);
-			blocked.push(p);
+		if(!mdb.preparedRemove) {
+			mdb.preparedRemove = 1;
+			var transaction=mdb.transact('rid','readwrite');
+			var dbo=transaction.objectStore('rid');
+			dbo.fSet([], function() {
+				removeAll();
+			});
+		} else {
+			let rooms = Array.prototype.slice.call(doc.getElementsByClassName(TopCName));
+			for(var i=0;i<rooms.length;i++) {
+				var p = rooms[i];
+				if(mdb.removed[GetRoomID(p)] && p.getAttribute('fav')==undefined) {
+					select(p, true);
+					removeRoom(p);
+				}
+			}
 		}
-		selected=[];
+	}
+
+	function removeSelected() {
+		if(selected.length) {
+			var fSet = [];
+			for(var i=0;i<selected.length;i++) {
+				var p = selected[i];
+				removeRoom(p);
+				var id = GetRoomID(p);
+				fSet.push(id);
+				mdb.removed[id] = 1;
+			}
+			var transaction=mdb.transact('rid','readwrite');
+			var dbo=transaction.objectStore('rid');
+			dbo.fSet(fSet);
+			selected=[];
+		}
 	}
 	
 	function selectAll() {
@@ -342,9 +386,10 @@ if(pass)
 	window.addEventListener('keydown', (e)=>{
 		debug('keydown', e);
 		if(e.code==='Delete') {
-			removeAll();
+			removeSelected();
 		}
 		else if(e.code==='Backspace'){
+			removeAll();
 		}
 		else if(e.code==='KeyA'){
 			e.stopPropagation();
