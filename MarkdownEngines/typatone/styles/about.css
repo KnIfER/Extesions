@@ -1,0 +1,131 @@
+#view-about {
+  position: fixed;
+  opacity: 0;
+  top: 0;
+  left: 0;
+  right: 0;
+  overflow: visible;
+  -webkit-overflow-scrolling: touch;
+  -webkit-transition: opacity 0.35s cubic-bezier(0.455, 0.03, 0.515, 0.955);
+  -moz-transition: opacity 0.35s cubic-bezier(0.455, 0.03, 0.515, 0.955);
+  transition: opacity 0.35s cubic-bezier(0.455, 0.03, 0.515, 0.955);
+  font-family: 'proxima-nova-soft', 'Proxima Nova', sans-serif;
+  font-weight: 100;
+  color: #333333; }
+  #view-about h1, #view-about h2, #view-about h3, #view-about h4, #view-about h5, #view-about h6 {
+    font-weight: 100; }
+  @media (min-width: 800px) {
+    #view-about p.synopsis {
+      max-width: 66%; } }
+  #view-about a {
+    color: #333333;
+    text-decoration: none;
+    border-bottom: 1px solid #767676; }
+  #view-about .close {
+    font-family: 'proxima-nova-soft', 'Proxima Nova', sans-serif;
+    position: absolute;
+    top: 0;
+    right: 0;
+    padding: 16.66667px 25px;
+    font-size: 27px;
+    cursor: pointer; }
+  #view-about .container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    text-align: center;
+    background: white;
+    overflow: auto;
+    padding: 50px;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none; }
+    #view-about .container ul {
+      text-align: center;
+      font-family: 'Helvetica Neue', helvetica, Arial, sans-serif;
+      font-size: 13px;
+      line-height: 26px;
+      font-weight: normal;
+      color: #333333;
+      margin-top: 25px;
+      margin-bottom: 50px; }
+      #view-about .container ul li {
+        list-style: none;
+        display: inline-block;
+        margin-left: 18px;
+        margin-right: 18px; }
+        #view-about .container ul li.poster {
+          width: 168px;
+          height: 311px;
+          border: 1px solid #c8c8c8;
+          top: -1px;
+          overflow: hidden;
+          background: white; }
+          #view-about .container ul li.poster div {
+            position: relative;
+            width: 170px;
+            height: 170px; }
+          #view-about .container ul li.poster div.thumbnail {
+            background-color: white;
+            background-size: 200%;
+            background-position: 50% 20%;
+            background-repeat: no-repeat;
+            border-bottom: 1px solid #c8c8c8;
+            height: 168px; }
+          #view-about .container ul li.poster #typatone-poster {
+            background-image: url(https://mir-s3-cdn-cf.behance.net/project_modules/disp/3ca1dc29751597.560204d8ed441.jpg); }
+          #view-about .container ul li.poster #carolina-poster {
+            background-image: url(https://mir-s3-cdn-cf.behance.net/project_modules/disp/6bad7028587235.55c859ed56dff.jpg); }
+          #view-about .container ul li.poster p {
+            padding-left: 8px;
+            padding-right: 10px;
+            text-align: left; }
+          #view-about .container ul li.poster a {
+            color: #333333;
+            text-decoration: none;
+            border-bottom: 0; }
+            #view-about .container ul li.poster a:hover {
+              text-decoration: underline; }
+          #view-about .container ul li.poster p.title {
+            margin-top: 6px;
+            height: 20px;
+            overflow: hidden; }
+          #view-about .container ul li.poster p.artist {
+            height: 16px; }
+          #view-about .container ul li.poster p.description {
+            margin-top: 12px;
+            font-size: 11px;
+            line-height: 22px;
+            height: 48px;
+            overflow: hidden;
+            text-wrap: ellipsis; }
+          #view-about .container ul li.poster p.action {
+            margin-top: 4px;
+            font-weight: bold; }
+            #view-about .container ul li.poster p.action * + * {
+              margin-left: 15px; }
+    #view-about .container > p + p {
+      margin-top: 18px; }
+  #view-about .app-cta-container {
+    position: relative;
+    width: 100%;
+    text-align: center;
+    margin-top: 50px;
+    margin-bottom: 50px; }
+    #view-about .app-cta-container a {
+      border-bottom: 0; }
+  #view-about .ios-app-store {
+    display: inline-block;
+    cursor: pointer;
+    background: url(../images/app-store.svg) center center no-repeat;
+    width: 135px;
+    height: 40px; }
+  #view-about .play-store {
+    display: inline-block;
+    cursor: pointer;
+    background: url(../images/play-store.svg) center center no-repeat;
+    width: 135px;
+    height: 40px; }

@@ -1,0 +1,759 @@
+@charset "UTF-8";
+div.keyboard {
+  font-family: 'proxima-nova-soft', 'Proxima Nova Soft', 'Proxima Nova', sans-serif;
+  color: #555;
+  background: #efefef; }
+  div.keyboard.left, div.keyboard.right {
+    padding-left: 12px;
+    padding-right: 12px; }
+  div.keyboard .board {
+    position: relative;
+    text-align: center;
+    vertical-align: middle;
+    padding: 2.4px 0; }
+  div.keyboard ul.row {
+    margin: 6px 0;
+    padding: 0; }
+    div.keyboard ul.row .q:before {
+      content: "q"; }
+    div.keyboard ul.row .w:before {
+      content: "w"; }
+    div.keyboard ul.row .e:before {
+      content: "e"; }
+    div.keyboard ul.row .r:before {
+      content: "r"; }
+    div.keyboard ul.row .t:before {
+      content: "t"; }
+    div.keyboard ul.row .y:before {
+      content: "y"; }
+    div.keyboard ul.row .u:before {
+      content: "u"; }
+    div.keyboard ul.row .i:before {
+      content: "i"; }
+    div.keyboard ul.row .o:before {
+      content: "o"; }
+    div.keyboard ul.row .p:before {
+      content: "p"; }
+    div.keyboard ul.row .a:before {
+      content: "a"; }
+    div.keyboard ul.row .s:before {
+      content: "s"; }
+    div.keyboard ul.row .d:before {
+      content: "d"; }
+    div.keyboard ul.row .f:before {
+      content: "f"; }
+    div.keyboard ul.row .g:before {
+      content: "g"; }
+    div.keyboard ul.row .h:before {
+      content: "h"; }
+    div.keyboard ul.row .j:before {
+      content: "j"; }
+    div.keyboard ul.row .k:before {
+      content: "k"; }
+    div.keyboard ul.row .l:before {
+      content: "l"; }
+    div.keyboard ul.row .shift:before {
+      content: "↑"; }
+    div.keyboard ul.row .z:before {
+      content: "z"; }
+    div.keyboard ul.row .x:before {
+      content: "x"; }
+    div.keyboard ul.row .c:before {
+      content: "c"; }
+    div.keyboard ul.row .v:before {
+      content: "v"; }
+    div.keyboard ul.row .b:before {
+      content: "b"; }
+    div.keyboard ul.row .n:before {
+      content: "n"; }
+    div.keyboard ul.row .m:before {
+      content: "m"; }
+    div.keyboard ul.row .delete:before {
+      content: "←"; }
+    div.keyboard ul.row .numbers:before {
+      content: "123"; }
+    div.keyboard ul.row .space:before {
+      content: "space"; }
+    div.keyboard ul.row .return:before {
+      content: "return"; }
+    div.keyboard ul.row li.key {
+      display: inline-block;
+      min-width: 17.28px;
+      height: 39.84px;
+      line-height: 39.84px;
+      font-size: 15.84px;
+      background: #fff;
+      margin: 0;
+      padding: 0 5px;
+      border-radius: 2.4px;
+      cursor: pointer;
+      box-shadow: 0 1px #d6d6d6;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none; }
+      div.keyboard ul.row li.key:not(:first-child) {
+        margin: 0 1px; }
+      div.keyboard ul.row li.key:active {
+        background: #ebebeb; }
+      div.keyboard ul.row li.key.space {
+        min-width: 120px; }
+      div.keyboard ul.row li.key.shift, div.keyboard ul.row li.key.delete {
+        min-width: 15.84px; }
+      div.keyboard ul.row li.key.return {
+        min-width: 36px; }
+  div.keyboard div.board.uppercase {
+    text-transform: uppercase; }
+    div.keyboard div.board.uppercase ul.row li.key.space, div.keyboard div.board.uppercase ul.row li.key.return, div.keyboard div.board.uppercase ul.row li.key.numbers {
+      text-transform: none; }
+    div.keyboard div.board.uppercase ul.row li.key.shift:before {
+      content: '\2193'; }
+  div.keyboard div.board.numbers ul.row .q:before {
+    content: "1"; }
+  div.keyboard div.board.numbers ul.row .w:before {
+    content: "2"; }
+  div.keyboard div.board.numbers ul.row .e:before {
+    content: "3"; }
+  div.keyboard div.board.numbers ul.row .r:before {
+    content: "4"; }
+  div.keyboard div.board.numbers ul.row .t:before {
+    content: "5"; }
+  div.keyboard div.board.numbers ul.row .y:before {
+    content: "6"; }
+  div.keyboard div.board.numbers ul.row .u:before {
+    content: "7"; }
+  div.keyboard div.board.numbers ul.row .i:before {
+    content: "8"; }
+  div.keyboard div.board.numbers ul.row .o:before {
+    content: "9"; }
+  div.keyboard div.board.numbers ul.row .p:before {
+    content: "0"; }
+  div.keyboard div.board.numbers ul.row .a:before {
+    content: "-"; }
+  div.keyboard div.board.numbers ul.row .s:before {
+    content: "/"; }
+  div.keyboard div.board.numbers ul.row .d:before {
+    content: ":"; }
+  div.keyboard div.board.numbers ul.row .f:before {
+    content: ";"; }
+  div.keyboard div.board.numbers ul.row .g:before {
+    content: "("; }
+  div.keyboard div.board.numbers ul.row .h:before {
+    content: ")"; }
+  div.keyboard div.board.numbers ul.row .j:before {
+    content: "$"; }
+  div.keyboard div.board.numbers ul.row .k:before {
+    content: "&"; }
+  div.keyboard div.board.numbers ul.row .l:before {
+    content: "@"; }
+  div.keyboard div.board.numbers ul.row .shift:before {
+    content: "#+="; }
+  div.keyboard div.board.numbers ul.row .z:before {
+    content: "."; }
+  div.keyboard div.board.numbers ul.row .x:before {
+    content: ","; }
+  div.keyboard div.board.numbers ul.row .c:before {
+    content: "?"; }
+  div.keyboard div.board.numbers ul.row .v:before {
+    content: "!"; }
+  div.keyboard div.board.numbers ul.row .b:before {
+    content: "’"; }
+  div.keyboard div.board.numbers ul.row .n:before {
+    content: "”"; }
+  div.keyboard div.board.numbers ul.row .m:before {
+    content: "m"; }
+  div.keyboard div.board.numbers ul.row .delete:before {
+    content: "←"; }
+  div.keyboard div.board.numbers ul.row .numbers:before {
+    content: "abc"; }
+  div.keyboard div.board.numbers ul.row .space:before {
+    content: "space"; }
+  div.keyboard div.board.numbers ul.row .return:before {
+    content: "return"; }
+  div.keyboard div.board.numbers ul.row .m {
+    display: none; }
+  div.keyboard div.board.numbers.uppercase ul.row .q:before {
+    content: "["; }
+  div.keyboard div.board.numbers.uppercase ul.row .w:before {
+    content: "]"; }
+  div.keyboard div.board.numbers.uppercase ul.row .e:before {
+    content: "{"; }
+  div.keyboard div.board.numbers.uppercase ul.row .r:before {
+    content: "}"; }
+  div.keyboard div.board.numbers.uppercase ul.row .t:before {
+    content: "#"; }
+  div.keyboard div.board.numbers.uppercase ul.row .y:before {
+    content: "%"; }
+  div.keyboard div.board.numbers.uppercase ul.row .u:before {
+    content: "^"; }
+  div.keyboard div.board.numbers.uppercase ul.row .i:before {
+    content: "*"; }
+  div.keyboard div.board.numbers.uppercase ul.row .o:before {
+    content: "+"; }
+  div.keyboard div.board.numbers.uppercase ul.row .p:before {
+    content: "="; }
+  div.keyboard div.board.numbers.uppercase ul.row .a:before {
+    content: "_"; }
+  div.keyboard div.board.numbers.uppercase ul.row .s:before {
+    content: "\\"; }
+  div.keyboard div.board.numbers.uppercase ul.row .d:before {
+    content: "|"; }
+  div.keyboard div.board.numbers.uppercase ul.row .f:before {
+    content: "~"; }
+  div.keyboard div.board.numbers.uppercase ul.row .g:before {
+    content: "<"; }
+  div.keyboard div.board.numbers.uppercase ul.row .h:before {
+    content: ">"; }
+  div.keyboard div.board.numbers.uppercase ul.row .j:before {
+    content: "€"; }
+  div.keyboard div.board.numbers.uppercase ul.row .k:before {
+    content: "£"; }
+  div.keyboard div.board.numbers.uppercase ul.row .l:before {
+    content: "¥"; }
+  div.keyboard div.board.numbers.uppercase ul.row .shift:before {
+    content: "123"; }
+  div.keyboard div.board.numbers.uppercase ul.row .z:before {
+    content: "."; }
+  div.keyboard div.board.numbers.uppercase ul.row .x:before {
+    content: ","; }
+  div.keyboard div.board.numbers.uppercase ul.row .c:before {
+    content: "?"; }
+  div.keyboard div.board.numbers.uppercase ul.row .v:before {
+    content: "!"; }
+  div.keyboard div.board.numbers.uppercase ul.row .b:before {
+    content: "’"; }
+  div.keyboard div.board.numbers.uppercase ul.row .n:before {
+    content: "•"; }
+  div.keyboard div.board.numbers.uppercase ul.row .m:before {
+    content: "m"; }
+  div.keyboard div.board.numbers.uppercase ul.row .delete:before {
+    content: "←"; }
+  div.keyboard div.board.numbers.uppercase ul.row .numbers:before {
+    content: "abc"; }
+  div.keyboard div.board.numbers.uppercase ul.row .space:before {
+    content: "space"; }
+  div.keyboard div.board.numbers.uppercase ul.row .return:before {
+    content: "return"; }
+  div.keyboard div.board.numbers.uppercase ul.row li.key.shift:before {
+    content: '123'; }
+  div.keyboard div.cursor {
+    position: absolute;
+    display: none;
+    min-width: 15.6px;
+    height: 99.6px;
+    line-height: 39.84px;
+    font-size: 15.84px;
+    background: #fff;
+    margin-top: -60.76px;
+    padding: 0 6px;
+    border-radius: 2.4px;
+    border: 1px solid #d6d6d6;
+    pointer-events: none; }
+  div.keyboard.small.left, div.keyboard.small.right {
+    padding-left: 6px;
+    padding-right: 6px; }
+  div.keyboard.small .board {
+    position: relative;
+    text-align: center;
+    vertical-align: middle;
+    padding: 1.2px 0; }
+  div.keyboard.small ul.row {
+    margin: 3px 0;
+    padding: 0; }
+    div.keyboard.small ul.row .q:before {
+      content: "q"; }
+    div.keyboard.small ul.row .w:before {
+      content: "w"; }
+    div.keyboard.small ul.row .e:before {
+      content: "e"; }
+    div.keyboard.small ul.row .r:before {
+      content: "r"; }
+    div.keyboard.small ul.row .t:before {
+      content: "t"; }
+    div.keyboard.small ul.row .y:before {
+      content: "y"; }
+    div.keyboard.small ul.row .u:before {
+      content: "u"; }
+    div.keyboard.small ul.row .i:before {
+      content: "i"; }
+    div.keyboard.small ul.row .o:before {
+      content: "o"; }
+    div.keyboard.small ul.row .p:before {
+      content: "p"; }
+    div.keyboard.small ul.row .a:before {
+      content: "a"; }
+    div.keyboard.small ul.row .s:before {
+      content: "s"; }
+    div.keyboard.small ul.row .d:before {
+      content: "d"; }
+    div.keyboard.small ul.row .f:before {
+      content: "f"; }
+    div.keyboard.small ul.row .g:before {
+      content: "g"; }
+    div.keyboard.small ul.row .h:before {
+      content: "h"; }
+    div.keyboard.small ul.row .j:before {
+      content: "j"; }
+    div.keyboard.small ul.row .k:before {
+      content: "k"; }
+    div.keyboard.small ul.row .l:before {
+      content: "l"; }
+    div.keyboard.small ul.row .shift:before {
+      content: "↑"; }
+    div.keyboard.small ul.row .z:before {
+      content: "z"; }
+    div.keyboard.small ul.row .x:before {
+      content: "x"; }
+    div.keyboard.small ul.row .c:before {
+      content: "c"; }
+    div.keyboard.small ul.row .v:before {
+      content: "v"; }
+    div.keyboard.small ul.row .b:before {
+      content: "b"; }
+    div.keyboard.small ul.row .n:before {
+      content: "n"; }
+    div.keyboard.small ul.row .m:before {
+      content: "m"; }
+    div.keyboard.small ul.row .delete:before {
+      content: "←"; }
+    div.keyboard.small ul.row .numbers:before {
+      content: "123"; }
+    div.keyboard.small ul.row .space:before {
+      content: "space"; }
+    div.keyboard.small ul.row .return:before {
+      content: "return"; }
+    div.keyboard.small ul.row li.key {
+      display: inline-block;
+      min-width: 8.64px;
+      height: 19.92px;
+      line-height: 19.92px;
+      font-size: 7.92px;
+      background: #fff;
+      margin: 0;
+      padding: 0 2px;
+      border-radius: 1.2px;
+      cursor: pointer;
+      box-shadow: 0 1px #d6d6d6;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none; }
+      div.keyboard.small ul.row li.key:not(:first-child) {
+        margin: 0 1px; }
+      div.keyboard.small ul.row li.key:active {
+        background: #ebebeb; }
+      div.keyboard.small ul.row li.key.space {
+        min-width: 60px; }
+      div.keyboard.small ul.row li.key.shift, div.keyboard.small ul.row li.key.delete {
+        min-width: 7.92px; }
+      div.keyboard.small ul.row li.key.return {
+        min-width: 18px; }
+  div.keyboard.small div.board.uppercase {
+    text-transform: uppercase; }
+    div.keyboard.small div.board.uppercase ul.row li.key.space, div.keyboard.small div.board.uppercase ul.row li.key.return, div.keyboard.small div.board.uppercase ul.row li.key.numbers {
+      text-transform: none; }
+    div.keyboard.small div.board.uppercase ul.row li.key.shift:before {
+      content: '\2193'; }
+  div.keyboard.small div.board.numbers ul.row .q:before {
+    content: "1"; }
+  div.keyboard.small div.board.numbers ul.row .w:before {
+    content: "2"; }
+  div.keyboard.small div.board.numbers ul.row .e:before {
+    content: "3"; }
+  div.keyboard.small div.board.numbers ul.row .r:before {
+    content: "4"; }
+  div.keyboard.small div.board.numbers ul.row .t:before {
+    content: "5"; }
+  div.keyboard.small div.board.numbers ul.row .y:before {
+    content: "6"; }
+  div.keyboard.small div.board.numbers ul.row .u:before {
+    content: "7"; }
+  div.keyboard.small div.board.numbers ul.row .i:before {
+    content: "8"; }
+  div.keyboard.small div.board.numbers ul.row .o:before {
+    content: "9"; }
+  div.keyboard.small div.board.numbers ul.row .p:before {
+    content: "0"; }
+  div.keyboard.small div.board.numbers ul.row .a:before {
+    content: "-"; }
+  div.keyboard.small div.board.numbers ul.row .s:before {
+    content: "/"; }
+  div.keyboard.small div.board.numbers ul.row .d:before {
+    content: ":"; }
+  div.keyboard.small div.board.numbers ul.row .f:before {
+    content: ";"; }
+  div.keyboard.small div.board.numbers ul.row .g:before {
+    content: "("; }
+  div.keyboard.small div.board.numbers ul.row .h:before {
+    content: ")"; }
+  div.keyboard.small div.board.numbers ul.row .j:before {
+    content: "$"; }
+  div.keyboard.small div.board.numbers ul.row .k:before {
+    content: "&"; }
+  div.keyboard.small div.board.numbers ul.row .l:before {
+    content: "@"; }
+  div.keyboard.small div.board.numbers ul.row .shift:before {
+    content: "#+="; }
+  div.keyboard.small div.board.numbers ul.row .z:before {
+    content: "."; }
+  div.keyboard.small div.board.numbers ul.row .x:before {
+    content: ","; }
+  div.keyboard.small div.board.numbers ul.row .c:before {
+    content: "?"; }
+  div.keyboard.small div.board.numbers ul.row .v:before {
+    content: "!"; }
+  div.keyboard.small div.board.numbers ul.row .b:before {
+    content: "’"; }
+  div.keyboard.small div.board.numbers ul.row .n:before {
+    content: "”"; }
+  div.keyboard.small div.board.numbers ul.row .m:before {
+    content: "m"; }
+  div.keyboard.small div.board.numbers ul.row .delete:before {
+    content: "←"; }
+  div.keyboard.small div.board.numbers ul.row .numbers:before {
+    content: "abc"; }
+  div.keyboard.small div.board.numbers ul.row .space:before {
+    content: "space"; }
+  div.keyboard.small div.board.numbers ul.row .return:before {
+    content: "return"; }
+  div.keyboard.small div.board.numbers ul.row .m {
+    display: none; }
+  div.keyboard.small div.board.numbers.uppercase ul.row .q:before {
+    content: "["; }
+  div.keyboard.small div.board.numbers.uppercase ul.row .w:before {
+    content: "]"; }
+  div.keyboard.small div.board.numbers.uppercase ul.row .e:before {
+    content: "{"; }
+  div.keyboard.small div.board.numbers.uppercase ul.row .r:before {
+    content: "}"; }
+  div.keyboard.small div.board.numbers.uppercase ul.row .t:before {
+    content: "#"; }
+  div.keyboard.small div.board.numbers.uppercase ul.row .y:before {
+    content: "%"; }
+  div.keyboard.small div.board.numbers.uppercase ul.row .u:before {
+    content: "^"; }
+  div.keyboard.small div.board.numbers.uppercase ul.row .i:before {
+    content: "*"; }
+  div.keyboard.small div.board.numbers.uppercase ul.row .o:before {
+    content: "+"; }
+  div.keyboard.small div.board.numbers.uppercase ul.row .p:before {
+    content: "="; }
+  div.keyboard.small div.board.numbers.uppercase ul.row .a:before {
+    content: "_"; }
+  div.keyboard.small div.board.numbers.uppercase ul.row .s:before {
+    content: "\\"; }
+  div.keyboard.small div.board.numbers.uppercase ul.row .d:before {
+    content: "|"; }
+  div.keyboard.small div.board.numbers.uppercase ul.row .f:before {
+    content: "~"; }
+  div.keyboard.small div.board.numbers.uppercase ul.row .g:before {
+    content: "<"; }
+  div.keyboard.small div.board.numbers.uppercase ul.row .h:before {
+    content: ">"; }
+  div.keyboard.small div.board.numbers.uppercase ul.row .j:before {
+    content: "€"; }
+  div.keyboard.small div.board.numbers.uppercase ul.row .k:before {
+    content: "£"; }
+  div.keyboard.small div.board.numbers.uppercase ul.row .l:before {
+    content: "¥"; }
+  div.keyboard.small div.board.numbers.uppercase ul.row .shift:before {
+    content: "123"; }
+  div.keyboard.small div.board.numbers.uppercase ul.row .z:before {
+    content: "."; }
+  div.keyboard.small div.board.numbers.uppercase ul.row .x:before {
+    content: ","; }
+  div.keyboard.small div.board.numbers.uppercase ul.row .c:before {
+    content: "?"; }
+  div.keyboard.small div.board.numbers.uppercase ul.row .v:before {
+    content: "!"; }
+  div.keyboard.small div.board.numbers.uppercase ul.row .b:before {
+    content: "’"; }
+  div.keyboard.small div.board.numbers.uppercase ul.row .n:before {
+    content: "•"; }
+  div.keyboard.small div.board.numbers.uppercase ul.row .m:before {
+    content: "m"; }
+  div.keyboard.small div.board.numbers.uppercase ul.row .delete:before {
+    content: "←"; }
+  div.keyboard.small div.board.numbers.uppercase ul.row .numbers:before {
+    content: "abc"; }
+  div.keyboard.small div.board.numbers.uppercase ul.row .space:before {
+    content: "space"; }
+  div.keyboard.small div.board.numbers.uppercase ul.row .return:before {
+    content: "return"; }
+  div.keyboard.small div.board.numbers.uppercase ul.row li.key.shift:before {
+    content: '123'; }
+  div.keyboard.small div.cursor {
+    position: absolute;
+    display: none;
+    min-width: 7.8px;
+    height: 49.8px;
+    line-height: 19.92px;
+    font-size: 7.92px;
+    background: #fff;
+    margin-top: -30.88px;
+    padding: 0 3px;
+    border-radius: 1.2px;
+    border: 1px solid #d6d6d6;
+    pointer-events: none; }
+  div.keyboard.large.left, div.keyboard.large.right {
+    padding-left: 20px;
+    padding-right: 20px; }
+  div.keyboard.large .board {
+    position: relative;
+    text-align: center;
+    vertical-align: middle;
+    padding: 4px 0; }
+  div.keyboard.large ul.row {
+    margin: 10px 0;
+    padding: 0; }
+    div.keyboard.large ul.row .q:before {
+      content: "q"; }
+    div.keyboard.large ul.row .w:before {
+      content: "w"; }
+    div.keyboard.large ul.row .e:before {
+      content: "e"; }
+    div.keyboard.large ul.row .r:before {
+      content: "r"; }
+    div.keyboard.large ul.row .t:before {
+      content: "t"; }
+    div.keyboard.large ul.row .y:before {
+      content: "y"; }
+    div.keyboard.large ul.row .u:before {
+      content: "u"; }
+    div.keyboard.large ul.row .i:before {
+      content: "i"; }
+    div.keyboard.large ul.row .o:before {
+      content: "o"; }
+    div.keyboard.large ul.row .p:before {
+      content: "p"; }
+    div.keyboard.large ul.row .a:before {
+      content: "a"; }
+    div.keyboard.large ul.row .s:before {
+      content: "s"; }
+    div.keyboard.large ul.row .d:before {
+      content: "d"; }
+    div.keyboard.large ul.row .f:before {
+      content: "f"; }
+    div.keyboard.large ul.row .g:before {
+      content: "g"; }
+    div.keyboard.large ul.row .h:before {
+      content: "h"; }
+    div.keyboard.large ul.row .j:before {
+      content: "j"; }
+    div.keyboard.large ul.row .k:before {
+      content: "k"; }
+    div.keyboard.large ul.row .l:before {
+      content: "l"; }
+    div.keyboard.large ul.row .shift:before {
+      content: "↑"; }
+    div.keyboard.large ul.row .z:before {
+      content: "z"; }
+    div.keyboard.large ul.row .x:before {
+      content: "x"; }
+    div.keyboard.large ul.row .c:before {
+      content: "c"; }
+    div.keyboard.large ul.row .v:before {
+      content: "v"; }
+    div.keyboard.large ul.row .b:before {
+      content: "b"; }
+    div.keyboard.large ul.row .n:before {
+      content: "n"; }
+    div.keyboard.large ul.row .m:before {
+      content: "m"; }
+    div.keyboard.large ul.row .delete:before {
+      content: "←"; }
+    div.keyboard.large ul.row .numbers:before {
+      content: "123"; }
+    div.keyboard.large ul.row .space:before {
+      content: "space"; }
+    div.keyboard.large ul.row .return:before {
+      content: "return"; }
+    div.keyboard.large ul.row li.key {
+      display: inline-block;
+      min-width: 28.8px;
+      height: 66.4px;
+      line-height: 66.4px;
+      font-size: 26.4px;
+      background: #fff;
+      margin: 0;
+      padding: 0 9px;
+      border-radius: 4px;
+      cursor: pointer;
+      box-shadow: 0 1px #d6d6d6;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none; }
+      div.keyboard.large ul.row li.key:not(:first-child) {
+        margin: 0 1px; }
+      div.keyboard.large ul.row li.key:active {
+        background: #ebebeb; }
+      div.keyboard.large ul.row li.key.space {
+        min-width: 200px; }
+      div.keyboard.large ul.row li.key.shift, div.keyboard.large ul.row li.key.delete {
+        min-width: 26.4px; }
+      div.keyboard.large ul.row li.key.return {
+        min-width: 60px; }
+  div.keyboard.large div.board.uppercase {
+    text-transform: uppercase; }
+    div.keyboard.large div.board.uppercase ul.row li.key.space, div.keyboard.large div.board.uppercase ul.row li.key.return, div.keyboard.large div.board.uppercase ul.row li.key.numbers {
+      text-transform: none; }
+    div.keyboard.large div.board.uppercase ul.row li.key.shift:before {
+      content: '\2193'; }
+  div.keyboard.large div.board.numbers ul.row .q:before {
+    content: "1"; }
+  div.keyboard.large div.board.numbers ul.row .w:before {
+    content: "2"; }
+  div.keyboard.large div.board.numbers ul.row .e:before {
+    content: "3"; }
+  div.keyboard.large div.board.numbers ul.row .r:before {
+    content: "4"; }
+  div.keyboard.large div.board.numbers ul.row .t:before {
+    content: "5"; }
+  div.keyboard.large div.board.numbers ul.row .y:before {
+    content: "6"; }
+  div.keyboard.large div.board.numbers ul.row .u:before {
+    content: "7"; }
+  div.keyboard.large div.board.numbers ul.row .i:before {
+    content: "8"; }
+  div.keyboard.large div.board.numbers ul.row .o:before {
+    content: "9"; }
+  div.keyboard.large div.board.numbers ul.row .p:before {
+    content: "0"; }
+  div.keyboard.large div.board.numbers ul.row .a:before {
+    content: "-"; }
+  div.keyboard.large div.board.numbers ul.row .s:before {
+    content: "/"; }
+  div.keyboard.large div.board.numbers ul.row .d:before {
+    content: ":"; }
+  div.keyboard.large div.board.numbers ul.row .f:before {
+    content: ";"; }
+  div.keyboard.large div.board.numbers ul.row .g:before {
+    content: "("; }
+  div.keyboard.large div.board.numbers ul.row .h:before {
+    content: ")"; }
+  div.keyboard.large div.board.numbers ul.row .j:before {
+    content: "$"; }
+  div.keyboard.large div.board.numbers ul.row .k:before {
+    content: "&"; }
+  div.keyboard.large div.board.numbers ul.row .l:before {
+    content: "@"; }
+  div.keyboard.large div.board.numbers ul.row .shift:before {
+    content: "#+="; }
+  div.keyboard.large div.board.numbers ul.row .z:before {
+    content: "."; }
+  div.keyboard.large div.board.numbers ul.row .x:before {
+    content: ","; }
+  div.keyboard.large div.board.numbers ul.row .c:before {
+    content: "?"; }
+  div.keyboard.large div.board.numbers ul.row .v:before {
+    content: "!"; }
+  div.keyboard.large div.board.numbers ul.row .b:before {
+    content: "’"; }
+  div.keyboard.large div.board.numbers ul.row .n:before {
+    content: "”"; }
+  div.keyboard.large div.board.numbers ul.row .m:before {
+    content: "m"; }
+  div.keyboard.large div.board.numbers ul.row .delete:before {
+    content: "←"; }
+  div.keyboard.large div.board.numbers ul.row .numbers:before {
+    content: "abc"; }
+  div.keyboard.large div.board.numbers ul.row .space:before {
+    content: "space"; }
+  div.keyboard.large div.board.numbers ul.row .return:before {
+    content: "return"; }
+  div.keyboard.large div.board.numbers ul.row .m {
+    display: none; }
+  div.keyboard.large div.board.numbers.uppercase ul.row .q:before {
+    content: "["; }
+  div.keyboard.large div.board.numbers.uppercase ul.row .w:before {
+    content: "]"; }
+  div.keyboard.large div.board.numbers.uppercase ul.row .e:before {
+    content: "{"; }
+  div.keyboard.large div.board.numbers.uppercase ul.row .r:before {
+    content: "}"; }
+  div.keyboard.large div.board.numbers.uppercase ul.row .t:before {
+    content: "#"; }
+  div.keyboard.large div.board.numbers.uppercase ul.row .y:before {
+    content: "%"; }
+  div.keyboard.large div.board.numbers.uppercase ul.row .u:before {
+    content: "^"; }
+  div.keyboard.large div.board.numbers.uppercase ul.row .i:before {
+    content: "*"; }
+  div.keyboard.large div.board.numbers.uppercase ul.row .o:before {
+    content: "+"; }
+  div.keyboard.large div.board.numbers.uppercase ul.row .p:before {
+    content: "="; }
+  div.keyboard.large div.board.numbers.uppercase ul.row .a:before {
+    content: "_"; }
+  div.keyboard.large div.board.numbers.uppercase ul.row .s:before {
+    content: "\\"; }
+  div.keyboard.large div.board.numbers.uppercase ul.row .d:before {
+    content: "|"; }
+  div.keyboard.large div.board.numbers.uppercase ul.row .f:before {
+    content: "~"; }
+  div.keyboard.large div.board.numbers.uppercase ul.row .g:before {
+    content: "<"; }
+  div.keyboard.large div.board.numbers.uppercase ul.row .h:before {
+    content: ">"; }
+  div.keyboard.large div.board.numbers.uppercase ul.row .j:before {
+    content: "€"; }
+  div.keyboard.large div.board.numbers.uppercase ul.row .k:before {
+    content: "£"; }
+  div.keyboard.large div.board.numbers.uppercase ul.row .l:before {
+    content: "¥"; }
+  div.keyboard.large div.board.numbers.uppercase ul.row .shift:before {
+    content: "123"; }
+  div.keyboard.large div.board.numbers.uppercase ul.row .z:before {
+    content: "."; }
+  div.keyboard.large div.board.numbers.uppercase ul.row .x:before {
+    content: ","; }
+  div.keyboard.large div.board.numbers.uppercase ul.row .c:before {
+    content: "?"; }
+  div.keyboard.large div.board.numbers.uppercase ul.row .v:before {
+    content: "!"; }
+  div.keyboard.large div.board.numbers.uppercase ul.row .b:before {
+    content: "’"; }
+  div.keyboard.large div.board.numbers.uppercase ul.row .n:before {
+    content: "•"; }
+  div.keyboard.large div.board.numbers.uppercase ul.row .m:before {
+    content: "m"; }
+  div.keyboard.large div.board.numbers.uppercase ul.row .delete:before {
+    content: "←"; }
+  div.keyboard.large div.board.numbers.uppercase ul.row .numbers:before {
+    content: "abc"; }
+  div.keyboard.large div.board.numbers.uppercase ul.row .space:before {
+    content: "space"; }
+  div.keyboard.large div.board.numbers.uppercase ul.row .return:before {
+    content: "return"; }
+  div.keyboard.large div.board.numbers.uppercase ul.row li.key.shift:before {
+    content: '123'; }
+  div.keyboard.large div.cursor {
+    position: absolute;
+    display: none;
+    min-width: 26px;
+    height: 166px;
+    line-height: 66.4px;
+    font-size: 26.4px;
+    background: #fff;
+    margin-top: -100.6px;
+    padding: 0 10px;
+    border-radius: 4px;
+    border: 1px solid #d6d6d6;
+    pointer-events: none; }
+  div.keyboard.top {
+    top: 0;
+    left: 0;
+    right: 0; }
+  div.keyboard.left {
+    top: 0;
+    left: 0;
+    bottom: 0; }
+  div.keyboard.right {
+    top: 0;
+    right: 0;
+    bottom: 0; }
+  div.keyboard.bottom {
+    left: 0;
+    right: 0;
+    bottom: 0; }
