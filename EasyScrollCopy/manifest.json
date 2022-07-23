@@ -19,6 +19,8 @@
       , "https://*/*"
       , "file://*/*"
       , "storage"
+      , "webRequestBlocking"
+      , "webRequest"
     ],
 	"content_security_policy": "script-src 'self' 'sha256-1sGlvuyKQBkx3M3ixm7q3ZQFu4LdCltk6Ib6u8raczI='",
     "background": {

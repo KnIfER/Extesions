@@ -20,6 +20,9 @@
       , "https://*/*"
       , "bookmarks"
       , "storage"
+	  , "\u003Call_urls>"
+	  , "webRequest"
+	  , "webRequestBlocking"
     ],
     "background": {
         "page": "js/background.html"
