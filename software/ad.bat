@@ -1,0 +1,1 @@
+D:\Code\NVPACK\android_sdk\platform-tools\adb.exe %*

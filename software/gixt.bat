@@ -1,0 +1,1 @@
+"C:\Users\TEST\AppData\Local\GitHubDesktop\app-2.9.6\resources\app\git\cmd\git.exe" %*
