@@ -1,0 +1,690 @@
+* {
+  margin: 0;
+  padding: 0; }
+
+.typatone {
+  -webkit-transition: opacity 0.75s cubic-bezier(0.785, 0.135, 0.15, 0.86);
+  -moz-transition: opacity 0.75s cubic-bezier(0.785, 0.135, 0.15, 0.86);
+  transition: opacity 0.75s cubic-bezier(0.785, 0.135, 0.15, 0.86);
+  pointer-events: auto;
+  opacity: 1; }
+
+#lobby {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 50px;
+  height: 50px;
+  margin-top: -25px;
+  margin-left: -25px;
+  opacity: 0;
+  background: url(../images/icons/sync.svg) center center no-repeat;
+  background-size: 100%;
+  border-radius: 50%;
+  z-index: 9999;
+  -webkit-transition: opacity 0.35s cubic-bezier(0.075, 0.82, 0.165, 1);
+  -moz-transition: opacity 0.35s cubic-bezier(0.075, 0.82, 0.165, 1);
+  transition: opacity 0.35s cubic-bezier(0.075, 0.82, 0.165, 1);
+  -webkit-transform-origin: center center;
+  -moz-transform-origin: center center;
+  -ms-transform-origin: center center;
+  -o-transform-origin: center center;
+  transform-origin: center center;
+  -webkit-transform-style: preserve-3d;
+  -moz-transform-style: preserve-3d;
+  -ms-transform-style: preserve-3d;
+  -o-transform-style: preserve-3d;
+  transform-style: preserve-3d;
+  -webkit-animation-name: spin;
+  -moz-animation-name: spin;
+  animation-name: spin;
+  -webkit-animation-duration: 1s;
+  -moz-animation-duration: 1s;
+  animation-duration: 1s;
+  -webkit-animation-iteration-count: infinite;
+  -moz-animation-iteration-count: infinite;
+  animation-iteration-count: infinite;
+  -webkit-animation-timing-function: cubic-bezier(0.785, 0.135, 0.15, 0.86);
+  -moz-animation-timing-function: cubic-bezier(0.785, 0.135, 0.15, 0.86);
+  animation-timing-function: cubic-bezier(0.785, 0.135, 0.15, 0.86);
+  content: ""; }
+
+.loading .typatone {
+  pointer-events: none;
+  opacity: 0; }
+.loading #lobby {
+  opacity: 1; }
+
+#editor,
+#viewer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  -webkit-transition: background 0.75s cubic-bezier(0.075, 0.82, 0.165, 1);
+  -moz-transition: background 0.75s cubic-bezier(0.075, 0.82, 0.165, 1);
+  transition: background 0.75s cubic-bezier(0.075, 0.82, 0.165, 1);
+  background: #007dc8;
+  /**
+   * Themes
+   */ }
+  #editor.active,
+  #viewer.active {
+    background: #00af96; }
+  #editor.natural,
+  #viewer.natural {
+    background: #007dc8; }
+    #editor.natural.active,
+    #viewer.natural.active {
+      background: #00af96; }
+  #editor.vinyl, #editor.flutter,
+  #viewer.vinyl,
+  #viewer.flutter {
+    background: #ff7d32; }
+    #editor.vinyl.active, #editor.flutter.active,
+    #viewer.vinyl.active,
+    #viewer.flutter.active {
+      background: #ff327d; }
+  #editor.sustain, #editor.sustain2, #editor.sustain3, #editor.seasick,
+  #viewer.sustain,
+  #viewer.sustain2,
+  #viewer.sustain3,
+  #viewer.seasick {
+    background: #6400ff; }
+    #editor.sustain.active, #editor.sustain2.active, #editor.sustain3.active, #editor.seasick.active,
+    #viewer.sustain.active,
+    #viewer.sustain2.active,
+    #viewer.sustain3.active,
+    #viewer.seasick.active {
+      background: #643264; }
+  #editor.boards,
+  #viewer.boards {
+    background: #960032; }
+    #editor.boards.active,
+    #viewer.boards.active {
+      background: #963200; }
+  #editor.bongorhodes,
+  #viewer.bongorhodes {
+    background: #00af96; }
+    #editor.bongorhodes.active,
+    #viewer.bongorhodes.active {
+      background: #32c864; }
+  #editor.reverser, #editor.robotones, #editor.beeps,
+  #viewer.reverser,
+  #viewer.robotones,
+  #viewer.beeps {
+    background: #ccc; }
+    #editor.reverser.active, #editor.robotones.active, #editor.beeps.active,
+    #viewer.reverser.active,
+    #viewer.robotones.active,
+    #viewer.beeps.active {
+      background: #765; }
+  #editor.noize, #editor.spooky,
+  #viewer.noize,
+  #viewer.spooky {
+    background: #765; }
+    #editor.noize.active, #editor.spooky.active,
+    #viewer.noize.active,
+    #viewer.spooky.active {
+      background: #432; }
+  #editor .fade,
+  #viewer .fade {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none; }
+  #editor .stage,
+  #viewer .stage {
+    position: fixed;
+    top: 0;
+    right: 0;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overflow-x: hidden;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none; }
+    #editor .stage svg,
+    #viewer .stage svg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      pointer-events: none; }
+    #editor .stage .content,
+    #viewer .stage .content {
+      position: relative;
+      padding: 50px;
+      vertical-align: top;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+      font-family: 'proxima-nova-soft', 'Proxima Nova', sans-serif;
+      font-weight: 500;
+      font-size: 36px;
+      line-height: 50px;
+      text-shadow: 1px 1px rgba(0, 0, 0, 0.3);
+      color: white; }
+      #editor .stage .content span,
+      #viewer .stage .content span {
+        cursor: pointer;
+        height: 100%; }
+        #editor .stage .content span.breaking,
+        #viewer .stage .content span.breaking {
+          display: inline-block; }
+  #editor .keyboard,
+  #viewer .keyboard {
+    position: fixed;
+    box-shadow: 0 0 25px rgba(0, 0, 0, 0.4); }
+    #editor .keyboard .navigation,
+    #viewer .keyboard .navigation {
+      width: 108%;
+      background: rgba(0, 0, 0, 0.1);
+      border-top: 1px solid rgba(255, 255, 255, 0.75);
+      line-height: 0;
+      margin-top: 0;
+      margin-bottom: 0;
+      margin-left: -4%;
+      text-align: center; }
+      #editor .keyboard .navigation li.key,
+      #viewer .keyboard .navigation li.key {
+        position: relative;
+        background: transparent;
+        border-color: transparent;
+        box-shadow: 0 0 transparent;
+        width: 0;
+        min-width: 0;
+        margin: 0;
+        padding: 0 24px;
+        border-radius: 0;
+        border-right: 0;
+        border-left: 1px solid rgba(255, 255, 255, 0.66); }
+        #editor .keyboard .navigation li.key div,
+        #viewer .keyboard .navigation li.key div {
+          opacity: 0.75; }
+        #editor .keyboard .navigation li.key:hover,
+        #viewer .keyboard .navigation li.key:hover {
+          background: rgba(0, 0, 0, 0.1); }
+          #editor .keyboard .navigation li.key:hover div,
+          #viewer .keyboard .navigation li.key:hover div {
+            opacity: 1; }
+        #editor .keyboard .navigation li.key:last-child,
+        #viewer .keyboard .navigation li.key:last-child {
+          border-right: 1px solid rgba(255, 255, 255, 0.66); }
+      #editor .keyboard .navigation div,
+      #viewer .keyboard .navigation div {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-repeat: no-repeat;
+        background-position: center center;
+        background-size: 40%;
+        /**
+         * Animated spinner around icon
+         */ }
+        #editor .keyboard .navigation div.about,
+        #viewer .keyboard .navigation div.about {
+          background-image: url(../images/icons/info-white.svg); }
+        #editor .keyboard .navigation div.profile,
+        #viewer .keyboard .navigation div.profile {
+          background-image: url(../images/icons/profile-white.svg); }
+        #editor .keyboard .navigation div.volume,
+        #viewer .keyboard .navigation div.volume {
+          background-image: url(../images/icons/volume-white.svg); }
+          #editor .keyboard .navigation div.volume.mute,
+          #viewer .keyboard .navigation div.volume.mute {
+            background-image: url(../images/icons/volume-mute-white.svg); }
+        #editor .keyboard .navigation div.filter,
+        #viewer .keyboard .navigation div.filter {
+          background-image: url(../images/icons/filter-white.svg); }
+        #editor .keyboard .navigation div.paste,
+        #viewer .keyboard .navigation div.paste {
+          background-image: url(../images/icons/paste-white.svg); }
+        #editor .keyboard .navigation div.download,
+        #viewer .keyboard .navigation div.download {
+          background-image: url(../images/icons/download-white.svg); }
+        #editor .keyboard .navigation div.save,
+        #viewer .keyboard .navigation div.save {
+          background-image: url(./images/icons/save-white.svg); }
+        #editor .keyboard .navigation div.send,
+        #viewer .keyboard .navigation div.send {
+          background-image: url(../images/icons/send-white.svg); }
+        #editor .keyboard .navigation div.in-progress,
+        #viewer .keyboard .navigation div.in-progress {
+          cursor: default; }
+        #editor .keyboard .navigation div:after,
+        #viewer .keyboard .navigation div:after {
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          opacity: 0;
+          background: url(./images/icons/sync.svg) center center no-repeat;
+          -webkit-backface-visibility: none;
+          backface-visibility: none;
+          -webkit-transition: opacity 0.35s cubic-bezier(0.075, 0.82, 0.165, 1);
+          -moz-transition: opacity 0.35s cubic-bezier(0.075, 0.82, 0.165, 1);
+          transition: opacity 0.35s cubic-bezier(0.075, 0.82, 0.165, 1);
+          -webkit-transform-origin: center center;
+          -moz-transform-origin: center center;
+          -ms-transform-origin: center center;
+          -o-transform-origin: center center;
+          transform-origin: center center;
+          -webkit-transform-style: preserve-3d;
+          -moz-transform-style: preserve-3d;
+          -ms-transform-style: preserve-3d;
+          -o-transform-style: preserve-3d;
+          transform-style: preserve-3d;
+          -webkit-animation-name: spin;
+          -moz-animation-name: spin;
+          animation-name: spin;
+          -webkit-animation-duration: 1s;
+          -moz-animation-duration: 1s;
+          animation-duration: 1s;
+          -webkit-animation-iteration-count: infinite;
+          -moz-animation-iteration-count: infinite;
+          animation-iteration-count: infinite;
+          -webkit-animation-timing-function: cubic-bezier(0.785, 0.135, 0.15, 0.86);
+          -moz-animation-timing-function: cubic-bezier(0.785, 0.135, 0.15, 0.86);
+          animation-timing-function: cubic-bezier(0.785, 0.135, 0.15, 0.86);
+          content: ""; }
+        #editor .keyboard .navigation div.in-progress:after,
+        #viewer .keyboard .navigation div.in-progress:after {
+          opacity: 1; }
+    #editor .keyboard .board,
+    #viewer .keyboard .board {
+      padding-top: 0; }
+    #editor .keyboard.small .navigation li.key,
+    #viewer .keyboard.small .navigation li.key {
+      padding: 0 12px; }
+    #editor .keyboard.large .navigation li.key,
+    #viewer .keyboard.large .navigation li.key {
+      padding: 0 40px; }
+
+#viewer .stage {
+  overflow-y: auto; }
+  #viewer .stage .content span {
+    cursor: default;
+    -webkit-transform-style: preserve-3d;
+    -moz-transform-style: preserve-3d;
+    -ms-transform-style: preserve-3d;
+    -o-transform-style: preserve-3d;
+    transform-style: preserve-3d;
+    -webkit-transform-origin: center center;
+    -moz-transform-origin: center center;
+    -ms-transform-origin: center center;
+    -o-transform-origin: center center;
+    transform-origin: center center;
+    -webkit-transition-property: -webkit-transform, opacity;
+    -moz-transition-property: -moz-transform, opacity;
+    transition-property: transform, opacity;
+    -webkit-transition-duration: 0.15s;
+    -moz-transition-duration: 0.15s;
+    transition-duration: 0.15s;
+    -webkit-transition-timing-function: cubic-bezier(0.785, 0.135, 0.15, 0.86);
+    -moz-transition-timing-function: cubic-bezier(0.785, 0.135, 0.15, 0.86);
+    transition-timing-function: cubic-bezier(0.785, 0.135, 0.15, 0.86);
+    -webkit-transform: translateY(9px);
+    -moz-transform: translateY(9px);
+    -ms-transform: translateY(9px);
+    -o-transform: translateY(9px);
+    transform: translateY(9px);
+    pointer-events: none;
+    opacity: 0; }
+    #viewer .stage .content span.enabled {
+      -webkit-transform: translateY(0);
+      -moz-transform: translateY(0);
+      -ms-transform: translateY(0);
+      -o-transform: translateY(0);
+      transform: translateY(0);
+      pointer-events: auto;
+      opacity: 1; }
+#viewer .navigation {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #d4d4d4;
+  border-top: 1px solid rgba(255, 255, 255, 0.66);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.66);
+  box-shadow: 0 -20px 50px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  height: 50px; }
+  #viewer .navigation a {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 50px;
+    outline: none;
+    border: 0;
+    border-left: 1px solid rgba(255, 255, 255, 0.6);
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: 40%;
+    /**
+     * Animated spinner around icon
+     */ }
+    #viewer .navigation a:last-child {
+      border-right: 1px solid rgba(255, 255, 255, 0.6); }
+    #viewer .navigation a:hover {
+      background-color: rgba(0, 0, 0, 0.1); }
+    #viewer .navigation a.about {
+      background-image: url(./images/icons/info-white.svg); }
+    #viewer .navigation a.create {
+      background-image: url(./images/icons/new-white.svg); }
+    #viewer .navigation a.replay {
+      background-image: url(./images/icons/replay-white.svg); }
+    #viewer .navigation a.download {
+      background-image: url(./images/icons/download-white.svg); }
+    #viewer .navigation a.send {
+      background-image: url(./images/icons/send-white.svg); }
+    #viewer .navigation a:after {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      opacity: 0;
+      background: url(./images/icons/sync.svg) center center no-repeat;
+      -webkit-transition: opacity 0.35s cubic-bezier(0.075, 0.82, 0.165, 1);
+      -moz-transition: opacity 0.35s cubic-bezier(0.075, 0.82, 0.165, 1);
+      transition: opacity 0.35s cubic-bezier(0.075, 0.82, 0.165, 1);
+      -webkit-transform-origin: center center;
+      -moz-transform-origin: center center;
+      -ms-transform-origin: center center;
+      -o-transform-origin: center center;
+      transform-origin: center center;
+      -webkit-transform-style: preserve-3d;
+      -moz-transform-style: preserve-3d;
+      -ms-transform-style: preserve-3d;
+      -o-transform-style: preserve-3d;
+      transform-style: preserve-3d;
+      content: ""; }
+    #viewer .navigation a.in-progress:after {
+      opacity: 1;
+      -webkit-backface-visibility: none;
+      backface-visibility: none;
+      -webkit-animation-name: spin;
+      -moz-animation-name: spin;
+      animation-name: spin;
+      -webkit-animation-duration: 1s;
+      -moz-animation-duration: 1s;
+      animation-duration: 1s;
+      -webkit-animation-iteration-count: infinite;
+      -moz-animation-iteration-count: infinite;
+      animation-iteration-count: infinite;
+      -webkit-animation-timing-function: cubic-bezier(0.785, 0.135, 0.15, 0.86);
+      -moz-animation-timing-function: cubic-bezier(0.785, 0.135, 0.15, 0.86);
+      animation-timing-function: cubic-bezier(0.785, 0.135, 0.15, 0.86); }
+#viewer .play-button {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-image: url(./images/icons/play-white.svg);
+  background-size: 100px 100px;
+  z-index: -1;
+  opacity: 0;
+  -webkit-transition: opacity 0.35s cubic-bezier(0.075, 0.82, 0.165, 1);
+  -moz-transition: opacity 0.35s cubic-bezier(0.075, 0.82, 0.165, 1);
+  transition: opacity 0.35s cubic-bezier(0.075, 0.82, 0.165, 1);
+  cursor: pointer; }
+  #viewer .play-button.enabled {
+    z-index: 9999;
+    opacity: 1; }
+
+.text-cursor {
+  visibility: hidden;
+  position: absolute;
+  left: -999px;
+  top: -999px;
+  height: 36px;
+  width: 0;
+  border-right: 2px solid white;
+  -webkit-animation-name: blink;
+  -moz-animation-name: blink;
+  animation-name: blink;
+  -webkit-animation-duration: 1s;
+  -moz-animation-duration: 1s;
+  animation-duration: 1s;
+  -webkit-animation-iteration-count: infinite;
+  -moz-animation-iteration-count: infinite;
+  animation-iteration-count: infinite;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  content: ""; }
+  .text-cursor.editor-active {
+    visibility: visible; }
+
+.modal {
+  position: fixed;
+  display: none;
+  background: white;
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0; }
+  .modal .close {
+    font-family: 'proxima-nova-soft', 'Proxima Nova', sans-serif;
+    position: absolute;
+    top: 0;
+    right: 0;
+    padding: 16.66667px 25px;
+    font-size: 27px;
+    cursor: pointer; }
+  .modal .content {
+    position: relative;
+    padding: 50px 25px;
+    font-family: 'proxima-nova-soft', 'Proxima Nova', sans-serif;
+    line-height: 50px;
+    font-size: 18px;
+    text-align: center;
+    color: #333; }
+    .modal .content .social a {
+      display: inline-block;
+      background-position: center center;
+      background-repeat: no-repeat;
+      background-size: 18px;
+      width: 36px;
+      height: 36px;
+      margin: 0 12px;
+      border: 1px solid #858585;
+      border-radius: 3.6px; }
+      .modal .content .social a.facebook {
+        background-image: url(./images/social/facebook.svg); }
+      .modal .content .social a.twitter {
+        background-image: url(./images/social/twitter.svg); }
+      .modal .content .social a.gplus {
+        background-image: url(./images/social/gplus.svg); }
+      .modal .content .social a.email {
+        background-image: url(./images/social/email.svg); }
+    .modal .content input {
+      font-family: 'proxima-nova-soft', 'Proxima Nova', sans-serif;
+      width: 50%;
+      border: 0;
+      border-radius: 0;
+      border-bottom: 1px solid #ccc;
+      outline: none;
+      padding: 9px;
+      font-size: 18px;
+      line-height: 18px; }
+    .modal .content textarea {
+      position: relative;
+      display: block;
+      margin: 0 0 0 -10px;
+      width: 100%;
+      height: 100%;
+      font-family: 'proxima-nova-soft', 'Proxima Nova', sans-serif;
+      border: 1px solid #ccc;
+      border-radius: 0;
+      box-shadow: none;
+      outline: none;
+      padding: 9px;
+      font-size: 18px;
+      line-height: 21.6px; }
+    .modal .content p.paste-content {
+      display: inline-block;
+      position: relative;
+      width: 66%;
+      resize: vertical; }
+      .modal .content p.paste-content:after {
+        position: absolute;
+        top: 1px;
+        left: -9px;
+        right: -9px;
+        bottom: 1px;
+        opacity: 1;
+        background: rgba(0, 0, 0, 0.1);
+        opacity: 0;
+        pointer-events: none;
+        content: ""; }
+    .modal .content p > button {
+      margin-top: 25px; }
+    .modal .content button {
+      display: block;
+      margin: 0 auto;
+      font-family: 'proxima-nova-soft', 'Proxima Nova', sans-serif;
+      border: 1px solid #ccc;
+      border-radius: 4.5px;
+      background: transparent;
+      outline: none;
+      vertical-align: bottom;
+      padding: 9px 9px 6px 9px;
+      font-size: 18px;
+      line-height: 18px;
+      cursor: pointer; }
+    .modal .content #paste-text.pasting p.paste-content:after {
+      opacity: 1;
+      pointer-events: auto; }
+    .modal .content #paste-text.pasting button.submit {
+      cursor: default; }
+    .modal .content #stripe-charge {
+      margin-left: auto;
+      margin-right: auto;
+      width: 66%; }
+
+.nb {
+  font-size: 75%; }
+
+@media (max-width: 300px) {
+  #viewer .stage .content,
+  #editor .stage .content {
+    font-size: 18px;
+    line-height: 25px;
+    padding: 25px; }
+
+  #viewer .navigation {
+    height: 25px; }
+    #viewer .navigation a {
+      width: 25px;
+      height: 25px; }
+
+  .text-cursor {
+    height: 18px;
+    border-right: 1px solid white; }
+
+  .modal .content {
+    padding-left: 0;
+    padding-right: 0;
+    font-size: 9px;
+    line-height: 25px; }
+    .modal .content .social a {
+      width: 18px;
+      height: 18px;
+      background-size: 12px;
+      margin: 0 9px; }
+    .modal .content input {
+      font-size: 12px;
+      line-height: 12px; } }
+#view-about textarea {
+  position: relative;
+  display: block;
+  margin: 0 auto;
+  width: 50%;
+  height: 100%;
+  font-family: 'proxima-nova-soft', 'Proxima Nova', sans-serif;
+  border: 1px solid #ccc;
+  border-radius: 0;
+  box-shadow: none;
+  outline: none;
+  padding: 9px;
+  font-size: 18px;
+  line-height: 21.6px;
+  text-align: left; }
+
+div.brandingLogoView {
+  display: none !important; }
+
+#facebook-callout {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 18px;
+  height: 18px;
+  background: url(./images/social/facebook-knockout.svg) center center no-repeat;
+  background-size: 100%; }
+
+@-webkit-keyframes blink {
+  0% {
+    opacity: 0; }
+  50% {
+    opacity: 0; }
+  51% {
+    opacity: 1; }
+  100% {
+    opacity: 1; } }
+@-moz-keyframes blink {
+  0% {
+    opacity: 0; }
+  50% {
+    opacity: 0; }
+  51% {
+    opacity: 1; }
+  100% {
+    opacity: 1; } }
+@keyframes blink {
+  0% {
+    opacity: 0; }
+  50% {
+    opacity: 0; }
+  51% {
+    opacity: 1; }
+  100% {
+    opacity: 1; } }
+@-webkit-keyframes spin {
+  0% {
+    -webkit-transform: scale(0.6) rotate(0deg); }
+  100% {
+    -webkit-transform: scale(0.6) rotate(360deg); } }
+@-moz-keyframes spin {
+  0% {
+    -moz-transform: scale(0.6) rotate(0deg); }
+  100% {
+    -moz-transform: scale(0.6) rotate(360deg); } }
+@keyframes spin {
+  0% {
+    -webkit-transform: scale(0.6) rotate(0deg);
+    -moz-transform: scale(0.6) rotate(0deg);
+    -ms-transform: scale(0.6) rotate(0deg);
+    -o-transform: scale(0.6) rotate(0deg);
+    transform: scale(0.6) rotate(0deg); }
+  100% {
+    -webkit-transform: scale(0.6) rotate(360deg);
+    -moz-transform: scale(0.6) rotate(360deg);
+    -ms-transform: scale(0.6) rotate(360deg);
+    -o-transform: scale(0.6) rotate(360deg);
+    transform: scale(0.6) rotate(360deg); } }
