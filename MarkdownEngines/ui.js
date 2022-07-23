@@ -124,8 +124,8 @@ function doScintillo(bf) {
     if(lns.length==0) {
         var H=document.body.scrollHeight; 
         if(H>0) {
-            // map percent to -1000~0
-            lnc = -Math.floor(top*1000.0/H);
+            // map percent to -100000~0
+            lnc = -Math.floor(top*100000.0/H);
         }
     } else {
         var i=reduce(top, 0, lns.length);

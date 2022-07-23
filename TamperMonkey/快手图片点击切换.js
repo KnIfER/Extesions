@@ -47,6 +47,14 @@
 		clearInterval(rewindInterval);
 		rewindInterval=0;
 	}
+	var lastId=0;
+	function setLoop(){
+		try{
+			document.getElementsByClassName('auto-icon-list-item')[0].click();
+		} catch(e){
+			//debug(e);
+		}
+	}
 	function init(){
 		console.log("init!!!");
 		var stopFunc = function(e1){
@@ -55,18 +63,56 @@
 		};
 		document.addEventListener("mousedown", function(e){
 			var el = e.srcElement;
-			if(!initTitle) {
+			var id=0;
+			if(true) {
+				var url = location.href;
+				var idx=url.indexOf('/u/')+3;
+				if(idx>3) id = url.slice(idx, url.indexOf('/', idx));
+				else {
+					idx=url.indexOf('/profile/')+9;
+					if(idx>9) id = url.slice(idx, url.indexOf('/', idx));
+				}
+			}
+			if(!initTitle || e.shiftKey || document.title.indexOf('快手')>=0 || lastId!=id) {
+				setTimout(setLoop, 200);
 				initTitle=1;
-				try{
-					var knickName = document.getElementsByClassName('user-info-name')[0].firstChild.textContent.trim();
-					var id = document.getElementsByClassName('user-info-other')[0].firstChild.innerText;//.replace('快手ID：', '');
-					document.title = knickName + '[' + id + ' ]';
-				} catch(e){
+				var knickName=0;
+				// try{
+				// 	knickName = document.getElementsByClassName('user-info-name')[0].firstChild.textContent.trim();
+				// 	//var id = document.getElementsByClassName('user-info-other')[0].firstChild.innerText;//.replace('快手ID：', '');
+				// 	//document.title = knickName + '[' + id + ' ]';
+				// } catch(e){
+					
+				// }
+				var piece = document.getElementsByClassName('profile-user-name')[0];
+				if(piece) {
 					try{
-						var knickName = document.getElementsByClassName('profile-user-name')[0].childNodes[1].textContent.trim();
-						document.title = knickName + '[快手直播]';
+						knickName = piece.childNodes[1].textContent.trim();
+						//document.title = knickName + '[快手直播]';
 					} catch(e){
-						debug(e);
+						//debug(e);
+					}
+				} else {
+					piece = document.getElementsByClassName('user-info-name')[0];
+					if(piece) {
+						try{
+							knickName = piece.firstChild.textContent.trim();
+						} catch(e){
+							//debug(e);
+						}
+					}
+					piece = document.getElementsByClassName('router-link')[0];
+					if(piece) {
+						knickName = piece.innerText.trim();
+					}
+				}
+				if(!knickName) {
+					knickName = '快手直播';
+				}
+				lastId=id;
+				if(knickName) {
+					if(id) {
+						document.title = knickName + '[' + id + ' ]';
 					}
 				}
 			}
@@ -95,6 +141,15 @@
 			x=e.clientX;y=e.clientY;
 		});
 
+		var nxtClk, nxtClkTm;
+
+		function nextClick(){
+			if(nxtClk) {
+				document.getElementsByClassName("img-arrow-right")[0].click();
+				nxtClk=0;
+			}
+		}
+
 		document.addEventListener("mouseup", function(e){
 			if(top) {
 				document.getElementsByClassName("long-mode viewing")[0].scrollTop=0;
@@ -102,8 +157,11 @@
 				return;
 			}
 			var el = e.srcElement;
-			if(el.className==="viewer-container-img")
-				document.getElementsByClassName("img-arrow-right")[0].click()
+			if(el.className==="viewer-container-img") {
+				nxtClk = 1;
+				clearTimeout(nxtClkTm);
+				nxtClkTm = setTimeout(nextClick, 1);
+			}
 			if(el.className==="long-mode-item" && e.button===0) {
 				//el.parentElement.scrollBy(0, el.parentElement.offsetHeight);
                 if(unsafeWindow.rewind) {

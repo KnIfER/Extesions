@@ -35,7 +35,19 @@
 
 		if(window.MDAP)
 			window.MDAP();
+
+		refreshDarkMode();	
 	}
+
+	function refreshDarkMode(bg)
+	{
+		if(!window._RDM) {
+			loadJs("http://mdbr/darkmode.js", function(){window._RDM(bg)});
+		} else {
+			window._RDM(bg);
+		}
+	}
+
 	/* 引擎初始化 */
 	function loadJs(name,up){
 		var item = document.createElement('script');
@@ -43,7 +55,7 @@
 		item.async = false;
 		if(up)
 		{
-			item.onload=function(){window.update();}
+			item.onload=up;
 		}
 		document.head.append(item);
 	}
@@ -68,8 +80,9 @@
 		, "rawdeflate.js"
 		, "platumlencode.js"
 		, "mermaid.min.js" ];
+		var up=function(){window.update()};
 		for(var j in jss){
-			loadJs(src_url+jss[j], j==jss.length-1);
+			loadJs(src_url+jss[j], j==jss.length-1?up:null);
 		}
 		jss=["style.css", "katex.min.css"];
 		for(var j in jss){

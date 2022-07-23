@@ -14,13 +14,13 @@
 (function() {
     'use strict';
 
-	var TopCName='live-card-main live-card-item';
+	var TopCName='live-card-main';
 	var LnkCName='preview-video'; // https://live.kuaishou.com/u/...
 	var NamCName='user-info';
 
 	function FindRoomTopElement(p) {
 		while(p) {
-			if(p.className===TopCName){
+			if(p.classList.contains(TopCName)){
 				return p;
 			}
 			p=p.parentElement;
@@ -40,28 +40,28 @@
 		return nam.innerText;
 	}
 
-	var roomLst;
 	var win=window;
 	var doc=document;
 	var PinIdx=0;
 	var FavPinIdx=0;
 
 	function PinRoom(p, moreLove) {
-		if(!roomLst)
-			roomLst = doc.getElementsByClassName('live-card-list')[0];
+		var roomLst = p.parentNode;//doc.getElementsByClassName('live-card-list')[0];
 		var idx = Array.prototype.indexOf.call(roomLst.children,p);
 		var already = p.getAttribute('fav')!=undefined;
 		p.setAttribute('fav', moreLove);
-		if(idx>=0&&idx<=(moreLove?FavPinIdx:PinIdx)) return;
+		roomLst.FavPinIdx = roomLst.FavPinIdx||0;
+		roomLst.PinIdx = roomLst.PinIdx||0;
+		if(idx>=0&&idx<=(moreLove?roomLst.FavPinIdx:roomLst.PinIdx)) return;
 		p.remove();
-		roomLst.insertBefore(p, roomLst.childNodes[moreLove?FavPinIdx:PinIdx]);
+		roomLst.insertBefore(p, roomLst.childNodes[moreLove?roomLst.FavPinIdx:roomLst.PinIdx]);
 		if(moreLove){
-			FavPinIdx++;
+			roomLst.FavPinIdx++;
 			if(!already) {
-				PinIdx++;
+				roomLst.PinIdx++;
 			}
 		}
-		else PinIdx++;
+		else roomLst.PinIdx++;
 	}
 
 	function FFDBC(data, cb){
@@ -168,10 +168,13 @@
 		var p=FindRoomTopElement(e.srcElement);
 		if(p) {
 			var rid=GetRoomID(p);
+			var moreLove = p.getAttribute('fav')=='true';
 			PinRoom(p, e.shiftKey);
 			var transaction=mdb.transact('rid','readwrite');
-			var dbo=transaction.objectStore('rid');
-			dbo.add({rid:rid, fav:(e.shiftKey?1:0)});
+			if(!moreLove || e.shiftKey) {
+				var dbo=transaction.objectStore('rid');
+				dbo.add({rid:rid, fav:((moreLove||e.shiftKey)?1:0)});
+			}
 			log("美丽天堂！", rid);
 			e.preventDefault();
 			var nam = p.getElementsByClassName(NamCName)[0];

@@ -56,7 +56,6 @@ if(pass)
 			FFDBC({table:dao.name, json:{rowId:0,rid:'',fav:0,name:''}, indexed:{rid:1}}
 			, function(e){
 				dao.ffdbc(true);
-				prepareBatch();
 				furtherLoading();
 			});
 		}
@@ -91,6 +90,10 @@ if(pass)
 			else return mdb.ffdb;
 		}
 		,removed: {}
+		,dumped: {}
+		,objectStore:function() {
+			return mdb.transact().objectStore();
+		}
 		,transact:function(e,v) {
 			//debug('transact', this);
 			if(mdb.ffdb) {
@@ -103,13 +106,13 @@ if(pass)
 									if(ret!=undefined){
 										d.fav = ret;
 										this.onsuccess({response:JSON.stringify(d)});
-										//return;
 									}
+									return;
 								}
 								FFDBC({table:mdb.name, json:d, where:w}, this.onsuccess);
 							}
 							, getBatch : function(d, array) {
-								FFDBC({table:mdb.name, json:d, where:{}, batch:array}, this.onsuccess)
+								FFDBC({table:mdb.name, json:d, where:{}, batch:array}, this.onsuccess, this.onerror)
 							}
 							, add : function(d) {
 								FFDBC({table:mdb.name, json:d}, this.onsuccess)
@@ -121,9 +124,10 @@ if(pass)
 								FFDBC({table:mdb.name, json:d}, this.onsuccess)
 							}
 							, putBatch : function(array) {
-								FFDBC({table:mdb.name, batch:array}, this.onsuccess)
+								FFDBC({table:mdb.name, batch:array}, this.onsuccess, this.onerror)
 							}
-							, fSet : function(array) {
+							, fSetRemove : function(array) {
+								let this_=this;
 								FFDBC({fSet:array}, function(e) {
 									if(array.length==0) {
 										e = e.responseText.split('\n');
@@ -131,9 +135,23 @@ if(pass)
 											mdb.removed[e[i]]=1;
 										}
 									}
+									if(this_.onsuccess) this_.onsuccess(e);
+								})
+							}
+							, fSetDump : function(array) {
+								let this_=this;
+								FFDBC({fSet:array, table:'sample1'}, function(e) {
+									if(array.length==0) {
+										e = e.responseText.split('\n');
+										for(var i=0;i<e.length;i++) {
+											mdb.dumped[e[i]]=1;
+										}
+									}
+									if(this_.onsuccess) this_.onsuccess(e);
 								})
 							}
 							, onsuccess : null
+							, onerror : null
 						};
 					}
 				};
@@ -186,40 +204,126 @@ if(pass)
 		blocked.push(p);
 	}
 
-	function removeAll() {
+	function prepareFHDB(remove, tintSortNew) {
 		if(!mdb.preparedRemove) {
 			mdb.preparedRemove = 1;
-			var transaction=mdb.transact('rid','readwrite');
-			var dbo=transaction.objectStore('rid');
-			dbo.fSet([], function() {
-				removeAll();
-			});
+			var dbo=mdb.objectStore();
+			dbo.onsuccess = function() {
+				dbo=mdb.objectStore();
+				dbo.onsuccess = function() {
+					if(remove)
+						removeAll(tintSortNew);
+				}
+				dbo.fSetRemove([]); // 再获取remove
+			};
+			dbo.fSetDump([]); // 先获取dump
+		}
+	}
+
+	function removeAll(tintSortNew) {
+		if(!mdb.preparedRemove) {
+			prepareFHDB(true, tintSortNew);
 		} else {
 			let rooms = Array.prototype.slice.call(doc.getElementsByClassName(TopCName));
 			for(var i=0;i<rooms.length;i++) {
 				var p = rooms[i];
-				if(mdb.removed[GetRoomID(p)] && p.getAttribute('fav')==undefined) {
-					select(p, true);
+				var id = GetRoomID(p);
+				if(mdb.removed[id] && !mdb.dumped[id] && p.getAttribute('fav')==undefined) {
+					p.classList.add('selected');
 					removeRoom(p);
 				}
+			}
+			if(tintSortNew) {
+				selectAll();
+				flowSelected();
 			}
 		}
 	}
 
 	function removeSelected() {
 		if(selected.length) {
-			var fSet = [];
+			var batch = [];
 			for(var i=0;i<selected.length;i++) {
 				var p = selected[i];
-				removeRoom(p);
-				var id = GetRoomID(p);
-				fSet.push(id);
-				mdb.removed[id] = 1;
+				var fav = p.getAttribute('fav');
+				if(fav==undefined||fav=='0') {
+					var id = GetRoomID(p);
+					removeRoom(p);
+					batch.push(id);
+					mdb.removed[id] = 1;
+				}
 			}
-			var transaction=mdb.transact('rid','readwrite');
-			var dbo=transaction.objectStore('rid');
-			dbo.fSet(fSet);
+			mdb.objectStore().fSetRemove(batch);
 			selected=[];
+		}
+	}
+
+	function dumpSelected() {
+		if(selected.length) {
+			var batch = [];
+			for(var i=0;i<selected.length;i++) {
+				var p = selected[i];
+				var id = GetRoomID(p);
+				p.classList.remove('selected');
+				batch.push(id);
+				mdb.dumped[id] = 1;
+			}
+			mdb.objectStore().fSetDump(batch);
+			selected=[];
+		}
+	}
+
+	function favAuto(n) {
+		const tmp = '可爱学美萌女同宿寝猫姐妹喵考研子小鸭儿嗯呐吖呀木酱丫呗啦一次5了吗姜呦毕畊锻炼耶恋';
+		n=n.innerText;
+		for(var i=0;i<tmp.length;i++) {
+			if(n.indexOf(tmp[i])>=0) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	function flowSelected() {
+		if(selected.length) {
+			var batch = [];
+			var roomLst = selected[0].parentNode;
+			if(!roomLst) roomLst=doc.getElementsByClassName(TopCName)[0].parentNode;
+			let rooms = Array.prototype.slice.call(roomLst.children);
+			var tail;
+			for(var i=1;i<rooms.length;i++) {
+				var p = rooms[i];
+				if(p.getAttribute('fav')==undefined) {
+					tail = p;
+					break;
+				}
+			}
+			tail = tail||rooms[0];
+			var tail0 = tail.previousSibling||tail;
+			for(var i=0;i<selected.length;i++) {
+				var p = selected[i];
+				if(p.getAttribute('fav')==undefined) {
+					if(p.parentNode==roomLst) {
+						var autoFav;
+						var na=p.getElementsByClassName('Item_2GEmdhg6')[0];
+						var ti=p.getElementsByClassName('Item_QAOnosoB')[0];
+						if(na&&ti) {
+							autoFav = favAuto(na)||favAuto(ti);
+						} else {
+							autoFav = favAuto(p);
+						}
+						//p.remove();
+						var bf = autoFav?tail0.nextSibling||tail.previousSibling||tail.nextSibling:tail.nextSibling;
+						if(p!=bf)roomLst.insertBefore(p, bf);
+						if(autoFav){
+							if(tail==tail0||tail==p)tail=p.nextSibling;
+							tail0=p;
+						} else {
+							tail=p;
+						}
+					}
+				}
+			}
 		}
 	}
 	
@@ -227,7 +331,7 @@ if(pass)
 		let rooms = Array.prototype.slice.call(doc.getElementsByClassName(TopCName));
 		for(var i=0;i<rooms.length;i++) {
 			var p = rooms[i];
-			if(!p.classList.contains('selected') && p.getAttribute('fav')==undefined)
+			if(!p.classList.contains('selected') && !mdb.dumped[GetRoomID(p)] && p.getAttribute('fav')==undefined)
 				select(p, true);
 		}
 	}
@@ -236,43 +340,65 @@ if(pass)
 		if(!lstPanel) {
 			lstPanel = doc.createElement('DIV');
 			lstPanel.id=LstBoxId;
-			win.addEventListener('click', (e)=>{
-				if(e.button===0) { // 左键
-					var p=FindRoomTopElement(e.srcElement);
-					if(p) {
-						if(e.ctrlKey) { 
-							var shift = e.shiftKey;
-							var push = !p.classList.contains('selected');
-							if(push || !shift) {
-								select(p, push);
-							}
-							e.stopPropagation();
-							e.preventDefault();
-							if(shift && lastSelected) {
-								var children=p.parentNode.children;
-								var st = Array.prototype.indexOf.call(children,lastSelected);
-								if(st>=0) {
-									push = !e.altKey;
-									var ed = Array.prototype.indexOf.call(children,p);
-									for(var i=Math.min(st, ed); i<=Math.max(st, ed); i++) {
-										var child = children[i];
-										if(child) {
-											if(push ^ child.classList.contains('selected')) {
+			function wrappedMouseDown(e) {
+				var p=FindRoomTopElement(e.srcElement);
+				if(p) {
+					if(e.altKey && !e.shiftKey) { 
+						if(p.classList.contains('selected')) {
+							select(p, false);
+						}
+						lastSelected = p;
+					}
+					else if(e.ctrlKey) { 
+						var shift = e.shiftKey;
+						var push = !p.classList.contains('selected');
+						if(push || !shift) {
+							select(p, push);
+						}
+						if(shift && lastSelected) { // Shift 快速连选
+							var children=p.parentNode.children;
+							var st = Array.prototype.indexOf.call(children,lastSelected);
+							if(st>=0) {
+								push = !e.altKey;
+								var ed = Array.prototype.indexOf.call(children,p);
+								var allDpd = mdb.dumped[GetRoomID(lastSelected)] && mdb.dumped[GetRoomID(p)];
+								for(var i=Math.min(st, ed); i<=Math.max(st, ed); i++) {
+									var child = children[i];
+									if(child) {
+										if(push ^ child.classList.contains('selected')) {
+											if(!push || allDpd || !mdb.dumped[GetRoomID(child)])
 												select(child, push);
-											}
 										}
 									}
 								}
 							}
-							lastSelected = p;
 						}
+						lastSelected = p;
 					}
+				}
+			}
+			
+			win.addEventListener("contextmenu", function(e){
+				if(FindRoomTopElement(e.srcElement)) {
+					e.stopPropagation();
+					e.preventDefault();
+				}
+			});
+			win.addEventListener('click', (e)=>{
+				debug('click!!!', e);
+				if(e.button===0) { // 左键
+					if((e.altKey || e.ctrlKey) && FindRoomTopElement(e.srcElement)) { 
+						e.stopPropagation();
+						e.preventDefault();
+					}
+				}
+				if(e.button===1) { // 中键
+
 				}
             }, true)
 			win.addEventListener('mousedown', (e)=>{
 				if(e.button===0) { // 左键
-					if(e.ctrlKey) {
-					}
+					wrappedMouseDown(e);
 				}
 				if(e.button===2) { // 右键
 					//log(e.srcElement);
@@ -286,6 +412,8 @@ if(pass)
 							var lv=5;
 							if(e.ctrlKey) {
 								lv=3;
+							} else if(e.altKey || parseInt(p.getAttribute('fav'))>=5) {
+								lv=7;
 							}
 							PinRoom(p,-1,lv);
 							dbo.put({rid:rid,fav:lv}, GetRoomName(p));
@@ -368,7 +496,6 @@ if(pass)
 				var fav = /"fav":"?([0-9]+)/.exec(e[i])
 				if(fav) fav=fav[1];
 				else fav='0';
-				var dbo=transaction.objectStore('rid');
 				fav = parseInt(fav)||0;
 				if(fav===0) {
 					log('block::'+rid, '\t', cc++);
@@ -380,16 +507,33 @@ if(pass)
 				batch.push({rid:rid,fav:fav});
 			}
 		}
+		var dbo=transaction.objectStore('rid');
+		dbo.onerror = function(e) {
+			debug(e);
+		}
 		dbo.putBatch(batch);
 	}
 
+	var keys=[];
+	window.addEventListener('keyup', (e)=>{
+		debug('keyup', e);
+		keys[e.code]=0;
+	});
 	window.addEventListener('keydown', (e)=>{
+		if(keys[e.code]) return;
+		keys[e.code]=1;
 		debug('keydown', e);
 		if(e.code==='Delete') {
 			removeSelected();
 		}
 		else if(e.code==='Backspace'){
-			removeAll();
+			removeAll(!e.shiftKey);
+		}
+		else if(e.code==='NumpadAdd'){
+			dumpSelected();
+		}
+		else if(e.code==='NumpadSubtract'){
+			flowSelected();
 		}
 		else if(e.code==='KeyA'){
 			e.stopPropagation();
@@ -412,7 +556,7 @@ if(pass)
 		else if(e.code==='KeyB'){
 			if(e.shiftKey)backup();
 		}
-		else if(e.code==='Digit1' || e.code==='KeyE'){
+		else if(e.code==='KeyE'){ //e.code==='Digit1' || 
 			if(!opened) {
 				openDB(mdb);
 				let rawST = unsafeWindow.setTimeout;
@@ -437,9 +581,17 @@ if(pass)
 				}
 			} else {
 				doc.head.appendChild(imgSty);
-				if(e.shiftKey || e.code==='KeyE') { // 开始滚动
+				let shift=!e.shiftKey;
+				var cc=9;
+				if(e.code==='KeyE') { // 开始滚动 e.shiftKey || 
 					tAutoScroll = setInterval(function () {
 						window.scrollTo(0, window.scrollY + 50);
+						if(shift && cc++%5==0) {
+							if(document.getElementsByClassName('no__data_txt')[0]) {
+								clearInterval(tAutoScroll);
+								restore(false, true);
+							}
+						}
 					}, 35);
 				}
 			}
@@ -452,7 +604,7 @@ if(pass)
 		if(e)e.click();
 	}
 
-	function prepareBatch(revive, still){
+	function prepareBatch(revive, still, redump){
 		if(!mdb.caching && mdb.ffdbc()) {
 			var transaction=mdb.transact('rid');
 			var dbo=transaction.objectStore('rid');
@@ -473,15 +625,20 @@ if(pass)
 					}
 				}
 				if(revive)
-					restore(still);
+					restore(still, redump);
+				else
+					prepareFHDB(true);
+			}
+			dbo.onerror = function(e) {
+				mdb.caching = false;
 			}
 			dbo.getBatch({rid:-1, fav:-1}, batch);
 		}
 	}
 
-	function restore(still){
+	function restore(still, redump){
 		if(mdb.useCache && !mdb.cached) {
-			prepareBatch(true, still);
+			prepareBatch(true, still, redump);
 			return;
 		}
 		var transaction=mdb.transact('rid');
@@ -502,12 +659,15 @@ if(pass)
 				tintRoom(p, fav);
 			} else {
 				if(fav===0) {
-					p.style.display='none';
-					p.remove();
-					AddRoomToLstPane(p);
-					blocked.push(p);
-					p.setAttribute('fav', 0);
-					//log("安宁哈塞哟！", rid, fav, GetRoomName(p));
+					var id=GetRoomID(p);
+					if(!mdb.dumped[id] || mdb.removed[id]) {
+						p.style.display='none';
+						p.remove();
+						AddRoomToLstPane(p);
+						blocked.push(p);
+						p.setAttribute('fav', 0);
+						//log("安宁哈塞哟！", rid, fav, GetRoomName(p));
+					}
 				} else {
 					//log("Beautiful Girl！", p);
 					PinRoom(p, idx, fav);
@@ -551,30 +711,44 @@ if(pass)
 				document.body.scrollTop=0;
 			},200)
 		}
+		if(redump) {
+			removeAll(true);
+		}
 	}
 	//restore();
 
-	var PinIdx = [0,0,0];
-	
+	var maxLv = 7;
+	var PinIdx = [];
+	var PinHeadIdx = [];
 	function GetRoomName(p){return p.getElementsByClassName('Item_QAOnosoB')[0].innerText};
 	
-	function PinRoom(p, idx, lv) {
-		log('PinRoom lv=', GetRoomName(p), lv);
-		p.setAttribute('fav', lv);
-		tintRoom(p, lv);
-		var PLv; // 0=lv5 顶级; 1=lv4 导入; <=3次级 
-		if(lv>=5) PLv=0;
-		else if(lv>=4) PLv=1;
-		else PLv=2;
-		// 导入 置后 
-		if(lv==4) PLv=2;
-		else if(lv==3) PLv=1;
+	function PinRoom(p, idx, fav) {
+		//log('PinRoom lv=', GetRoomName(p), fav);
+		p.setAttribute('fav', fav);
+		tintRoom(p, fav);
+		var pinEl=0;
+		var i=fav;
+		for(;i<=maxLv;i++) {
+			pinEl = PinIdx[i];
+			if(pinEl) break;
+		}
+		var tail=0;
+		if(pinEl) {
+			tail = pinEl.nextSibling;
+		}
 		var roomLst = p.parentElement;
-		if(idx<0)idx = Array.prototype.indexOf.call(roomLst.children,p);
-		if(idx>=0&&idx<=PinIdx[2]) return;
-		p.remove();
-		roomLst.insertBefore(p, roomLst.childNodes[PinIdx[PLv]]);
-		for(var i=PLv;i<3;i++) PinIdx[i]++;
+		if(!tail || tail.parentNode!=roomLst) {
+			tail = roomLst.children[PinHeadIdx[fav]==undefined?0:(PinHeadIdx[fav]+1)];
+		}
+		if(!tail) {
+			tail = roomLst.firstElementChild;
+		}
+		if(tail!=p) {
+			p.remove();
+			roomLst.insertBefore(p, tail);
+		}
+		PinIdx[fav] = p;
+		PinHeadIdx[fav] = Array.prototype.indexOf.call(roomLst.children,p);
 	}
 	
 	function tintRoom(p, lv) {

@@ -225,8 +225,10 @@ function download_all_init(){
     download_expend=ge("auto_expand").checked;
     download_twitter_name="";
     let download_twitter_name_area=get_by_xpath("//main/div/div/div/div[1]/div/div[2]/div/div/div[1]/div/div[2]/div/div",document);
-    let i=download_twitter_name_area.querySelectorAll("span");
-    i.forEach(function (x){ download_twitter_name+=x.innerText;});
+    if(download_twitter_name_area){
+        let i=download_twitter_name_area.querySelectorAll("span");
+        i.forEach(function (x){ download_twitter_name+=x.innerText;});
+    }
     download_retry=0;
     video_url_parse_site=Number(ge("video_url_parse_site").value);
     image_quality=ge("image_qty").value;
@@ -297,6 +299,11 @@ function download_filename_preprocess(article){
     temp=temp.replaceAll("%c",article_describe.slice(0, 63));
     temp=temp.replaceAll("%u",download_twitter_name);
     temp=document.title.replace(' / Twitter', '')+temp;
+
+    var idx = temp.indexOf('Media Tweets by ');
+    if(idx>=0) temp = temp.slice(idx+16);
+    if(temp.startsWith('(1) ')) temp = temp.slice(4);
+
     console.log(temp, article_time);
     return [temp, article_time];
 }
@@ -409,8 +416,11 @@ var video_url_parse_site=3;
 var video_quality=3;
 function download_article_video(article,filename_preprocess){
     if(article.querySelector("video")==null)return;
-    var i=document.evaluate("div/div/div/div[2]/div[2]/div[1]/div/div/div[1]/a/@href",article,null,XPathResult.ANY_TYPE,null).iterateNext();
-    if(i==null)return;
+    var i=document.evaluate("div/div/div/div[2]/div[2]/div[1]/div/div/div[1]/div/div/div[2]/div/div[3]/a/@href",article,null,XPathResult.ANY_TYPE,null).iterateNext();
+    if(i==null) {
+        console.log('href not found!!!');
+        return;
+    }
     var t="https://twitter.com/i/status/"+i.value.match("[^/]*$");
     switch (video_url_parse_site){
         case 1://twsaver.com
@@ -422,6 +432,7 @@ function download_article_video(article,filename_preprocess){
                 data:"url="+t,
                 context:{filename_preprocess},
                 onload:download_article_video_twsaver_cb,
+                onerror:function(e){ console.log('bad',e) }
 
             });
             break;
@@ -433,16 +444,19 @@ function download_article_video(article,filename_preprocess){
                 data:"URL="+t,
                 context:{filename_preprocess},
                 onload:download_article_video_twdown_cb,
+                onerror:function(e){ console.log('bad',e) }
             });
             break;
         default://savetweetvid.com
+        console.log('savetweetvid.com',) ;
              GM_xmlhttpRequest({
                 method:'POST',
                 url:'https://www.savetweetvid.com/downloader',
                 headers:{'Content-Type':'application/x-www-form-urlencoded',Referer:'https://www.savetweetvid.com'},
                 data:"url="+t,
                 context:{filename_preprocess},
-                onload:download_article_video_savetweetvid_cb
+                onload:download_article_video_savetweetvid_cb,
+                onerror:function(e){ console.log('bad',e) }
             });
             break;
     }
@@ -542,6 +556,7 @@ function download_article_video_twdown_cb(result){
 }
 
 function download_article_video_savetweetvid_cb(result){
+    //console.log('download_article_video_savetweetvid_cb',result);
     var str=result.responseText;
     if(str==null)return;
     let parser=new DOMParser();
@@ -587,7 +602,7 @@ function query_next_article(){
     var next_article=get_by_xpath("following::article",pre_article);
     if(next_article==null){
         download_retry++;
-        if(download_retry<10){
+        if(download_retry<100){
            console.log("Querying "+download_all_current_article+" Article \tRetry: "+download_retry);
            setTimeout(query_next_article,500);
         }else{

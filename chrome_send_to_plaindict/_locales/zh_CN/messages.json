@@ -1,11 +1,13 @@
 {
-    "baTitle": { "message": "快速选项" },
-    "baSelection": { "message": "划词" },
-    "baEnabled": { "message": "双击取词" },
-    "baHotkey": { "message": "热键取词" },
-    "doubleT": { "message": "双击传令目标" },
-    "sliceT": { "message": "划词传令目标" },
-    "menuT": { "message": "菜单传令目标" },
-    "hotT": { "message": "热键传令目标" },
-    "editable": { "message": "不放过输入框" }
+    "baTitle": { "message": "快速选项" }
+    ,"baSelection": { "message": "划词" }
+    ,"baEnabled": { "message": "双击取词" }
+    ,"baHotkey": { "message": "热键取词" }
+    ,"doubleT": { "message": "双击传令目标" }
+    ,"sliceT": { "message": "划词传令目标" }
+    ,"menuT": { "message": "菜单传令目标" }
+    ,"hotT": { "message": "热键传令目标" }
+    ,"editable": { "message": "不放过输入框" }
+    ,"csEnabled": { "message": "在线词典跨域" }
+    ,"tFrame": { "message": "浏览器选项" }
 }

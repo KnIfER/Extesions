@@ -259,10 +259,8 @@ function func(menuId)
 			if(menuId=='adv_cp_t') {
 				dataToClipboard(tab.title);
 			}
-			if(menuId=='adv_cp_u') {
-				dataToClipboard(tab.url);
-			}
-			if(menuId=='adv_cp_url') {
+			if(menuId=='adv_cp_u' || menuId=='adv_cp_url') {
+
 				dataToClipboard(tab.url);
 			}
 			else if(menuId=='adv_cp_tu') {
@@ -311,6 +309,7 @@ function func(menuId)
 			}
 			else if(menuId=='adv_cp_s') {
 				chrome.tabs.executeScript(tab.id, {file: 'AParser/generic_selection.js'}, function proc(e){
+					e=e+'';
 					if(e==="nosel") {
 						func("adv_cp_a");
 					} else {
@@ -320,10 +319,11 @@ function func(menuId)
 			}
 			else if(menuId=='adv_cp_stom') {
 				chrome.tabs.executeScript(tab.id, {file: 'AParser/generic_selection.js'}, function proc(e){
+					e=e+'';
 					if(e==="nosel") {
 						func("adv_cp_atom");
 					} else {
-						dataToClipboard(toMarkdown(e+''));
+						dataToClipboard(toMarkdown(e));
 					}
 				});
 			}
@@ -335,3 +335,12 @@ function func(menuId)
 menu.onClicked.addListener(payload => func(payload.menuItemId));
 
 
+
+// function logURL(requestDetails) {
+// 	console.log("Loading: ", requestDetails);
+// }
+
+// chrome.webRequest.onBeforeRequest.addListener(
+// logURL,
+// {urls: ["<all_urls>"]}
+// );

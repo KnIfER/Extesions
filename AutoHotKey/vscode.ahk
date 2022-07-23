@@ -5,6 +5,27 @@ SetWorkingDir %A_ScriptDir%  ; Ensures a consistent starting directory.
 #MaxThreadsPerHotkey 2 
 
 
+
+~F2::  
+	;WinSet, Style, ^0x8000000, ahk_id 0x000107D6
+	;弹出顺时消息("Title","SendMessage","-500", "w120")
+Return
+
+;!F2::  
+#F2::
+	弹出顺时消息("Title","即将关闭屏幕…","-500", "w340")
+	Sleep 500
+    ;SendMessage 0x112, 0xF140, 0, , Program Manager  ; Start screensaver
+    SendMessage 0x112, 0xF170, 2, , Program Manager  ; Monitor off
+Return
+
+; Win+Shift+F2
+#+\::
+    Run rundll32.exe user32.dll`,LockWorkStation     ; Lock PC
+    Sleep 1000
+    SendMessage 0x112, 0xF170, 2, , Program Manager  ; Monitor off
+    Return
+
 ;!Enter::  
 ;	;toggle_置顶()
 ;	弹出顺时消息("Title","SendMessage","-500", "w120")
@@ -16,6 +37,63 @@ SetWorkingDir %A_ScriptDir%  ; Ensures a consistent starting directory.
 ;
 ;return
 
+
+; 提前创建全局滑动控件。Val既是数值也是控件id？焯
+; Fun 是回调函数
+global Val
+global Through
+global Target
+Val:=0
+Through:=0
+Gui, Add, Slider, x10 y10 w300 vVal gFun, %Val%
+Gui, Add, CheckBox, x10 y40 vThrough gThrough, 点击穿透
+GuiControl, +AltSubmit Range0-255, Val ; 拖动也触发回调
+
+!F1::  
+	SetTitleMatchMode, 2
+	WinGetTitle, Tmp, A
+	IfNotEqual, Tmp, 改变透明度
+		Target := Tmp
+		Winget, Val, Transparent, %Target%
+		WinGet, ExStyle, ExStyle
+		Through := ExStyle & 0x20 ; 0x20 is WS_EX_CLICKTHROUGH.
+
+		;WinGetPos, x, y, w, h, A
+		;x += w/2 - 200
+		;y += h/2 - 10
+		;MouseGetPos,,mY
+		;;y := mY
+
+		If !Val
+			Val = 255
+		GuiControl ,, Val , %Val%
+		GuiControl ,, Through , %Through%
+		
+
+		Gui, Show, AutoSize Center , 改变透明度
+		WinSet, AlwaysOnTop, On, 改变透明度
+		Winset, Transparent, 175, 改变透明度
+		; 或者显示在窗体正中 而非 AutoSize Center x%x% y%y% ？
+		Return
+	
+	Fun:
+		Winset, Transparent, %Val%, %Target%
+	Return
+	Through:
+		WinGet, ExStyle, ExStyle, % Target
+		Through := ExStyle & 0x20
+		WinSet, ExStyle, ^0x20, % Target ; 0x20 = WS_EX_CLICKTHROUGH
+		if Through
+			WinSet, AlwaysOnTop, Off, % Target
+		else
+			WinSet, AlwaysOnTop, On, % Target
+	Return
+return
+
+; 参考：
+; https://www.autohotkey.com/board/topic/5981-using-slider-to-adjust-window-transparency/
+; https://stackoverflow.com/questions/54977834/reuse-a-gui-input-in-autohotkey
+; https://zhuanlan.zhihu.com/p/124677599
 
 +AppsKey::
 return
@@ -68,6 +146,12 @@ ensureLdOff() {
 		#IfWinNotActive ahk_exe msedge.exe
 			ldrun := 0
 }
+
+#IfWinActive ahk_exe XPlusPlayer.exe
+F1::
+	send {Fn} & {1}
+	弹出顺时消息("Title","abc", "-500", "w720")
+return
 
 #IfWinActive ahk_exe explorer.exe
 F1::
@@ -129,6 +213,11 @@ global edgeld = True
 	toggle_置顶()
 return
 
+#IfWinActive ahk_exe aida64.exe
+F1::  
+	toggle_置顶()
+return
+
 #IfWinActive ahk_exe msedge.exe
 F1::
 	edege_f1()
@@ -172,6 +261,26 @@ edege_f1(){
 		连点()
 	else	
 		Send {F12}
+		WinGetTitle,WndTitle
+		TStart := SubStr(WndTitle, 1, 9)
+		IfEqual TStart, Favorites
+		{
+			NewStr := StrReplace(WndTitle, "Favorites", "Favorite")
+			;弹出顺时消息("",NewStr,"-500", "w520")
+ 			WinSetTitle,%NewStr%
+			clipboard := ""
+			clipboard := "var sty=document.createElement('style');sty.innerText='.card_clickable_title{font-size:15px!important;font-weight:unset!important;white-space:unset!important;max-height: 32px;position:absolute; background:#3b3b3b!important;width:80%!important;}';document.head.append(sty);"
+			ClipWait
+			S := clipboard
+			Sleep 750 ; 等待dev侧栏弹出
+			;弹出顺时消息("",S,"-500", "w520")
+			Send ^v
+			Sleep 150 ; 等待粘贴
+			Send {Enter}
+			Sleep 150 ; 等待执行
+			Send {F12}
+		}
+
 }
 
 #IfWinActive ahk_exe Code.exe
@@ -281,11 +390,11 @@ ld_run()
 		Send, ^c
 		IfWinActive, ahk_exe explorer.exe
 		{
-			ClipWait, 0.5
+			ClipWait ;, 0.5
 			S := Clipboard
 			SplitPath,S,,,,S
 			Clipboard := S
-			ClipWait, 0.25
+			ClipWait ;, 0.25
 			Clipboard := S
 			弹出顺时消息("Title",Clipboard,"-500")
 			;MsgBox % "取得无后缀文件名 ： " . S
@@ -303,8 +412,6 @@ return
 Progress, %Width% b1 zh0 fs18, %Message%,,%Title%,
 		settimer, killAlert,%Timeout%
 }
-
-
 
 
 #IfWinActive ahk_exe PotPlayerMini64.exe
