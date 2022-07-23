@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Extract Links :: Download with Internet Download Manager</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <link rel="stylesheet" type="text/css" href="index.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+  </head>
+
+  <body>
+    <header>
+      <template id="tr">
+        <tr>
+          <td><input type="checkbox"/></td>
+          <td data-id="link"></td>
+          <td data-id="type">...</td>
+        </tr>
+      </template>
+      <table width=100%>
+        <colgroup>
+          <col width=48/>
+          <col/>
+          <col width=120/>
+        </colgroup>
+        <thead>
+          <tr>
+            <th><input type="checkbox" id="toggle-select"/></th>
+            <th colspan="2">Detect downloadable Links</th>
+          </tr>
+        </thead>
+      </table>
+    </header>
+    <div style="overflow: auto; flex: 1">
+      <table width=100%>
+        <colgroup>
+          <col width=48/>
+          <col/>
+          <col width=120/>
+        </colgroup>
+        <tbody></tbody>
+      </table>
+    </div>
+    <footer>
+      <fieldset id="types">
+        <legend>Hide types</legend>
+        <ul>
+          <li><label><input type="checkbox" id="hide-unknown"/> unknown</label></li>
+          <li><label><input type="checkbox" id="hide-html"/> text/html</label></li>
+        </ul>
+      </fieldset>
+      <fieldset>
+        <legend>Select</legend>
+        <ul>
+          <li>
+            <div>
+              <input type="button"  value="Images" data-cmd="image/"/>&nbsp;
+              <input type="button"  value="PDFs" data-cmd="application/pdf"/>&nbsp;
+              <input type="button"  value="Applications" data-cmd="application/"/>
+            </div>
+          </li>
+          <li><input type="text" placeholder="matching with" id="matched"/></li>
+        </ul>
+      </fieldset>
+      <span style="flex: 1"></span>
+      <div id="tools">
+        <ul>
+          <li><input id="download" type="button" value="Download" disabled="true" data-cmd="download"/></li>
+          <li><input id="copy" type="button" value="Copy to Clipboard" disabled="true" data-cmd="copy" style="margin-top: 5px"/></li>
+        </ul>
+
+      </div>
+    </footer>
+    <script src="/config.js"></script>
+    <script src="index.js"></script>
+    <script src="persist.js"></script>
+  </body>
+</html>

@@ -1,0 +1,38 @@
+{
+   "bg_msg_1": {
+      "message": "Pour extraire les liens et afficher l'interface, cette autorisation est nécessaire"
+   },
+   "bg_msg_10": {
+      "message": "Ouvrir la page de test"
+   },
+   "bg_msg_11": {
+      "message": "Pour extraire les liens de tous les iframes de cette page, cette autorisation est nécessaire"
+   },
+   "bg_msg_2": {
+      "message": "Impossible d'extraire un lien du texte sélectionné"
+   },
+   "bg_msg_3": {
+      "message": "Download with Internet Download Manager"
+   },
+   "bg_msg_4": {
+      "message": "La boîte de commande est vide. Utilisez la page d'options pour en définir une !"
+   },
+   "bg_msg_5": {
+      "message": "Le chemin exécutable ne peut être localisé. Allez à la page des options et fixez le chemin."
+   },
+   "bg_msg_6": {
+      "message": "Lien de téléchargement"
+   },
+   "bg_msg_7": {
+      "message": "Télécharger un média ou une image"
+   },
+   "bg_msg_8": {
+      "message": "Télécharger tous les liens"
+   },
+   "bg_msg_9": {
+      "message": "Extraire les liens de la sélection"
+   },
+   "description": {
+      "message": "Envoyer les téléchargements à IDM depuis le menu contextuel du clic droit ou en interceptant le gestionnaire de téléchargement"
+   }
+}

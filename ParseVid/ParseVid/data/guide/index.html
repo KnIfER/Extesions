@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <link rel="stylesheet" type="text/css" href="index.css">
+    <title>One Last Step :: Download with Internet Download Manager</title>
+  </head>
+  <body>
+    <h1>One Last Step</h1>
+    <p>For the extension to run Internet Download Manager (IDM) and send links to it, download, unzip, and install the following native client. The native client acts as a bridge between the extension and native sides.</p>
+    <ul>
+      <li class="step1">Click <a href="#" data-cmd="download">here</a> to download the ZIP package for your operating system or click <a href="https://github.com/belaviyo/native-client/releases" target="_blank">github.com/belaviyo/native-client</a> to browse all available packages.</li>
+      <li>Extract the downloaded package into a local directory</li>
+      <li class="linux">Now open a terminal in the root directory of where <code>install.sh</code> exists and run <code>./install.sh</code>. You can alternatively drop the <code>install.sh</code> file into a terminal window and press the Enter key</li>
+      <li class="windows">Now double-click the <code>install.bat</code> script</li>
+    </ul>
+    <div class="flex">
+      <input type="button" data-cmd="check" value="Check Connection">
+    </div>
+    <div id="followup" data-hidden=true>
+      <h2>Native integration works!</h2>
+      If you still get this page, the native side is not responding. Most likely:
+      <ul>
+        <li>The extension cannot find the native application. Open the <a href="#" data-cmd="options">options page</a> and set the correct path</li>
+        <li>The native application is found but exited with a non successful exit code</li>
+      </ul>
+    </div>
+
+    <div class="guide" style="margin-bottom: 10px;">
+      Installation Preview:
+      <ul>
+        <li>Windows: <a href="https://www.youtube.com/watch?v=yZAoy8SOd7o" target="_blank">YouTube</a></li>
+        <li>Mac &amp; Linux: <a href="https://www.youtube.com/watch?v=2asPoW2gJ-c" target="_blank">YouTube</a></li>
+      </ul>
+    </div>
+
+    <p class="note">This extension only integrates your browser with the external download manager. You need to have the actual download manager for the extension to operate.</p>
+    <p class="note">The installer script copies a few files to two different locations for your browser to be able to detect this native client. If you already have NodeJS in your system, the installed version of NodeJS will be used. So please make sure you have an up-to-date version of NodeJS installed. If you don't have this application, the included portable version will be used. Read more <a target="_blank" href="https://github.com/belaviyo/native-client">here</a>.</p>
+    <p class="note">To completely remove this native client, run <code class="linux">./uninstall.sh</code><code class="windows">uninstall.bat</code>.</p>
+    <p class="note">To check the native client's accessibility, click on the "<a href="#" data-cmd="check">Check Connection</a>" button. If you still get this page even when the "Check Button" reports successful connection, it means the application cannot be accessed (application's path is not correct in the <a href="#" data-cmd="options">options page</a>). If the path to the executable is correct and the native client is connected, you can debug the connection by <a target="_blank" href="https://www.chromium.org/for-testers/enable-logging">enabling console logs</a>.</p>
+    <p class="note">There is no need for administration permission for the native client to operate.</p>
+
+    <details>
+      <summary>Command-line Options</summary>
+      <div>You may start IDM from the command line using the following parameters.</div>
+      <div>idman <b>/s</b></div>
+      <div>or idman <b>/d URL [/p local_path] [/f local_file_name] [/q] [/h][/n] [/a]</b></div>
+      <h4>Parameters:</h4>
+      <ul>
+        <li><b>/d URL </b>- downloads a file</li>
+        <li><b>/s </b>- starts queue in scheduler</li>
+        <li><b>/p local_path </b>- defines the local path where to save the file</li>
+        <li><b>/f  local_file_name </b>- defines the local file name to save the file</li>
+        <li><b>/q </b>- IDM will exit after the successful downloading. This parameter works only for the first copy</li>
+        <li><b>/h </b>- IDM will hang up your connection after the successful downloading</li>
+        <li><b>/n </b>- turns on the silent mode when IDM doesn't ask any questions</li>
+        <li><b>/a </b>- add a file specified with /d to download queue, but don't start downloading</li>
+      </ul>
+      <p>Parameters <b>/a, /h, /n, /q, /f local_file_name,  /p local_path </b>work only if you specified the file to download with <b>/d URL</b></p>
+    </details>
+
+    <div id="notify"></div>
+    <script src="index.js"></script>
+  </body>
+</html>

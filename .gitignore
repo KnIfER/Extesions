@@ -12,6 +12,7 @@ archive
 SingleFile-master
 Saladict
 .vscode
+node.exe
 
 
 NetResourceSwitcher
@@ -20,8 +21,8 @@ stylish
 视频下载神器
 
 
+xyz
 
-ParseVid
 IDM
 MarkdownEngines
 singleinstance

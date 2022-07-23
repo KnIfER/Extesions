@@ -1,0 +1,38 @@
+{
+   "bg_msg_1": {
+      "message": "Para extraer los enlaces y mostrar la interfaz, se necesita este permiso"
+   },
+   "bg_msg_10": {
+      "message": "Abrir la página de prueba"
+   },
+   "bg_msg_11": {
+      "message": "Para extraer los enlaces de todos los iframes de esta página, se necesita este permiso"
+   },
+   "bg_msg_2": {
+      "message": "No se puede extraer ningún enlace del texto seleccionado"
+   },
+   "bg_msg_3": {
+      "message": "Descarga con Internet Download Manager"
+   },
+   "bg_msg_4": {
+      "message": "La caja de mando está vacía. ¡Utiliza la página de opciones para definir una!"
+   },
+   "bg_msg_5": {
+      "message": "La ruta ejecutable no puede ser localizada. Vaya a la página de opciones y fije la ruta."
+   },
+   "bg_msg_6": {
+      "message": "Descargar Enlace"
+   },
+   "bg_msg_7": {
+      "message": "Descargue el medio o la imagen"
+   },
+   "bg_msg_8": {
+      "message": "Descargar todos los enlaces"
+   },
+   "bg_msg_9": {
+      "message": "Extrae los enlaces de la selección"
+   },
+   "description": {
+      "message": "Envíe las descargas a IDM desde el menú contextual del botón derecho o interceptando el gestor de descargas incorporado"
+   }
+}

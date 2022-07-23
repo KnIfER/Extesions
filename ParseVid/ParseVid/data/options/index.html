@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Options Page :: Download with Internet Download Manager</title>
+  <meta charset="utf-8">
+  <link rel="stylesheet" type="text/css" href="index.css">
+</head>
+
+<body>
+  <table>
+    <colgroup>
+      <col width=150></col>
+      <col></col>
+    </colgroup>
+    <tbody>
+      <tr>
+        <td>Executable:</td>
+        <td>
+          <input type="text" id="executable" style="width: 100%; margin-top: 5px;">
+        </td>
+      </tr>
+      <tr>
+        <td></td>
+        <td class="note">Path to the Internet Download Manager (idman)</td>
+      </tr>
+      <tr>
+        <td>Arguments:</td>
+        <td>
+          <input type="text" id="args" style="width: 100%; margin-top: 5px;">
+        </td>
+      </tr>
+      <tr class="hidden">
+        <td>Remote Server:</td>
+        <td>
+          <input type="text" id="remote" style="width: 100%; margin-top: 5px;">
+        </td>
+      </tr>
+      <tr>
+        <td></td>
+        <td class="note">Arguments to be passed to the executable. List of supported arguments: <code>[URL]</code> (Link URL or image, video, and audio source), <code>[REFERRER]</code> (URL of the parent page), <code>[USERAGENT]</code> (User-agent string), <code>[FILENAME]</code> (Detected filename for the link. If no filename is detected, an empty string is passed), <code>[DISK]</code> (Absolute path of the detected file on the user disk. If no filename is detected, an empty string is passed).</td>
+      </tr>
+      <tr>
+        <td><label for="batch">Batch mode</label></td>
+        <td><input type="checkbox" id="batch"></td>
+      </tr>
+      <tr>
+        <td></td>
+        <td class="note">When multiple links are about to send to the external download manager, the extension can either send all of the links together or one by one. If the external download manager supports accepting multiple links in a single command, then check this box otherwise, the extension will send each link individually after a delay. For command-line downloaders, providing bulk input links usually results in downloading files sequentially.</td>
+      </tr>
+      <tr>
+        <td><label for="delay">Delay (in milliseconds)</label></td>
+        <td><input type="number" id="delay" min=50></td>
+      </tr>
+      <tr>
+        <td></td>
+        <td class="note">Delay between requests when multiple jobs are about to send to the external download manager (when the "Batch mode" is disabled)</td>
+      </tr>
+      <tr>
+        <td colspan="2" style="padding-top: 10px;">Exclude the following <a href="https://developer.mozilla.org/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Complete_list_of_MIME_types">mime-types</a> when integration is enabled (When the browser action's button is active, downloading files with the following mime-types are not being interrupted by this extension)</td>
+      </tr>
+      <tr>
+        <td colspan="2"><textarea style="width: 100%" rows="3" id="mimes"></textarea></td>
+      </tr>
+      <tr>
+        <td colspan="2" style="padding-top: 10px;">Comma-separated list of hostnames to interrupt the built-in download manager (Only if the extension's interruption mode is enabled from the browser action's button. If the list is not empty, only downloading requests from these hostnames will be automatically interrupted. For all other hostnames, to send a job to the external download manager, use the right-click context menu (on-demand mode). Note that the link's hostname must belong to the actual downloadable link, not the parent page)</td>
+      </tr>
+      <tr>
+        <td colspan="2"><textarea style="width: 100%" rows="3" id="whitelist" placeholder="e.g.: google.com, bing.com"></textarea></td>
+      </tr>
+    </tbody>
+  </table>
+  <table style="margin-top: 10px;">
+    <colgroup>
+      <col width="24">
+      <col>
+    </colgroup>
+    <tbody>
+      <tr>
+        <td><input type="checkbox" id="context.open-link"></td>
+        <td><label for="context.open-link">Display "Download Link" context menu item</label></td>
+      </tr>
+      <tr>
+        <td><input type="checkbox" id="context.open-video"></td>
+        <td><label for="context.open-video">Display "Download Media" context menu item</label></td>
+      </tr>
+      <tr>
+        <td><input type="checkbox" id="context.grab"></td>
+        <td><label for="context.grab">Display "Download all Links" context menu item</label></td>
+      </tr>
+      <tr>
+        <td><input type="checkbox" id="context.extract"></td>
+        <td><label for="context.extract">Display "Extract Links from Selection" context menu item</label></td>
+      </tr>
+    </tbody>
+  </table>
+  <div id="explore" data-cols="5"></div>
+  <p>
+    <button id="test">Test Page</button> - <button id="reset">Reset</button>
+    <button id="support">Support Development</button> - <button id="save">Save</button>
+    <span id="status"></span>
+  </p>
+
+  <script src="/config.js"></script>
+  <script src="index.js"></script>
+  <script async src="matched.js"></script>
+</body>
+</html>

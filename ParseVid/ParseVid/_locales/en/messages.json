@@ -1,0 +1,38 @@
+{
+   "bg_msg_1": {
+      "message": "To extract links and display the interface, this permission is needed"
+   },
+   "bg_msg_10": {
+      "message": "Open Test Page"
+   },
+   "bg_msg_11": {
+      "message": "To extract links from all iframes of this page, this permission is needed"
+   },
+   "bg_msg_2": {
+      "message": "Cannot extract any link from the selected text"
+   },
+   "bg_msg_3": {
+      "message": "Download with Internet Download Manager"
+   },
+   "bg_msg_4": {
+      "message": "Command box is empty. Use options page to define one!"
+   },
+   "bg_msg_5": {
+      "message": "Executable path cannot be located. Go to the options page and fix the path."
+   },
+   "bg_msg_6": {
+      "message": "Download Link"
+   },
+   "bg_msg_7": {
+      "message": "Download Media or Image"
+   },
+   "bg_msg_8": {
+      "message": "Download all Links"
+   },
+   "bg_msg_9": {
+      "message": "Extract Links from Selection"
+   },
+   "description": {
+      "message": "Send download jobs to Internet Download Manager from right-click context menu or by intercepting the built-in download manager"
+   }
+}
