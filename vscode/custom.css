@@ -1,0 +1,211 @@
+/* .tabs-container{
+	
+	//background-color: rgb(0, 25, 250)!important;
+	
+}
+
+.editor-scrollable, .editor-instance, C7EDCC  */
+
+.monaco-editor-background, .editor-instance, html, body
+, .monaco-breadcrumbs
+{
+	background-color: #d9ffdd!important;
+}
+.monaco-editor-background
+{
+	xbackground-color: #fff!important;
+}
+.xmonaco-breadcrumbs{
+	bottom: 0;
+    top: unset;
+    position: absolute;
+}
+
+.settings-body, .monaco-scrollable-element
+,.settings-body .monaco-scrollable-element, .settings-body .monaco-list-rows
+,.settings-body .monaco-scrollable-element:hover, .settings-body .monaco-list-rows:hover
+,.setting-item:hover
+{
+	background-color: #d9ffdd!important;
+}
+.settings-row-inner-container {
+	background-color: #d9ffdd!important;
+}
+.settings-editor > .settings-body > .settings-tree-container .setting-item-contents .setting-item-description
+,.settings-toc-entry
+,.setting-item-category
+,.xaction-label
+ {
+    color: #000!important;
+}
+
+.editor-instance > .monaco-editor
+,.overflow-guard 
+/* ,.split-view-container > .split-view-view */
+,.editor > .content 
+{
+	width: 100%!important;
+}
+
+.view-lines,.view-line 
+{
+	width: 100%!important;
+}
+/* editor-scrollable */
+
+/* .editor-instance > .monaco-editor .monaco-scrollable-element */
+.overflow-guard > .monaco-scrollable-element
+{
+	--x:80px;
+	width: calc(100% - var(--x))!important;
+}
+
+/* 
+.monaco-editor .monaco-scrollable-element
+{
+	position:unset!important;
+	width:auto!important;
+	left:unset!important;
+}
+.monaco-scrollable-element > .lines-content{
+	display:inline!important;
+	left:unset!important;
+	display:inline!important;
+}
+.margin{
+	position: relative!important;
+	float: left!important;
+} */
+
+
+/*半透明小地图 */
+.minimap 
+{
+	opacity: .45!important;
+	left:unset!important;
+	right:15px!important;
+}
+
+/*较亮 d9ffdd 较暗 d7f8db */
+.margin
+{
+	background-color: #d7f8db!important;
+}
+
+.monaco-breadcrumbs .label-name {
+    color: #000!important;
+}
+
+
+#workbench\.view\.extension\.codemap-explorer .custom-view-tree-node-item-icon
+,#workbench\.view\.extension\.bookmarks .custom-view-tree-node-item-icon
+{
+	/* display: none!important; */
+	width: 9px;
+}
+
+#workbench\.view\.extension\.bookmarks .custom-view-tree-node-item
+,#workbench\.view\.extension\.bookmarks .monaco-tl-twistie
+{
+    padding-left: 1px!important;
+}
+/* .monaco-list-row.selected {
+	background-color: rgba(53, 50, 255)!important;
+} */
+
+
+/* monaco-list-row focused selected */
+.left .label-name {
+    color: #000!important;
+}
+.left .selected .label-name {
+    color: #fff!important;
+}
+.left .monaco-list-row.selected {
+	background-color: rgba(53, 50, 255)!important;
+}
+.left .monaco-list-row:hover {
+    color: #fff!important;
+	background-color: rgb(78, 75, 255)!important;
+}
+.left .monaco-list-row:hover .label-name{
+    color: #fff!important;
+}
+.left .monaco-list-rows {
+	background-color: #dcffdf!important;
+}
+
+
+.tab{
+	color: #000!important;
+	background-color: #f5f5f5!important;
+}
+
+.tab > .label-name{
+	color: #000!important;
+}
+.tab.active{
+	border-bottom: 5px solid rgb(255 161 0)!important;
+	background-color: #fafafa!important;
+}
+
+/* 调整关闭按钮（居中、未激活不显示） */
+.codicon-close {
+	display: none!important;
+}
+.tab.dirty .action-label.codicon-close{
+	display: unset!important;
+	color:#555!important;
+	pointer-events: none;
+}
+.tab.active .action-label.codicon-close{
+	display: unset!important;
+	color:#555!important;
+	pointer-events: unset;
+}
+.tab.dirty .monaco-action-bar.animated{
+	margin-top: 3px!important;
+}
+.tab.active .monaco-action-bar.animated{
+	margin-top: 8px!important;
+}
+
+.monaco-workbench .part.editor>.content .editor-group-container>.title .tabs-container>.tab.dirty:not(.active)>.tab-actions .action-label:before {
+    content: "\ea71";
+}
+
+
+/* 调整行数栏（小一点好） */
+/* .margin{
+	width:45px!important;
+}
+.editor-scrollable{
+	left:45px!important;
+}
+.editor-scrollable{
+	left:45px!important;
+}
+.line-numbers{
+	left:0px!important;
+}
+.codicon-folding-expanded{
+	left: 0x!important;
+} */
+
+
+/* background: linear-gradient(to right, #ffffff, #6dd5fa, #2980b9); */
+.part.activitybar.left > .content{
+	background: linear-gradient(to right, #007acc, #0090f1, #d9ffdd);
+}
+.part.activitybar.right > .content{
+	background: linear-gradient(to left, #007acc, #0090f1, #d9ffdd);
+}
+/* 左侧Tab菜单按钮 */
+.action-label.codicon{
+	color: #f0f0f0 !important;
+}
+
+/* 左侧栏菜单按钮 */
+.menu-entry > .action-label.codicon {
+	color: #000!important;
+}
