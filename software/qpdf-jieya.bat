@@ -1,0 +1,1 @@
+qpdf --qdf --object-streams=disable %1 %1.jieya.pdf

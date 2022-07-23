@@ -8,11 +8,9 @@ Wiki
 *.crx
 *.pem
 node_modules
+archive
 
 
-Right Click Bookmark
-HuabanBatchUpload-master
-software
 .git
 SingleFile-master
 locks

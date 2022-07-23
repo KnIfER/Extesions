@@ -1,0 +1,1 @@
+"D:\software\lz4_win32_v1_9_3\lz4.exe" %*
