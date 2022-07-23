@@ -9,12 +9,9 @@ Wiki
 *.pem
 node_modules
 archive
-
-
-.git
 SingleFile-master
-locks
-chrome_send_to_plaindict
+
+
 Saladict
 .vscode
 NetResourceSwitcher
