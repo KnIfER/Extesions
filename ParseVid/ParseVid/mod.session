@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<NotepadPlus>
+    <Session activeView="0" split="50" tear="50" pos="0">
+        <mainView activeIndex="1">
+            <File firstVisibleLine="0" xOffset="0" scrollWidth="3325" startPos="0" endPos="0" selMode="0" offset="0" wrapCount="1" lang="JavaScript" encoding="-1" userReadOnly="no" filename="D:\Downloads\windows-idm\ext-0.2.2_0\background.js" backupFilePath="" originalFileLastModifTimestamp="-89415179" originalFileLastModifTimestampHigh="30877978" mapFirstVisibleDisplayLine="-1" mapFirstVisibleDocLine="-1" mapLastVisibleDocLine="-1" mapNbLine="-1" mapHigherPos="-1" mapWidth="-1" mapHeight="-1" mapKByteInDoc="-2073780752" mapWrapIndentMode="-1" mapIsWrap="no" />
+            <File firstVisibleLine="0" xOffset="0" scrollWidth="3325" startPos="445" endPos="445" selMode="0" offset="0" wrapCount="1" lang="JavaScript" encoding="-1" userReadOnly="no" filename="D:\Downloads\windows-idm\ext-0.2.2_0\content.js" backupFilePath="" originalFileLastModifTimestamp="-2098142680" originalFileLastModifTimestampHigh="30877984" mapFirstVisibleDisplayLine="-1" mapFirstVisibleDocLine="-1" mapLastVisibleDocLine="-1" mapNbLine="-1" mapHigherPos="-1" mapWidth="-1" mapHeight="-1" mapKByteInDoc="-1" mapWrapIndentMode="-1" mapIsWrap="no" />
+        </mainView>
+        <subView activeIndex="0" />
+    </Session>
+</NotepadPlus>
+<GUIConfig name="DockingManager" leftWidth="311" rightWidth="601" topHeight="179" bottomHeight="241">
+    <FloatingWindow cont="4" x="1111" y="215" width="1879" height="943" />
+    <FloatingWindow cont="5" x="641" y="217" width="1409" height="945" />
+    <FloatingWindow cont="4" x="1111" y="215" width="1879" height="943" />
+    <PluginDlg pluginName="Notepad++::InternalFunction" id="44084" curr="0" prev="4" isVisible="yes" />
+    <PluginDlg pluginName="MarkdownText.dll" id="1" curr="1" prev="5" isVisible="no" />
+    <PluginDlg pluginName="Notepad++::InternalFunction" id="44082" curr="0" prev="-1" isVisible="no" />
+    <PluginDlg pluginName="Notepad++::InternalFunction" id="44081" curr="0" prev="-1" isVisible="no" />
+    <PluginDlg pluginName="Notepad++::InternalFunction" id="0" curr="3" prev="4" isVisible="yes" />
+    <PluginDlg pluginName="Notepad++::InternalFunction" id="44085" curr="0" prev="4" isVisible="no" />
+    <PluginDlg pluginName="Notepad++::InternalFunction" id="44080" curr="0" prev="4" isVisible="no" />
+    <PluginDlg pluginName="MarkdownViewer++" id="0" curr="1" prev="-1" isVisible="no" />
+    <PluginDlg pluginName="Notepad++::InternalFunction" id="44070" curr="0" prev="5" isVisible="no" />
+    <PluginDlg pluginName="ComparePlugin.dll" id="11" curr="1" prev="-1" isVisible="no" />
+    <PluginDlg pluginName="LuaScript.dll" id="0" curr="3" prev="-1" isVisible="no" />
+    <PluginDlg pluginName="Notepad++::InternalFunction" id="42052" curr="1" prev="-1" isVisible="no" />
+    <PluginDlg pluginName="Notepad++::InternalFunction" id="42051" curr="1" prev="-1" isVisible="no" />
+    <ActiveTabs cont="0" activeTab="0" />
+    <ActiveTabs cont="1" activeTab="-1" />
+    <ActiveTabs cont="2" activeTab="-1" />
+    <ActiveTabs cont="3" activeTab="-1" />
+    <ActiveTabs cont="4" activeTab="-1" />
+</GUIConfig>

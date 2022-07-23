@@ -1,9 +1,10 @@
 {
    "background": {
-      "persistent": false,
+      "persistent": true,
       "scripts": [ "config.js", "termlib_parser.js", "background.js" ]
    },
    "browser_action": {
+
    },
    "default_locale": "en",
    "description": "__MSG_description__",
@@ -27,8 +28,34 @@
       "open_in_tab": true,
       "page": "data/options/index.html"
    },
-   "permissions": [ "storage", "nativeMessaging", "notifications", "downloads", "contextMenus" ],
+   "permissions": [ "storage"
+		, "webRequest"
+		, "webRequestBlocking"
+		, "nativeMessaging"
+		, "notifications"
+		, "downloads"
+		, "contextMenus" 
+		, "bookmarks" 
+		, "*://*/"
+	],
+	"host_permissions": [
+		"*://*/*"
+	],
    "update_url": "https://edge.microsoft.com/extensionwebstorebase/v1/crx",
    "version": "0.2.2",
    "web_accessible_resources": [ "data/grab/index.html" ]
+    ,"content_scripts": [
+        {
+           "matches": ["*://*/*", "file://*/*"],
+          "js": ["content.js"]
+        }
+		,{
+           "matches": ["*://live.kuaishou.com/profile/*"],
+          "js": ["content_gif_prof.js"]
+        },
+		{
+           "matches": ["*://*/*", "file://*/*"],
+          "js": ["CopyUrl.js"]
+        }
+    ]
 }

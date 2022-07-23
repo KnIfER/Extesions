@@ -43,6 +43,7 @@ function execute(d) {
           .replace(/\[USERAGENT\]/g, navigator.userAgent)
           .replace(/\[FILENAME\]/g, (d.filename || '').split(/[/\\]/).pop())
           .replace(/\[DISK\]/g, (d.filename || ''))
+          //.replace(/\[SOURCE\]/g, (d.filename || ''))
           .replace(/\\/g, '\\\\')
       };
 
@@ -105,13 +106,21 @@ function execute(d) {
 }
 
 function sendTo(d) {
-  Promise.resolve(false).then(running => !running && execute(d)).then(() => {
-    if (d.id) {
-      chrome.downloads.erase({
-        id: d.id
-      });
-    }
-  }).catch(e => e && notify(e));
+  console.log('sendTo', d);
+  var x = new XMLHttpRequest();
+  x.open('POST', 'http://127.0.0.1:8080/DB.jsp', true);
+  x.responseType = 'json';
+  x.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8');
+  d.dwnld=true;
+  x.send("data="+encodeURIComponent(JSON.stringify(d)));
+  //console.log('sendTo', "data="+JSON.stringify(d));
+  // Promise.resolve(false).then(running => !running && execute(d)).then(() => {
+  //   if (d.id) {
+  //     chrome.downloads.erase({
+  //       id: d.id
+  //     });
+  //   }
+  // }).catch(e => e && notify(e));
 }
 
 let id;
@@ -153,10 +162,10 @@ function changeState(enabled) {
   const diSupport = Boolean(chrome.downloads.onDeterminingFilename);
   const download = diSupport ? chrome.downloads.onDeterminingFilename : chrome.downloads.onCreated;
   if (enabled) {
-    download.addListener(observe);
+   // download.addListener(observe);
   }
   else {
-    download.removeListener(observe);
+  //  download.removeListener(observe);
   }
   chrome.browserAction.setIcon({
     path: {
@@ -228,11 +237,11 @@ const buildContexts = () => chrome.storage.local.get({
         documentUrlPatterns: ['*://*/*']
       });
     }
-    chrome.contextMenus.create({
-      id: 'test',
-      title: chrome.i18n.getMessage('bg_msg_10'),
-      contexts: ['page', 'browser_action']
-    });
+    // chrome.contextMenus.create({
+      // id: 'test',
+      // title: chrome.i18n.getMessage('bg_msg_10'),
+      // contexts: ['page', 'browser_action']
+    // });
   });
 });
 chrome.runtime.onInstalled.addListener(buildContexts);
@@ -262,8 +271,39 @@ const grab = mode => chrome.tabs.executeScript({
   }
 });
 
+function extractDediVid(tab, info){
+	var url = info.pageUrl;
+	if(url.startsWith("https://live.bilibili.com/")) return;
+	var filejs = url.startsWith("https://video.kuaishou.com/")||url.startsWith("https://www.kuaishou.com")?"ParseVid_gif_mobile.js":"ParseVid.js";
+	chrome.tabs.executeScript(tab.id, {file: filejs}, function (thereDataIs){
+		// console.log("thereDataIs", thereDataIs);
+		// console.log("thereDataIs", thereDataIs[0]);
+		var fileName = thereDataIs[0][0];
+		fileName = fileName.replaceAll(/[\r\n*\\<\\>\\/|"\\:]/g, "");
+		fileName = fileName.replaceAll("?", "？");
+		fileName = fileName.replaceAll("!", "！");
+		fileName = fileName.replaceAll("“", "'");
+		fileName = fileName.replaceAll("”", "'");
+		sendTo({
+		  finalUrl: thereDataIs[0][1]
+		  ,referrer: url
+		  ,filename: fileName
+		});
+		
+		// sendTo({
+		  // finalUrl: "https://txmov2.a.yximgs.com/upic/2020/12/05/10/BMjAyMDEyMDUxMDIxMzFfMTQ4NTkyNTMzNF80MDIzMzY0OTE0MF8xXzM=_b_B154e1e1780048336551cd9e79472d719.mp4?clientCacheKey=3x3z388ajhkmpqm_b.mp4&tt=b&di=705649c9&bp=13380",
+		  // referrer: info.pageUrl,
+		  // filename: "Love.mp4"
+		// }, tab);
+	});
+}
+
 chrome.contextMenus.onClicked.addListener((info, tab) => {
   if (info.menuItemId === 'grab') {
+	  if(info.pageUrl.indexOf("kuaishou.com")>0) {
+		extractDediVid(tab, info);
+		return;
+	  }
     chrome.permissions.request({
       origins: ['*://*/*']
     }, granted => {
@@ -319,10 +359,15 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
     });
   }
   else {
+	  //console.log(info);
+	  if(info.linkUrl.indexOf("kuaishou.com")>0) {
+		extractDediVid(tab, info);
+		return;
+	  }
     sendTo({
       finalUrl: info.menuItemId === 'open-video' ? info.srcUrl : info.linkUrl,
       referrer: info.pageUrl
-    }, tab);
+    });
   }
 });
 
@@ -442,4 +487,173 @@ chrome.runtime.onMessage.addListener((request, sender, response) => {
     setUninstallURL(page + '&rd=feedback&name=' + encodeURIComponent(name) + '&version=' + version);
   }
 }
+
+
+
+function setHeader(h, n, v){
+    var kv = h.find(({name}) => name === n);
+    if (kv) {
+      kv.value = v;
+    }
+    else {
+      h.push({
+        'name': n,
+        'value': v
+      });
+    }
+}
+
+function removeHeader(h, n){
+    var kv = h.find(({name}) => name === n);
+    if (kv) {
+      h.splice(h.indexOf(kv));
+    }
+}
+
+// hack request 
+// 增加安卓的UA
+chrome.webRequest.onBeforeSendHeaders.addListener(
+    function(info) {
+        // Replace the User-Agent header
+        const headers = info.requestHeaders;
+		var reqAIUA=1,header;
+		console.log(info);
+		if(0)
+		for(var i=0,len=headers.length;i<len;i++){
+			header = headers[i];
+			if (header.name === 'Req-Ai') { 
+                reqAIUA=1;
+            }
+			else if (header.name === 'Sec-Fetch-Mode') { 
+                //header.value = 'no-cors';
+            }
+			else if (header.name === 'Sec-Fetch-Site') { 
+                //header.value = 'cross-site';
+            }
+		}
+		//removeHeader(headers, 'Access-Control-Request-Headers');
+		//removeHeader(headers, 'Access-Control-Request-Method');
+		//const url = info.url;
+		//if(url.indexof('.kuaishou.')>0||url.indexof('.gifshow.'))
+		if(reqAIUA){
+			var value = 'Mozilla/5.0 (Linux; Android 5.1.1; vivo X9 Plus Build/LMY48Z) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/39.0.0.0 Mobile Safari/537.36';
+			value = 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.96 Mobile Safari/537.36 Edg/88.0.705.53';
+			value = 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Mobile Safari/537.36';
+			setHeader(headers, "User-Agent", value);
+			//setHeader(headers, "Origin", "https://m.kuaishou.com");
+			// setHeader(headers, "Sec-Fetch-Mode", "no-cors");
+			// setHeader(headers, "Sec-Fetch-Site", "cross-site");
+			// setHeader(headers, "Sec-Fetch-Dest", "empty");
+			console.log('modified!!!');
+			console.log(info);
+		}
+        return {requestHeaders: headers};
+    },
+    // Request filter
+    {
+        // Modify the headers for these pages
+        urls: [
+            "*://m.gifshow.com/*"
+            ,"*://www.gifshow.com/*"
+            ,"*://live.kuaishou.com/*"
+            ,"*://video.kuaishou.com/*"
+            ,"*://m.kuaishou.com/*"
+            //,"*://*/*"
+        ],
+        // In the main window and frames
+        types: ["xmlhttprequest"]
+    },
+    ["blocking", "requestHeaders"]
+);
+
+// hack response
+// 允许跨域
+const extra = ['blocking', 'responseHeaders'];
+chrome.webRequest.onHeadersReceived.addListener(d => {
+	var responseHeaders = d.responseHeaders;
+	//const {initiator, originUrl, responseHeaders, method, requestId, tabId} = d;
+  //if(d.statusCode===200) 
+  //if(0) 
+  {
+	console.log(d);
+	setHeader(responseHeaders, 'Access-Control-Allow-Methods', '*');
+	setHeader(responseHeaders, 'Access-Control-Allow-Origin', '*');
+	setHeader(responseHeaders, 'Access-Control-Allow-Credentials', 'true');
+	setHeader(responseHeaders, 'Access-Control-Allow-Headers', '*');
+  }
+  return {responseHeaders};
+}, { 
+urls: [
+	"*://m.gifshow.com/*"
+	,"*://www.gifshow.com/*"
+	,"*://live.kuaishou.com/*"
+	,"*://video.kuaishou.com/*"
+	,"*://m.kuaishou.com/*"
+	//,['<all_urls>']
+],
+types: ["xmlhttprequest"]
+}, extra);
+
+chrome.runtime.onMessageExternal.addListener( function(request, sender, sendResponse) {
+	if (message) {
+		console.log("ext - ???", message, sender);
+		sender.pageUrl = sender.url;
+		if(message.type == 'gifdwn') {
+			// 处理右击直接下载美妞视频
+			extractDediVid(sender.tab, sender);
+		} else if(message.type == 'dirdwn'){
+			console.log("ext - dirdwn~");
+			sendTo({
+			  finalUrl: sender.url
+			  ,referrer: sender.url
+			  ,filename: sender.name
+			});
+		}
+		sendResponse("nores");
+    }
+});
+  
+// 后台消息处理
+chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
+    if (message && message.type) {
+		console.log("???", message, sender);
+		sender.pageUrl = sender.url;
+		if(message.type == 'gifdwn') {
+			// 处理右击直接下载美妞视频
+			extractDediVid(sender.tab, sender);
+		} else if(message.type == 'dirdwn'){
+			console.log("dirdwn~");
+			sendTo({
+			  finalUrl: message.url
+			  ,referrer: message.url
+			  ,filename: message.name
+			});
+		} else if(message.type == 'bkmk'){
+      if(message.update) {
+        chrome.bookmarks.search({'url':message.url},
+          function(e) {
+            console.log("bkmk🔍", e);
+            if(e && e.length) {
+              chrome.bookmarks.update(e[0].id, {'title': message.name });
+            } else {
+              chrome.bookmarks.create({
+                'title': message.name,
+                'url': message.url
+              }, function(e){
+                console.log("bkmk+", e);
+              });
+            }
+          });
+      } else {
+        chrome.bookmarks.create({
+          'title': message.name,
+          'url': message.url
+        }, function(e){
+          console.log("bkmk+", e);
+        });
+      }
+		}
+		sendResponse("nores");
+    }
+});
 
