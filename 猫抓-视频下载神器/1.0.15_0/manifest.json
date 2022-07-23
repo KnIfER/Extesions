@@ -1,0 +1,23 @@
+{
+   "background": {
+      "page": "background.html"
+   },
+   "browser_action": {
+      "default_icon": "img/icon.png",
+      "default_popup": "popup.html"
+   },
+   "description": "网页媒体嗅探工具",
+   "icons": {
+      "128": "img/icon128.png",
+      "40": "img/icon.png",
+      "48": "img/icon.png"
+   },
+   "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAtK4cQ+qXs4m2iVIJIBxC6NQgDsp6d9A8jiv5eEvKauyIsBfw/+SXjGvmtEkq46hZHQk4ahQatpMuVpYZuio8f4p0+xYcRVxYisK1+/8sqMDkkCR9VFZ/+Lh/2Zn+sE8PCLGnfkEGUM7xq07MztX7NO14Snw7il45hjVxHPxsy8slo8iYRT1nWkT3f5AAYn4RwZgDYGeSEf/D89uy98P5lWJsBwUEwj1LRxXDsmRzy07y25Bm+L9znzROet85khvzmuS8JIBMD2BrBuCMMvTJ4y41yFyyRxQV2WeI0bR7Uw1Pm4ULHO/yTBnV5bvfk5CZUByW1xmNoTjVJ6dCmpRkXQIDAQAB",
+   "manifest_version": 2,
+   "minimum_chrome_version": "30",
+   "name": "猫抓-视频下载神器",
+   "options_page": "options.html",
+   "permissions": [ "tabs", "webRequest", "webRequestBlocking", "*://*/*", "\u003Call_urls>", "downloads" ],
+   "update_url": "https://edge.microsoft.com/extensionwebstorebase/v1/crx",
+   "version": "1.0.15"
+}
