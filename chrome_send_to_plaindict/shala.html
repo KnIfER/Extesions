@@ -1,0 +1,108 @@
+<head>
+    <meta charset="UTF-8">
+    
+    <style>
+    .dictPanel-Root{
+        left: 0!important;
+        top: 0!important;
+        width: 100%!important;
+        height: 100%!important;
+    }
+    </style>
+
+    <script>
+        var style;
+		var args={};
+        var 悬浮模式;
+
+        function parseArgs() {
+            var sch = location.search; 
+            var params = {};
+            if (sch.startsWith("?")) {
+                sch.split("&").forEach(function(it, idx) {
+                    var sep = it.indexOf('=');
+                    if(sep>0) {
+                        params[it.slice(idx==0?1:0, sep)]=it.slice(sep+1);
+                    }
+                });
+            }
+            return params;
+        }
+
+
+        function boot() {
+            args = parseArgs();
+            if(args.q)
+                document.querySelector("#text").innerText=args.q;
+            style=document.head.querySelector('style');
+            var sx = window.innerWidth / 2,sy = window.innerHeight / 2, cx = sx, cy = sy;
+            var e = document.createEvent("MouseEvents");
+            e.initMouseEvent("mousedown", true, true, window, 0, sx, sy, cx, cy, false, false, false, false, 0, null);
+            document.body.dispatchEvent(e);
+            document.execCommand('selectAll');
+            var e1 = document.createEvent("MouseEvents");
+            e1.initMouseEvent("mouseup", true, true, window, 0, sx, sy, cx, cy, false, false, false, false, 0, null);
+            document.body.dispatchEvent(e1);
+            setTimeout(function(){
+                var 根元素 = document.querySelector("#saladict-saladbowl-root > div").shadowRoot;
+                var 小球 = 根元素.querySelector("div > div");
+                小球.click();
+                //document.body.dispatchEvent(e1);
+                根元素 = document.querySelector("#saladict-dictpanel-root > div").shadowRoot;
+                悬浮模式 = 根元素.querySelector("div > div > div");
+                console.log(悬浮模式);
+
+                window.getSelection().collapseToStart();
+                initPane(悬浮模式);
+            },100);
+        
+        }
+
+        function initPane(e) {
+            var 根元素 = document.querySelector("#saladict-dictpanel-root > div").shadowRoot;
+            var es=e.style;
+            es.height='100%';
+            es.width='100%';
+            
+            var sty=根元素.querySelector("style");
+            sty.innerHTML=sty.innerHTML+style.innerHTML;
+        }
+        window.addEventListener('drop', function (e) {
+            console.log(e);
+            e.preventDefault();
+            e.stopPropagation();
+            if(悬浮模式) {
+                var dt = e.dataTransfer;
+                var text = dt.getData("text/plain");
+                dt.dropEffect = 'copy';
+                //console.log(text, dt.getData('text'), dt.files, dt.types);
+                
+                document.querySelector("#text").innerText=text;
+
+                var input=悬浮模式.getElementsByTagName('INPUT')[0];
+                input.value=text;
+                input.dispatchEvent(new Event('input', { bubbles: true }));
+                input.parentNode.nextSibling.click();
+            }
+        }, true);
+
+        window.addEventListener('dragover', function (e) {
+            // if(e.dataTransfer.dropEffect !== 'copy'){ //一般是'none'
+            //     console.log("是复制，不要剪切！", e.dataTransfer.dropEffect); // 有的编辑器拖文本进来就是剪切
+                e.dataTransfer.dropEffect = 'copy';
+            // }
+            e.preventDefault();
+        }, true);
+    </script>
+
+
+    <title>沙拉查词 · 标签页模式</title>
+</head>
+
+
+
+<body onload='setTimeout(boot,100)'>
+    
+<span style='opacity:0' id='text'>此页面配合沙拉查词浏览器扩展使用，支持解析?q=参数、支持拖拽查词。</span>
+
+</body>
