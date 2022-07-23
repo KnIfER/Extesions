@@ -1,0 +1,45 @@
+{
+   "applications": {
+      "gecko": {
+         "id": "jid1-xgtdawe3yyUeBQ@jetpack"
+      }
+   },
+   "author": "marnick.leau@gmail.com",
+   "background": {
+      "persistent": true,
+      "scripts": [ "background.js" ]
+   },
+   "commands": {
+      "download-focused": {
+         "description": "Download the hovered image.",
+         "suggested_key": {
+            "default": "Alt+Shift+D"
+         }
+      }
+   },
+   "content_scripts": [ {
+      "all_frames": true,
+      "css": [ "content.css" ],
+      "js": [ "content.js" ],
+      "matches": [ "\u003Call_urls>" ],
+      "run_at": "document_end"
+   } ],
+   "description": "Double-click any image to download it quickly and quietly, or use the Hover Button.",
+   "icons": {
+      "128": "images/icon-128.png",
+      "16": "images/icon-16.png",
+      "48": "images/icon-48.png"
+   },
+   "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAj0m1kZDydxLgAhdRZcmHxf+kVjUKdY9Cx6Vfh5ei3NbxmKjUiH5vPsDI46TVb0l0S9QbkdQzCjKBxipxT+cWCVG9yKjp2dR20pzBSBmPSn6gc2OriIx+b/vF543wr6+JACgXmvmZKZAbVmNYXAtoDsZB637xhmyugsRoOh3/QYWJrImbDwsiQrwyTImRXGnZdp+nnHwDhtZNsP/2/Nvrkrc0T0+QKNxOIgD/NRbY67a1gB0kzGvRxKhhtpOI32xIWCSbBTCFI21nlXV4h1pxwP5xDgktF1LIiwOv87aRi1+MmZWboijTsSpT44GuhyI0+kwGEJdCSHplmx8dz4nGowIDAQAB",
+   "manifest_version": 2,
+   "name": "Double-click Image Downloader",
+   "options_ui": {
+      "chrome_style": true,
+      "page": "options.html"
+   },
+   "permissions": [ "notifications", "storage", "tabs", "downloads", "downloads.open", "\u003Call_urls>", "contextMenus" ],
+   "short_name": "DID",
+   "update_url": "https://clients2.google.com/service/update2/crx",
+   "version": "7.1.2",
+   "web_accessible_resources": [ "images/download_on_alt1.png", "images/download_on_original.png", "images/download_off_alt1.png", "images/download_off_original.png" ]
+}
