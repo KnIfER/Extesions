@@ -189,3 +189,23 @@ chrome.tabs.onRemoved.addListener( function( tabId ){
 } );
 
 
+// 后台消息处理
+chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
+    console.log('onMessage!!!', message);
+    if (message == 'get-sniffed-url') {
+        var tabId;
+        chrome.windows.getCurrent(function(wnd){
+            chrome.tabs.getSelected(wnd.id, function(tab){
+                tabId = tab.id;
+                var id="tabid"+tabId;
+                var ret = mediaurls[id];
+                if(ret) ret = ret[0];
+                if(!ret) ret = "nores";
+                console.log('ret=', ret);
+                sendResponse(ret);
+            });
+        });
+        return true;
+    }
+});
+
