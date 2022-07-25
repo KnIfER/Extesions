@@ -3,60 +3,78 @@
 SendMode Input  ; Recommended for new scripts due to its superior speed and reliability.
 SetWorkingDir %A_ScriptDir%  ; Ensures a consistent starting directory.
 #MaxThreadsPerHotkey 2 
+#SingleInstance Force
+DetectHiddenWindows, off
 
-
-
-~F2::  
-	;WinSet, Style, ^0x8000000, ahk_id 0x000107D6
-	;弹出顺时消息("Title","SendMessage","-500", "w120")
-Return
-
-;!F2::  
-#F2::
-	弹出顺时消息("Title","即将关闭屏幕…","-500", "w340")
-	Sleep 500
-    ;SendMessage 0x112, 0xF140, 0, , Program Manager  ; Start screensaver
-    SendMessage 0x112, 0xF170, 2, , Program Manager  ; Monitor off
-Return
-
-; Win+Shift+F2
-#+\::
-    Run rundll32.exe user32.dll`,LockWorkStation     ; Lock PC
-    Sleep 1000
-    SendMessage 0x112, 0xF170, 2, , Program Manager  ; Monitor off
-    Return
-
-;!Enter::  
-;	;toggle_置顶()
-;	弹出顺时消息("Title","SendMessage","-500", "w120")
-;	;SendMessage, 0x000C, 0, "New Notepad Title"  ; 0x000C is WM_SETTEXT
-;	;SendMessage, WM_SYSCOMMAND, 0xF170, 2,, Program Manager  ; 0x0112 is WM_SYSCOMMAND, 0xF170 is SC_MONITORPOWER.
-;	;PostMessage, 0x0111, 33000, 0
-;	;, 1, Chrome_RenderWidgetHostHWND1
-;	PostMessage, 0x007B, 0, 0
-;
-;return
+弹出顺时消息("","重载···","-500", "w150")
 
 
 ; 提前创建全局滑动控件。Val既是数值也是控件id？焯
 ; Fun 是回调函数
 global Val
-global Through
+global Pin
 global Target
 Val:=0
-Through:=0
-Gui, Add, Slider, x10 y10 w300 vVal gFun, %Val%
-Gui, Add, CheckBox, x10 y40 vThrough gThrough, 点击穿透
+Pin:=0
+Target:=0
+Gui, Add, Slider, x10 y5 w300 vVal gFun, %Val%
 GuiControl, +AltSubmit Range0-255, Val ; 拖动也触发回调
+Gui, Add, CheckBox, x10 y40 vThrough gThrough, 点击穿透
+Gui, Add, CheckBox, x85 y40 vPin gPin, 窗口置顶
+Gui, Add, CheckBox, x155 y40 vPinT gPinT, 工具置顶
+Gui, Add, CheckBox, x230 y40 gFlip, 切换
 
-!F1::  
+global Wnds
+Wnds := []
+loop 
+{	
+	WinGet, wid, ID, A
+	WinWaitNotActive, ahk_id %wid%
+	idx := HasVal(Wnds, wid)
+	if(idx) {
+		Wnds.RemoveAt(idx)
+	}
+	Wnds.Push(wid)
+	; 弹出顺时消息("","clipboard","-500", "w550")
+}
+LastWindow() {
+	WinGet, wid, ID, A
+	WinGet, p_wid, PID, A
+	idx := Wnds.Length()
+	While( idx > 0 )
+	{
+		pid := Wnds[idx]
+		WinGet, p_pid, PID, ahk_id %pid% 
+		if(wid != pid && p_pid!=p_wid)
+		{
+			WinGet, Style, Style, ahk_id %pid% 
+			If (Style & 0x10000000)
+			{
+				WinActivate ahk_id %pid%
+				break
+			}
+		}
+		idx := idx - 1
+	}
+}
+#Z::
+	LastWindow()
+return
+#W::
+	LastWindow()
+return
+
+TweakWnd() {
 	SetTitleMatchMode, 2
 	WinGetTitle, Tmp, A
+	WinGet, wid, ID, A
 	IfNotEqual, Tmp, 改变透明度
-		Target := Tmp
-		Winget, Val, Transparent, %Target%
-		WinGet, ExStyle, ExStyle
+	{
+		Winget, Val, Transparent, %Tmp%
+		WinGet, ExStyle, ExStyle, A
 		Through := ExStyle & 0x20 ; 0x20 is WS_EX_CLICKTHROUGH.
+		Pin := ExStyle & 0x8 ; 0x8 is WS_EX_TOPMOST.
+		Target := wid
 
 		;WinGetPos, x, y, w, h, A
 		;x += w/2 - 200
@@ -65,30 +83,144 @@ GuiControl, +AltSubmit Range0-255, Val ; 拖动也触发回调
 		;;y := mY
 
 		If !Val
-			Val = 255
-		GuiControl ,, Val , %Val%
-		GuiControl ,, Through , %Through%
+			Val := 255
+		GuiControl ,, Val, %Val%
+		tmp := Through?1:0
+		GuiControl ,, Through, %tmp%
+		tmp := Pin?1:0
+		GuiControl ,, Pin, %tmp%
+		; Gosub, Refresh
 		
-
 		Gui, Show, AutoSize Center , 改变透明度
 		WinSet, AlwaysOnTop, On, 改变透明度
 		Winset, Transparent, 175, 改变透明度
 		; 或者显示在窗体正中 而非 AutoSize Center x%x% y%y% ？
 		Return
+	}
 	
 	Fun:
-		Winset, Transparent, %Val%, %Target%
+		Winset, Transparent, %Val%, ahk_id %Target%
 	Return
-	Through:
-		WinGet, ExStyle, ExStyle, % Target
+	Through: ; 点击穿透
+		WinGet, ExStyle, ExStyle, ahk_id %Target%
 		Through := ExStyle & 0x20
-		WinSet, ExStyle, ^0x20, % Target ; 0x20 = WS_EX_CLICKTHROUGH
+		WinSet, ExStyle, ^0x20, ahk_id %Target%
 		if Through
-			WinSet, AlwaysOnTop, Off, % Target
+			WinSet, AlwaysOnTop, Off, ahk_id %Target%
 		else
-			WinSet, AlwaysOnTop, On, % Target
+			WinSet, AlwaysOnTop, On, ahk_id %Target%
+		tmp := Through?0:1
+		GuiControl ,, Pin, %tmp%
 	Return
+	Pin:
+		Winset, Alwaysontop, , ahk_id %Target%
+		WinGet, ExStyle, ExStyle, ahk_id %Target%
+		Pin := ExStyle & 0x8
+		tmp := Pin?1:0
+		GuiControl ,, Pin, %tmp%
+		if(tmp) {
+			WinSet, AlwaysOnTop, On, 改变透明度
+		}
+	Return
+	PinT:
+	Return
+	Flip:
+	Return
+}
+
+#F1::  
+	TweakWnd()
 return
+
+^+F1::
+	Reload
+Return
+
+ListWindow(name) {
+	S := clipboard
+	clipboard := "" 
+	clipboard := name
+	ClipWait
+	WinGetTitle, title, A
+	IfNotEqual, title, PowerToys.PowerLauncher
+	{
+		Send !{Space}
+		sleep 150
+	}
+	else{
+		Send ^a
+		sleep 50
+	}
+	WinGetTitle, title, A
+	IfEqual, title, PowerToys.PowerLauncher
+	{
+		Send ^v
+		sleep 50
+	}
+	clipboard := S
+	sleep 50
+}
+
+!D::
+	ListWindow("Code.exe") ; Visual Studio Code
+Return
+!C::
+	ListWindow("Code.exe") ; Visual Studio Code
+Return
+!S::
+	ListWindow("Studio64") ; Android Studio
+Return
+!G::
+	ListWindow("Github")
+Return
+!Q::
+	ListWindow("Chrome")
+Return
+!E::
+	ListWindow("Edge")
+Return
+!W::
+	ListWindow("explorer.exe")
+Return
+!A::
+	ListWindow("Auto")
+Return
+!T::
+	ListWindow("Tamper")
+Return
+
+
+~F2::  
+	;WinSet, Style, ^0x8000000, ahk_id 0x000107D6
+	;弹出顺时消息("","SendMessage","-500", "w120")
+Return
+
+;!F2::  
+#F2::
+	弹出顺时消息("","即将关闭屏幕…","-500", "w340")
+	Sleep 500
+    ;SendMessage 0x112, 0xF140, 0, , Program Manager  ; Start screensaver
+    SendMessage 0x112, 0xF170, 2, , Program Manager  ; Monitor off
+Return
+
+; Win+Shift+F2
+#+F2::
+    Run rundll32.exe user32.dll`,LockWorkStation     ; Lock PC
+    Sleep 1000
+    SendMessage 0x112, 0xF170, 2, , Program Manager  ; Monitor off
+    Return
+
+;!Enter::  
+;	;toggle_置顶()
+;	弹出顺时消息("","SendMessage","-500", "w120")
+;	;SendMessage, 0x000C, 0, "New Notepad Title"  ; 0x000C is WM_SETTEXT
+;	;SendMessage, WM_SYSCOMMAND, 0xF170, 2,, Program Manager  ; 0x0112 is WM_SYSCOMMAND, 0xF170 is SC_MONITORPOWER.
+;	;PostMessage, 0x0111, 33000, 0
+;	;, 1, Chrome_RenderWidgetHostHWND1
+;	PostMessage, 0x007B, 0, 0
+;
+;return
+
 
 ; 参考：
 ; https://www.autohotkey.com/board/topic/5981-using-slider-to-adjust-window-transparency/
@@ -108,18 +240,18 @@ Ins::
 	SetStoreCapsLockMode, Off
 return
 
-^CapsLock::
-	Send ^{Tab}
-return
-
-!CapsLock::
-	Send !{Tab}
-return
-
 CapsLock::
 	Send {Tab}
 return
-
+^CapsLock::
+	Send ^{Tab}
+return
+!CapsLock::
+	Send !{Tab}
+return
+#CapsLock::
+	Send #{Tab}
+return
 +CapsLock::
 	Send +{Tab}
 return
@@ -150,13 +282,45 @@ ensureLdOff() {
 #IfWinActive ahk_exe XPlusPlayer.exe
 F1::
 	send {Fn} & {1}
-	弹出顺时消息("Title","abc", "-500", "w720")
+	弹出顺时消息("","abc", "-500", "w720")
 return
+
+toggle_多行标签(){
+	send ^k
+	sleep, 750
+	send {Tab}
+	sleep, 20
+	send {Tab}
+	sleep, 20
+	send {Space}
+	sleep, 20
+	send {Enter}
+	; 弹出顺时消息("","abc", "-500", "w720")
+}
+#IfWinActive ahk_exe studio64.exe
+F1::
+	MouseGetPos, xpos, ypos 
+	if ypos<0
+		toggle_多行标签()
+	else
+		send {F2}
+return
+^F1::
+	toggle_多行标签()
+return
++F1::
+	send +{F2}
+	; 弹出顺时消息("","abc", "-500", "w720")
+return
+
 
 #IfWinActive ahk_exe explorer.exe
 F1::
 	ensureLdOff()
-	执行复制()
+	执行复制(1)
+return
+!F1::
+	ListWindow(执行复制())
 return
 
 global lastXW := 0
@@ -173,7 +337,7 @@ NumpadAdd:: ; 小键盘加号打开谷歌翻译，自带回车切换
 	{
 		xw := x + w
 		lastXW := xw
-		;弹出顺时消息("Title",title . xw, "-500", "w720")
+		;弹出顺时消息("",title . xw, "-500", "w720")
 	}
 	pY := ypos
 	if pY<200
@@ -187,7 +351,7 @@ NumpadAdd:: ; 小键盘加号打开谷歌翻译，自带回车切换
 	;MouseMove, lastX, ypos
 	; DllCall("SetCursorPos", "int", lastX, "int", ypos)
 	var=取消置顶 %lastX% - %ypos%
-	;弹出顺时消息("Title",var, "-500", "w120")
+	;弹出顺时消息("",var, "-500", "w120")
 return
 F1::
 	ensureLdOff()
@@ -206,7 +370,7 @@ return
 
 
 
-global edgeld = True
+global edgeld := True
 
 #IfWinActive ahk_exe textrument.exe
 !Enter::  
@@ -231,16 +395,25 @@ F7::
 	toggle_f1()
 return
 !Enter::  
-	toggle_置顶()
+	WinGetTitle,WndTitle
+	StringGetPos, idx, WndTitle, 哔哩哔哩
+	if (idx >= 0)
+		toggle_置顶()
+	else
+	{
+		Hotkey !Enter, Off
+		Send !{Enter}
+		Hotkey !Enter, On
+	}
 return
 
 toggle_置顶(){
 	Winset, Alwaysontop, , A
 	WinGet, ExStyle, ExStyle
 	if (ExStyle & 0x8)  ; 0x8 is WS_EX_TOPMOST.
-		弹出顺时消息("Title","置顶!!","-500", "w120")
+		弹出顺时消息("","置顶!!","-500", "w120")
 	else
-		弹出顺时消息("Title","取消置顶","-500", "w120")
+		弹出顺时消息("","取消置顶","-500", "w120")
 }
 
 toggle_f1(){
@@ -250,9 +423,9 @@ toggle_f1(){
 	else
 		edgeld := !edgeld
 	if edgeld
-		弹出顺时消息("Title","连点!!","-500", "w120")
+		弹出顺时消息("","连点!!","-500", "w120")
 	else
-		弹出顺时消息("Title","取消连点","-500", "w120")
+		弹出顺时消息("","取消连点","-500", "w120")
 }
 
 edege_f1(){
@@ -260,16 +433,19 @@ edege_f1(){
 	if edgeld
 		连点()
 	else	
+	{
+		; 调大edge“书签管理器”的字体
 		Send {F12}
 		WinGetTitle,WndTitle
 		TStart := SubStr(WndTitle, 1, 9)
 		IfEqual TStart, Favorites
 		{
-			NewStr := StrReplace(WndTitle, "Favorites", "Favorite")
+			;NewStr := StrReplace(WndTitle, "Favorites", "Favorite")
 			;弹出顺时消息("",NewStr,"-500", "w520")
- 			WinSetTitle,%NewStr%
+ 			;WinSetTitle,%NewStr%
+			S := clipboard
 			clipboard := ""
-			clipboard := "var sty=document.createElement('style');sty.innerText='.card_clickable_title{font-size:15px!important;font-weight:unset!important;white-space:unset!important;max-height: 32px;position:absolute; background:#3b3b3b!important;width:80%!important;}';document.head.append(sty);"
+			clipboard := "var d=document, sty=d.createElement('style'); if(d.title!='Favorite') { d.title='Favorite'; sty.innerText='.card_clickable_title{font-size:15px!important;font-weight:unset!important;white-space:unset!important;max-height: 32px;position:absolute; background:#3b3b3b!important;width:80%!important;}'; d.head.append(sty); }"
 			ClipWait
 			S := clipboard
 			Sleep 750 ; 等待dev侧栏弹出
@@ -279,17 +455,36 @@ edege_f1(){
 			Send {Enter}
 			Sleep 150 ; 等待执行
 			Send {F12}
+			clipboard := S
 		}
+	}
 
 }
+
+#IfWinActive ahk_exe PowerToys.PowerLauncher.exe
+F1::
+	Send {Enter}
+return
 
 #IfWinActive ahk_exe Code.exe
 ;!Enter::  
 ;	toggle_置顶()
 ;return
+F1::
+	WinGetTitle,Title
+	TStart := SubStr(Title, 1, 10)
+	IfEqual TStart, vscode.ahk
+	{
+		Reload
+	}
+	else {
+		Suspend On
+		Send {F1}
+		Suspend Off
+	}
+return
 ~MButton up::
 MouseGetPos, xpos, ypos
-
 if (ypos >= 87) {
     SendInput,{Click}{F12}
 	;Send ^{Click}
@@ -299,7 +494,6 @@ return
 #IfWinActive ahk_exe devenv.exe
 ~MButton::
 MouseGetPos, xpos, ypos
-
 if (ypos >= 200) {
     SendInput,{Click}{F12}
 }
@@ -308,8 +502,6 @@ return
 ~F1::
 Send ^{r}
 Send ^{r}
-
-
 return
 
 
@@ -369,38 +561,45 @@ ld_run()
 }
 
 
-执行复制()
+执行复制(ret=0)
 {
+	S := 
 	IfWinActive, ahk_exe IDMan.exe
 	{
 		MouseClick, right
 		Send, a
 		MouseClick, right
-		return
 	}
-	; ClipTemp := ClipboardAll
-	; Clipboard :=
+	else
 	IfWinActive, ahk_exe PotPlayerMini64.exe
 	{
-		S := 
 		WinGetTitle,S
-		Clipboard := S
-		弹出顺时消息("Title",Clipboard,"-500")
+		clipboard := ""
+		clipboard := S
+		ClipWait
+		弹出顺时消息("",Clipboard,"-500", "w450")
 	} else {
+		clipboard := ""
 		Send, ^c
+		ClipWait
 		IfWinActive, ahk_exe explorer.exe
 		{
-			ClipWait ;, 0.5
-			S := Clipboard
+			S := clipboard
 			SplitPath,S,,,,S
-			Clipboard := S
-			ClipWait ;, 0.25
-			Clipboard := S
-			弹出顺时消息("Title",Clipboard,"-500")
-			;MsgBox % "取得无后缀文件名 ： " . S
-			return
+			StringGetPos, idx, S, - _streamNo
+			if (idx >= 0) {
+				S := SubStr(S, 1, idx)
+			}
+			if(ret) {
+				clipboard := ""
+				clipboard := S
+				ClipWait
+				弹出顺时消息("",clipboard,"-500", "w550")
+				;MsgBox % "取得无后缀文件名 ： " . S
+			}
 		}
 	}
+	return S
 }
 
 
@@ -416,7 +615,8 @@ Progress, %Width% b1 zh0 fs18, %Message%,,%Title%,
 
 #IfWinActive ahk_exe PotPlayerMini64.exe
 F1::  
-	toggle_置顶()
+	;toggle_置顶()
+	执行复制()
 return
 
 #IfWinActive ahk_exe QtScrcpy.exe
@@ -427,9 +627,18 @@ F1::
 	WinGet, val, Transparent
 	if(val>=255 || val==blank) {
 		WinSet, Transparent, 135
-		;弹出顺时消息("Title","半透明","-500", "w120")
+		;弹出顺时消息("","半","-500", "w120")
 	} else {
 		WinSet, Transparent, Off
-		;弹出顺时消息("Title","不透明","-500", "w120")
+		;弹出顺时消息("","不","-500", "w120")
 	}
 return
+
+HasVal(haystack, needle) {
+	if !(IsObject(haystack)) || (haystack.Length() = 0)
+		return 0
+	for index, value in haystack
+		if (value = needle)
+			return index
+	return 0
+}
