@@ -3167,12 +3167,8 @@ function initSortable(doc, win){
             this[fn] = this[fn].bind(this);
           }
         }
-
-        on(d, 'keydown', this._checkKeyDown);
-        on(d, 'keyup', this._checkKeyUp);
         this.defaults = {
           selectedClass: 'sortable-selected',
-          multiDragKey: null,
           setData: function setData(dataTransfer, dragEl) {
             //debug('setData');
             var data = '';
@@ -3191,7 +3187,6 @@ function initSortable(doc, win){
       }
 
       MultiDrag.prototype = {
-        multiDragKeyDown: false,
         isMultiDrag: false,
         delayStartGlobal: function delayStartGlobal(_ref) {
           var dragged = _ref.dragEl;
@@ -3461,9 +3456,8 @@ function initSortable(doc, win){
           if (!dragStarted) {
             funs.click(); // onItemClicked(onDownTarget )
               
-            if (options.multiDragKey && !this.multiDragKeyDown) {
-              this._deselectMultiDrag();
-            }
+            //multiDragKey... this._deselectMultiDrag();
+            
             options.funs.trace();
             toggleClass(dragEl$1, options.selectedClass, !~w.multiDragElements.indexOf(dragEl$1));
             //debug('Multi-drag drop...');
@@ -3611,8 +3605,6 @@ function initSortable(doc, win){
           //off(document, 'pointerup', this._deselectMultiDrag);
           //off(document, 'mouseup', this._deselectMultiDrag);
           //off(document, 'touchend', this._deselectMultiDrag);
-          off(d, 'keydown', this._checkKeyDown);
-          off(d, 'keyup', this._checkKeyUp);
         },
         _deselectMultiDrag: function _deselectMultiDrag(evt) {
           //debug('是谁？'); this.options.funs.trace();
@@ -3635,16 +3627,6 @@ function initSortable(doc, win){
               targetEl: el,
               originalEvt: evt
             });
-          }
-        },
-        _checkKeyDown: function _checkKeyDown(evt) {
-          if (evt.key === this.options.multiDragKey) {
-            this.multiDragKeyDown = true;
-          }
-        },
-        _checkKeyUp: function _checkKeyUp(evt) {
-          if (evt.key === this.options.multiDragKey) {
-            this.multiDragKeyDown = false;
           }
         }
       };
@@ -3714,19 +3696,6 @@ function initSortable(doc, win){
             oldIndicies: oldIndicies,
             newIndicies: newIndicies
           };
-        },
-        optionListeners: {
-          multiDragKey: function multiDragKey(key) {
-            key = key.toLowerCase();
-
-            if (key === 'ctrl') {
-              key = 'Control';
-            } else if (key.length > 1) {
-              key = key.charAt(0).toUpperCase() + key.substr(1);
-            }
-
-            return key;
-          }
         }
       });
     }
