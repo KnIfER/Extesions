@@ -193,7 +193,8 @@ function initGridTab(win, docu, host){
 				w.multiDragElements = mainDragEls;
 			}
 			, trace : function() { // printCallStack
-				throw 1;
+				//try{throw 1;}catch(e){console.log(e)}
+				console.log('trace'+new Error().stack)  ;
 			}
 			, click : onItemClicked 
 		};
@@ -214,7 +215,7 @@ function initGridTab(win, docu, host){
 		var readMode=0;
 		app.addEventListener('click', function(e){
 			e = e.target;
-			debug('click', e);
+			//debug('click', e);
 			if(e===grido||e===foldo||e===app) {
 				ActiveGrid.multiDrag._deselectMultiDrag();
 			} else  if(readMode||e.classList.contains('fnam')){
@@ -327,20 +328,10 @@ function initGridTab(win, docu, host){
 			},
 			onEnd: function (evt) {
 				draggingFolder = null;
-				//debug(onEnd);
-				
-				 //undo the move in html
-				 var tagName = evt.item.tagName;
-				 var items = evt.from.getElementsByTagName(tagName);
-				 if (evt.oldIndex > evt.newIndex) {
-					 evt.from.insertBefore(evt.item, items[evt.oldIndex+1]);
-				 }
-				 else {
-					 evt.from.insertBefore(evt.item, items[evt.oldIndex]);
-				 }
+				//debug('onEnd');
 			},
 			onMove(evt) {
-				debug('onMove', evt);
+				//debug('onMove', evt);
 				//https://github.com/SortableJS/Sortable/issues/1615#issuecomment-529704348
 				if ((evt.related.f_||evt.originalEvent.shiftKey) && evt.related !== overFolder) {
 					debug('starting timeout')
@@ -357,7 +348,7 @@ function initGridTab(win, docu, host){
 				}
 
 				if (evt.related === overFolder && !swapWithFolder) {
-				return false;
+					return false;
 				}
 			}
 		});

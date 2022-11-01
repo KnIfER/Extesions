@@ -7,6 +7,7 @@
 function initSortable(doc, win){
   var d=doc, w=win;
   var multiAnimaTheta=300;
+  var debug = function(a,b,c,d,e){var t=[a,b,c,d,e];for(var i=5;i>=0;i--){if(t[i]===undefined)t[i]='';else break}w.console.log("%c SORTJS ","color:#333!important;background:#0FF;",t[0],t[1],t[2],t[3],t[4])};
   (function (global, factory) {
     typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
     typeof define === 'function' && define.amd ? define(factory) :
@@ -1596,7 +1597,7 @@ function initSortable(doc, win){
 
           var target = d.elementFromPoint(touchEvt.clientX, touchEvt.clientY);
           var parent = target;
-          //console.log('_emulateDragOver', parent, ghostEl);
+          //debug('_emulateDragOver', parent, ghostEl);
           if(parent && parent.id==='drawer') {
               _unhideGhostForTarget();
               //dragEl.style.visibility='visible';
@@ -1837,7 +1838,7 @@ function initSortable(doc, win){
             _this = this,
             completedFired = false;
 
-        //console.log('onDragOver', evt.target);
+        //debug('onDragOver', evt.target);
         if (_silent) return;
           funs.thatwayed=0;
         function dragOverEvent(name, extra) {
@@ -1875,7 +1876,7 @@ function initSortable(doc, win){
             if(!funs.thatwayed) {
               funs.nullHovering()
             }
-            //console.log('completed', insertion);
+            //debug('completed', insertion);
           dragOverEvent('dragOverCompleted', {
             insertion: insertion
           });
@@ -1952,7 +1953,7 @@ function initSortable(doc, win){
           evt.cancelable && evt.preventDefault();
         }
 
-  //console.log(options.draggable);//
+  //debug(options.draggable);//
         target = closest(target, options.draggable, el, true);
         dragOverEvent('dragOver');
         if (Sortable.eventCanceled) return completedFired;
@@ -1999,7 +2000,7 @@ function initSortable(doc, win){
           var elLastChild = lastChild(el, options.draggable);
 
           if (!elLastChild || _ghostIsLast(evt, vertical, this) && !elLastChild.animated) {
-              //console.log("this way", target, dragEl, target.hovable, new Date().getTime());
+              //debug("this way", target, dragEl, target.hovable, new Date().getTime());
             // If already at end of list: Do not insert
             if (elLastChild === dragEl) {
               return completed(false);
@@ -2023,7 +2024,7 @@ function initSortable(doc, win){
               return completed(true);
             }
           } else if (target.parentNode === el) {
-              //console.log("that way", target, dragEl, target.hovable, new Date().getTime());
+              //debug("that way", target, dragEl, target.hovable, new Date().getTime());
               funs.thatwayed=true;
               if(options.root && target.hovable && target!=dragEl) {
                 var ret=funs.hover(target);
@@ -2071,7 +2072,7 @@ function initSortable(doc, win){
             var moveVector = _onMove(rootEl, el, dragEl, dragRect, target, targetRect, evt, after);
 
             if (moveVector !== false) {
-                //console.log("that way moved!", target, new Date().getTime());
+                //debug("that way moved!", target, new Date().getTime());
                 funs.nullHovering();
               if (moveVector === 1 || moveVector === -1) {
                 after = moveVector === 1;
@@ -2133,22 +2134,22 @@ function initSortable(doc, win){
       evt) {
         var el = this.el,
             options = this.options; // Get the index of the dragged element within its parent
-            //console.log('ondrop', window.FoverTarget, window.FoverTargetComitted);
+            //debug('ondrop', window.FoverTarget, window.FoverTargetComitted);
             var funs=options.funs, postDrop=funs.foved();
             var isMultiDragisMultiDrag=this.multiDrag.isMultiDrag;
           if(funs.hoved()) {
               var toAppend=[];
               if (isMultiDragisMultiDrag && w.multiDragElements.length) {
-                  //console.log(111);
+                  //debug(111);
                   w.multiDragElements.forEach(function (mdI, i) {
                       toAppend.push(mdI.data)
                   });
                   w.multiDragElements.splice(0, w.multiDragElements.length);
               } else {
-                  //console.log(222, dragEl.data);
+                  //debug(222, dragEl.data);
                   toAppend.push(dragEl.data)
               }
-              //console.log(toAppend);
+              //debug(toAppend);
               dragEl && dragEl.parentNode && dragEl.parentNode.removeChild(dragEl);
               funs.hoved(toAppend);
               //this._nulling();
@@ -2236,7 +2237,7 @@ function initSortable(doc, win){
 
   if(0)
             if (rootEl !== parentEl) {
-                console.log('你为何离去');
+                debug('你为何离去');
               if (newIndex >= 0) {
                 // Add event
                 _dispatchEvent({
@@ -2526,7 +2527,7 @@ function initSortable(doc, win){
           onMoveFn = sortable.options.onMove,
           retVal; // Support for new CustomEvent feature
       if(!w.disani && fromEl!=toEl) {
-          //console.log('不要离去', fromEl, toEl);
+          //debug('不要离去', fromEl, toEl);
           w.disani = fromEl.childElementCount>multiAnimaTheta||toEl.childElementCount>multiAnimaTheta;
       }
       if (w.CustomEvent && !IE11OrLess && !Edge) {
@@ -3173,7 +3174,7 @@ function initSortable(doc, win){
           selectedClass: 'sortable-selected',
           multiDragKey: null,
           setData: function setData(dataTransfer, dragEl) {
-            //console.log('setData');
+            //debug('setData');
             var data = '';
 
             if (w.multiDragElements.length && multiDragSortable === sortable) {
@@ -3270,7 +3271,8 @@ function initSortable(doc, win){
             //multiDragSortable.multiDrag._deselectMultiDrag();
           }
 
-          if(1) { //排序有啥子用哟？
+          if(1) { 
+              //debug('排序有啥子用哟？')
               w.multiDragElements.forEach(function (multiDragElement) {
                 multiDragElement.sortableIndex = index(multiDragElement);
               }); // Sort multi-drag elements
@@ -3283,13 +3285,16 @@ function initSortable(doc, win){
         },
         dragStarted: function dragStarted(_ref7) {
           var _this2 = this;
-          if(!w.dd)
-          w.dd=w.multiDragElements;
-          console.log('dragStarted same list?', w.dd===w.multiDragElements);
-          var sortable = _ref7.sortable;
-          if (!this.isMultiDrag) return;
+          if (!_this2.isMultiDrag) {
+            if(folding) // bug!!! 恒真则多选假移紊乱，大谬！
+              folding = initialFolding = 0;
+            return;
+          }
+          if(!w.dd) w.dd=w.multiDragElements;
+          var sortable=_ref7.sortable;
+          debug('dragStarted same list?', w.dd===w.multiDragElements);
 
-          if (this.options.sort) {
+          if (_this2.options.sort) {
             // Capture rects,
             // hide multi drag elements (by positioning them absolute),
             // set multi drag elements rects to dragRect,
@@ -3298,16 +3303,15 @@ function initSortable(doc, win){
             // unset rects & remove from DOM
             sortable.captureAnimationState();
 
-
-            if (rootEl.childElementCount<multiAnimaTheta && this.options.animation) {
+            if (rootEl.childElementCount<multiAnimaTheta && _this2.options.animation) {
               var dragRect = getRect(dragEl$1, false, true, true);
               w.multiDragElements.forEach(function (multiDragElement) {
                 if (multiDragElement === dragEl$1) return;
                 css(multiDragElement, 'position', 'absolute');
                 setRect(multiDragElement, dragRect);
               });
-              folding = true;
-              initialFolding = true;
+              folding = 1;
+              initialFolding = 1;
             }
           }
 
@@ -3338,6 +3342,7 @@ function initSortable(doc, win){
           }
         },
         revert: function revert(_ref9) {
+          debug('revert')
           var fromSortable = _ref9.fromSortable,
               rootEl = _ref9.rootEl,
               sortable = _ref9.sortable,
@@ -3359,6 +3364,7 @@ function initSortable(doc, win){
           }
         },
         dragOverCompleted: function dragOverCompleted(_ref10) {
+          //debug('dragOverCompleted')
           var sortable = _ref10.sortable,
               isOwner = _ref10.isOwner,
               insertion = _ref10.insertion,
@@ -3439,6 +3445,7 @@ function initSortable(doc, win){
           }
         },
         drop: function drop(_ref12) {
+          debug('drop')
           var evt = _ref12.originalEvent,
               rootEl = _ref12.rootEl,
               parentEl = _ref12.parentEl,
@@ -3457,9 +3464,9 @@ function initSortable(doc, win){
             if (options.multiDragKey && !this.multiDragKeyDown) {
               this._deselectMultiDrag();
             }
-
+            options.funs.trace();
             toggleClass(dragEl$1, options.selectedClass, !~w.multiDragElements.indexOf(dragEl$1));
-            //console.log('Multi-drag drop...');
+            //debug('Multi-drag drop...');
             //if(0)
             if (!~w.multiDragElements.indexOf(dragEl$1)) {
               w.multiDragElements.push(dragEl$1);
@@ -3608,7 +3615,7 @@ function initSortable(doc, win){
           off(d, 'keyup', this._checkKeyUp);
         },
         _deselectMultiDrag: function _deselectMultiDrag(evt) {
-          //console.log('是谁？'); this.options.funs.trace();
+          //debug('是谁？'); this.options.funs.trace();
           if (typeof dragStarted !== "undefined" && dragStarted) return; // Only deselect if selection is in this sortable
 
           if (multiDragSortable !== this.sortable) return; // Only deselect if target is not item in this sortable
