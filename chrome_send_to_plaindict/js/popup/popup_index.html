@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no">
+	
+    <link rel="stylesheet" href="css/popup_index.css">
+    <link rel="stylesheet" href="css/checkbox.css">
+    <title data-i18n="optTitle">Plain Search</title>
+	<style>
+		body{   
+			font-size: 100%;
+			margin:0;
+			height: 100%;
+			width: 100%;
+			min-width:450px;
+			min-height:380px;
+		}
+		#tabs{
+			height:100%;
+			width: 100%;
+			position:absolute;
+			display:table;
+		}
+		.tablist{
+			display:table-row;
+		    background: #fbfbfb;
+			margin: 0;
+			padding: 0.2em 0.2em 0;
+			border: 1px solid #ddd;
+			color: #222;
+			border-radius: 4px 4px 4px 4px;    
+			max-height: 4em;
+    		overflow-y: scroll;
+		}
+		.tablist:before, .tablist:after {
+			content: "";
+			display: table;
+			border-collapse: collapse;
+			clear: both;
+		}
+		.tab {
+		    list-style: none;
+			float: left;
+			position: relative;
+			top: 0;
+			margin: 1px 0.2em 0 0;
+			padding: 0;
+			white-space: nowrap;
+			
+			border: 1px solid #d3d3d3;
+			
+			border-radius: 4px 4px 0 0;
+			border-bottom-width: 0;
+			padding: 0.5em 1em;
+		    background-color: #FFF;
+			color: rgb(0, 90, 165);
+			
+			user-select: none;
+		}
+		#tabo{
+    		position: relative;
+			display:table-cell;
+			height:100%;
+			width: 100%;
+		}
+		#tabos{
+			position: absolute;
+			width: 100%;
+			height: 100%;
+		}
+	</style>
+</head>
+
+<body>
+	<div id="tabs" class="" >
+		<ul class="tablist">
+			<li class="tab" tabindex="-1" id='tabNew'>
+				<span>+</span>
+			</li>
+		</ul>
+		
+		<div id='tabo'> <div id='tabos'></div> </div>
+		
+	</div>
+    <script src="popup_index.js"></script>
+</body>
+
+
+</html>
