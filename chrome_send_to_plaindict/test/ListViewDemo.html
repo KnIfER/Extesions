@@ -1,0 +1,255 @@
+<body>
+    <div id="listView" style="height:100%; background:#00ff335f; overflow:scroll;">
+    </div>
+
+
+    <script>
+		var doc=document,w=window;
+		var listView = doc.getElementById('listView');
+        
+		var pageSz = 30; var minRowHeight=1.5;
+        var blockSz = pageSz*10; // 每 pageSz * 10 = 一区块， 是列表重组的单位
+		var debug = console.log;
+        function craft(t, p, c) {
+            t = doc.createElement(t);
+            if(c)t.className=c;
+            if(p)p.appendChild(t);
+            return t;
+        }
+        function setVisible(e,v) {
+            e.style.display = v?'block':'none';
+        }
+        var topRow, minBlockHeight, minRowPageHeight;
+        
+        function initBlock(p, pagePosition) {
+            if(!p.init) {
+                p.init = 1;
+                for(var i=0;i<10;i++) {
+                    var rp = craft('DIV', p, 'page');
+                    rp.style.height=(minRowHeight*pageSz)+'em';
+                }
+            }
+        }
+
+        function initRowPage(p) {
+            if(!p.init) {
+                p.init = 1;
+                p.hide = 0;
+                p.style.height='auto';
+                for(var i=0;i<pageSz;i++) 
+                {
+                    var row = makeItem(p);
+                }
+            }
+        }
+
+		function makeItem(rowPage){
+			var rowItem = craft('DIV', rowPage, 'item');
+			rowItem.style.minHeight=minRowHeight+'em';
+			//rowItem.innerText = ''+position;
+			return rowItem;
+		}
+        
+        var tmp = makeItem(listView);
+        var minRowHeightPx = tmp.offsetHeight;
+        tmp.remove();
+		
+		var itemCount = 1000;
+        var maxRowDet = 0;
+        var rpA, rpB;
+        
+        function reset(total, percent) {
+            itemCount = total;
+            var blocks = [];
+            listView.onscroll = 0;
+            listView.innerHTML='';
+            listView.scrollTop = 0;
+            topRow = maxRowDet = rpA = rpB = 0;
+            for(var i=0;i<3;i++) {
+                var block = craft('DIV', listView, 'block');
+                initBlock(block);
+                blocks.push(block);
+                if(blockSz*i >= total) {
+                    setVisible(block,0);
+                }
+                else if(blockSz*(i+1) >= total) {
+                    block.size = total-blockSz*i;
+                    for(var j=0;j<10;j++) {
+                        setVisible(block.children[j], j*pageSz<block.size);
+                    }
+                }
+                else block.size = blockSz;
+                maxRowDet += block.size;
+            }
+            minBlockHeight = blocks[0].offsetHeight;
+            minRowPageHeight = minBlockHeight/10;
+            
+            blocks[0].style.background='#ff00d4f8'
+            blocks[1].style.background='#00ff335f'
+            blocks[2].style.background='#00f7fff8'
+            
+            if(percent > 0) {
+                if(percent>1) percent=0.99;
+                var pos = total*percent;
+                percent = 0;
+                var d = pos;
+                if(pos>3*blockSz) {
+                    d = blockSz;
+                    topRow = parseInt(pos/d)*d;
+                    d = pos - topRow;
+                    maxRowDet = topRow+blockSz*3;
+                }
+                percent = d * minRowHeightPx;
+                debug('percent', topRow, d, percent)
+            }
+            lstScroll();
+            listView.onscroll = lstScroll;
+            
+            if(topRow || percent) {
+                listView.scrollTop += percent;
+                rpA = rpB = 0;
+                lstScroll();
+            }
+        }
+        
+        reset(1000000000);
+
+		function lstScroll(e) {
+            //debug(e);
+            var y=listView.scrollTop;
+            if(itemCount>maxRowDet &&  y>= listView.scrollHeight*0.9) {
+                debug('底部！')
+				var p0=listView.children[0];
+				//p0.remove();
+				listView.append(p0);
+                topRow += p0.size;
+                var size = Math.min(blockSz, itemCount-maxRowDet);
+                maxRowDet += size;
+                if(p0.size!==size) {
+                    p0.size=size;
+                    for(var i=0;i<10;i++) {
+                        setVisible(p0.children[i],i*pageSz<size);
+                    }
+                }
+                repage();
+            }
+            else if(topRow>0 && y <= listView.clientHeight*0.2) {
+                debug('顶部111！')
+				var p0=listView.children[2];
+				//p0.remove();
+                maxRowDet -= p0.size||0;
+				listView.insertBefore(p0, listView.children[0]);
+                var size = Math.min(blockSz, topRow);
+                topRow -= size;
+                if(p0.size!==size) {
+                    p0.size=size;
+                    for(var i=0;i<10;i++) {
+                        var page = p0.children[i],v=i*pageSz<size;
+                        setVisible(page,v);
+                        if(v) {
+                            if(page.hide) {
+                                for(var j=0;j<pageSz;j++) 
+                                    setVisible(page.children[j],1);
+                                page.hide=0;
+                            }
+                        }
+                    }
+                }
+                var h=p0.offsetHeight;
+                //listView.onscroll = 0;
+                listView.scrollTop = h+y;
+                //listView.onscroll = lstScroll;
+                //repage();
+            }
+            else if(!rpA || y<rpA.offsetTop
+                || rpB && y+listView.offsetHeight>rpB.offsetTop+rpB.offsetHeight) {
+                repage();
+            }
+        }
+        
+        listView.onscroll = lstScroll;
+        
+        addEventListener('resize', function(e){
+            if(listView.onscroll)
+                listView.onscroll(e)
+        });
+
+        function getNextPage(n, e) {
+            var a = n.nextElementSibling;
+            if (a) {
+                if(a.style.display=='none')
+                    return getNextPage(a, e);
+                return a;
+            }
+            var bk = n.parentNode.nextElementSibling;
+            n = bk && bk.firstElementChild;
+            if(n && n.style.display=='none')
+                n = 0;
+            return n;
+        }
+
+        function repage() {
+            var bk,pos = 0;
+            var y=listView.scrollTop, y1=y+listView.offsetHeight;
+            var findSt=1,findEd=1;
+            for(var i=0;i<3;i++) {
+                bk = listView.children[i];
+                if(bk.offsetTop+bk.offsetHeight>y) {
+                    pos = i;
+                    break;
+                }
+            }
+            debug('repage', pos)
+            var minSt = pageSz - (bk.offsetTop+bk.offsetHeight-y)/minRowHeight;
+            if(minSt<0) minSt=0;
+            minSt=0;
+            pos = topRow + pos*blockSz + minSt;
+            var page = bk.children[minSt];
+            rpA=rpB=0;
+            var height=0,pageCnt=1;
+            while(page) {
+                if(!rpA) {
+                    //debug('finding...', page, off);
+                    if(page.offsetTop+page.offsetHeight > y) {
+                        height=page.offsetTop;
+                        rpA = page;
+                        debug('rpA', minSt)
+                    }
+                }
+                if(rpA) {
+                    bindRowPage(page, pos);
+                    height += Math.min(minRowPageHeight, page.offsetHeight);
+                    if(height>y1) {
+                        rpB = page;
+                        break;
+                    }
+                    pageCnt++;
+                }
+                pos+=pageSz;
+                page = getNextPage(page);
+                minSt++;
+            }
+        }
+        
+        function bindRowPage(page, pos) {
+            initRowPage(page);
+            debug('bindRowPage', pos);
+            page.hide=0;
+            for(var i=0;i<pageSz;i++) 
+            {
+                var row = page.children[i];
+                if(pos>=itemCount) {
+                    setVisible(row,0);
+                    page.hide = 1;
+                } else {
+                    setVisible(row,1);
+                    row.innerText=pos+'';
+                }
+                pos++
+            }
+        }
+		
+		
+    </script>
+    
+</body>

@@ -1,0 +1,247 @@
+<body>
+    <div id="listView" style="height:100%; background:#00ff335f; overflow:scroll;">
+    </div>
+
+
+    <script>
+        var debug = console.log;
+        function craft(t, p, c) {
+            t = document.createElement(t);
+            if(c)t.className=c;
+            if(p)p.appendChild(t);
+            return t;
+        }
+        function setVisible(e,v) {
+            e.style.display = v?'block':'none';
+        }
+        function initBlock(p, minPageHeight, blockPg) {
+            p.init = 1;
+            for(var i=0;i<blockPg;i++) {
+                var rp = craft('DIV', p, 'page');
+                rp.style.height=minPageHeight+'em';
+            }
+        }
+        function initRowPage(p, pageSz, minRowHeight) {
+            p.init = 1;
+            p.hide = 0;
+            p.style.height='auto';
+            for(var i=0;i<pageSz;i++) 
+                makeItem(p, minRowHeight);
+        }
+        function makeItem(rowPage, minRowHeight){
+            var rowItem = craft('DIV', rowPage, 'item');
+            rowItem.style.minHeight=minRowHeight+'em';
+            return rowItem;
+        }
+        function getNextPage(n, e) {
+            var a = n.nextElementSibling;
+            if (a) {
+                if(a.style.display=='none')
+                    return getNextPage(a, e);
+                return a;
+            }
+            var bk = n.parentNode.nextElementSibling;
+            return bk && bk.firstElementChild;
+        }
+        function debug_tint(blocks) {
+            blocks[0].style.background='#ff00d4f8'
+            blocks[1].style.background='#00ff335f'
+            blocks[2].style.background='#00f7fff8'
+        }
+        
+        function initListView(el, adapter, minHeight) {
+            minHeight||=1.5;
+            (function(e){
+		        var el=e, ada=adapter;
+                // 1区块 == 10页面 == 300行
+                var pageSz = 30, blockPg=10, blockSz = pageSz*blockPg; 
+                var minRowHeight=minHeight, minPageHeight, minBlockHeight, minRowHeightPx;
+                var topRow, maxRowDet, rpA, rpB;
+                el.reset=function(adapter, percent) {
+                    if(adapter!==undefined) {
+                        ada = adapter;
+                        if(typeof adapter==='number'){
+                            ada = {
+                                size : adapter
+                                ,bifun: function(lst,row,pos){
+                                    row.innerText=pos+'';
+                                }
+                            }
+                        } 
+                    }
+                    var tmp = makeItem(el, minRowHeight);
+                    minRowHeightPx = tmp.offsetHeight;
+                    tmp.remove();
+                    var total = ada.size;
+                    var blocks = [];
+                    el.onscroll = 0;
+                    el.innerHTML='';
+                    el.scrollTop = 0;
+                    topRow = maxRowDet = rpA = rpB = 0;
+                    minPageHeight = minRowHeight*pageSz;
+                    for(var i=0;i<3;i++) {
+                        var block = craft('DIV', el, 'block');
+                        initBlock(block, minPageHeight, blockPg);
+                        blocks.push(block);
+                        var tmp=blockSz*i;
+                        //debug('init...', tmp, tmp+blockSz, total)
+                        if(tmp >= total) {
+                            setVisible(block,0);
+                        }
+                        else if(tmp+blockSz >= total) {
+                            block.size = total-blockSz*i;
+                            for(var j=0;j<blockPg;j++) {
+                                setVisible(block.children[j], j*pageSz<block.size);
+                            }
+                        }
+                        else block.size = blockSz;
+                        maxRowDet += block.size;
+                    }
+                    minBlockHeight = blocks[0].offsetHeight;
+                    minPageHeight = minBlockHeight/blockPg;
+                    debug_tint(blocks);
+                    
+                    if(percent > 0) {
+                        if(percent>1) percent=0.99;
+                        var pos = total*percent;
+                        percent = 0;
+                        var d = pos;
+                        if(pos>3*blockSz) {
+                            d = blockSz;
+                            topRow = parseInt(pos/d)*d;
+                            d = pos - topRow;
+                            maxRowDet = topRow+blockSz*3;
+                        }
+                        percent = d * minRowHeightPx;
+                        debug('percent', topRow, d, percent)
+                    }
+                    lstScroll();
+                    el.onscroll = lstScroll;
+                    if(topRow || percent) {
+                        el.scrollTop += percent;
+                        rpA = rpB = 0;
+                        lstScroll();
+                    }
+                }
+                function resizePage(p0, sz, rv) {
+                    if(rv) topRow-=sz;
+                    else maxRowDet+=sz;
+                    if(p0.size!==sz) {
+                        p0.size=sz;
+                        for(var i=0;i<blockPg;i++) {
+                            var page = p0.children[i],v=i*pageSz<sz;
+                            setVisible(page,v);
+                            if(rv && v && page.hide) {
+                                for(var j=0;j<pageSz;j++) 
+                                    setVisible(page.children[j],1);
+                                page.hide=0;
+                            }
+                        }
+                    }
+                }
+                function lstScroll(e) {
+                    //debug(e);
+                    var y=el.scrollTop;
+                    if(ada.size>maxRowDet &&  y>= el.scrollHeight*0.9) {
+                        var p0=el.children[0];
+                        el.append(p0);
+                        topRow += p0.size;
+                        resizePage(p0, Math.min(blockSz, ada.size-maxRowDet))
+                    }
+                    else if(topRow>0 && y <= el.clientHeight*0.2) {
+                        var p0=el.children[2];
+                        maxRowDet -= p0.size||0;
+                        el.insertBefore(p0, el.children[0]);
+                        var size = Math.min(blockSz, topRow);
+                        resizePage(p0, size, 1)
+                        el.scrollTop = p0.offsetHeight+y;
+                    }
+                    if(!rpA || y<rpA.offsetTop
+                        || rpB && y+el.offsetHeight>rpB.offsetTop+rpB.offsetHeight) {
+                        repage();
+                    }
+                }
+                el.onscroll = lstScroll;
+                addEventListener('resize', function(e){
+                    if(el.onscroll)
+                        el.onscroll(e)
+                });
+                function repage() {
+                    var bk,pos = 0;
+                    var y=el.scrollTop, y1=y+el.offsetHeight;
+                    var findSt=1,findEd=1;
+                    for(var i=0;i<3;i++) {
+                        bk = el.children[i];
+                        if(bk.offsetTop+bk.offsetHeight>y) {
+                            pos = i;
+                            break;
+                        }
+                    }
+                    debug('repage', pos)
+                    var minSt = pageSz - (bk.offsetTop+bk.offsetHeight-y)/minRowHeight;
+                    if(minSt<0) minSt=0;
+                    minSt=0;
+                    pos = topRow + pos*blockSz + minSt;
+                    var page = bk.children[minSt];
+                    rpA=rpB=0;
+                    var height=0;
+                    var ended=0;
+                    while(page) {
+                        if(page.style.display=='none')
+                            break;
+                        if(!rpA) {
+                            //debug('finding...', page, off);
+                            if(page.offsetTop+page.offsetHeight > y) {
+                                height=page.offsetTop;
+                                rpA = page;
+                                debug('rpA', minSt)
+                            }
+                        }
+                        if(rpA) {
+                            if(ended) {
+                                setVisible(page, 0)
+                                page.parentNode.size -= pageSz;
+                            } else {
+                                ended|=bindRowPage(page, pos);
+                                debug('rpB', height+' > '+y1)
+                                height += Math.min(minPageHeight, page.offsetHeight);
+                                if(height>y1) {
+                                    rpB = page;
+                                    break;
+                                }
+                            }
+                        }
+                        pos+=pageSz;
+                        page = getNextPage(page);
+                        minSt++;
+                    }
+                }
+                function bindRowPage(page, pos) {
+                    if(!page.init)
+                        initRowPage(page, pageSz, minRowHeight);
+                    debug('bindRowPage', pos);
+                    page.hide=0;
+                    for(var i=0;i<pageSz;i++) 
+                    {
+                        var row = page.children[i];
+                        if(pos>=ada.size) {
+                            setVisible(row,0);
+                            page.hide = 1;
+                        } else {
+                            setVisible(row,1);
+                            ada.bifun(el, row, pos);
+                        }
+                        pos++
+                    }
+                    return page.hide;
+                }
+            })(el)
+        }
+		
+		var listView = document.getElementById('listView');
+		initListView(listView);
+        listView.reset(1000);
+        
+    </script>
+    
+</body>

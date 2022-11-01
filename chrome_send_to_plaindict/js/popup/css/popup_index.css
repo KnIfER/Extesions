@@ -1,0 +1,91 @@
+
+.ListView{
+    height:100%;
+    width: 100%;
+    overflow-y:scroll;
+}
+body{
+    overflow: hidden;
+}
+.item-wrap {
+    overflow-wrap: anywhere;
+    align-items: center;
+    color: inherit;
+    display: flex;
+    flex-direction: row;
+    /* min-height: 30px; */
+    padding-inline-start: 15px;
+    position: relative;
+    text-decoration: none;
+    user-select: none;
+}
+.item-wrap:hover, .item-wrap.hot{
+   background-color: rgb( 32, 33, 36, .07);
+}
+.mousedown .item-wrap:not(.hot):hover {
+   background-color: unset;
+}
+.item-icon{
+    background-repeat: no-repeat;
+    height: 16px;
+    margin: 2px;
+    width: 16px;
+    flex: none;
+    margin-right: 7px;
+}
+.item-icon .img{
+    width: 100%;
+    height: 100%;
+}
+.folder-icon > .item-icon {
+    -webkit-mask-position: center;
+    -webkit-mask-repeat: no-repeat;
+    -webkit-mask-size: 20px;
+    background-color: rgb(95, 99, 104);
+}
+p.dot {
+    display:'none'
+}
+.folder-icon > p.dot {
+    display:'block';
+    width: 8px;
+    height: 8px;
+    position: absolute;
+    background: #4ba7ff;
+    left: 5px;
+    border-radius: 10px;
+}
+.item-tlv{
+    padding: 5px 5px;
+    min-height: 20px;
+    width: 100%;
+    text-decoration: none;
+    color:unset;
+}
+.item-title{
+    padding-left: 0.05em;
+    text-indent:-0.05em;
+    margin:0;
+}
+.item-subtitle{
+    padding-left: 0.5em;
+    color: gray;
+    white-space:nowrap;
+    display:none;
+    margin:0;
+}
+.UiTab{
+    position:absolute;
+    display:table;
+    width:100%;
+    height:100%;
+}
+.UiHead{
+    display:table-row;
+    width:100%;
+}
+.UITabo{
+    display:table-cell;
+    height:100%;
+    width:100%;
+}
