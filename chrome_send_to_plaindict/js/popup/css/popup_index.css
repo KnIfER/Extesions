@@ -7,6 +7,15 @@
 body{
     overflow: hidden;
 }
+.tab-now::after {
+    content: ' ';
+    position: absolute;
+    bottom: 0;
+    left: -1%;
+    width: 102%;
+    height: 5px;
+    background: rgb(255 161 0);
+}
 .item-wrap {
     overflow-wrap: anywhere;
     align-items: center;

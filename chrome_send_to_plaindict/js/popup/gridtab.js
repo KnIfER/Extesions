@@ -1,7 +1,7 @@
 function initGridTab(win, docu, host){
 	(function(){
 		var debug = console.log
-		var doc=docu, w=win, fd=doc, sty;
+		var doc=docu, w=win, fd=doc;
 		function ge(e){return fd.getElementById(e)};
 		function craft(t, p, c) {
 			t = doc.createElement(t||'DIV');
@@ -78,7 +78,6 @@ function initGridTab(win, docu, host){
 			}
 		}
 		function onDrawerClick(e) {
-			debug('onDrawerClick');
 			dissmissDrawer();
 			e.preventDefault();
 			e.stopPropagation();
@@ -98,7 +97,7 @@ function initGridTab(win, docu, host){
 				funSort.nullHovering();
 				nullFovering();
 				funSort.d = e.target; // downTarget
-				funSort.gridis = 0;//readMode||!funSort.d.classList.contains('fimg');
+				funSort.gridis = e.altKey&&e.shiftKey;//readMode||!funSort.d.classList.contains('fimg');
 				//debug('wrappedOnDownFunc', e.target, funSort.grid);
 				w.disani = hoverCommitted = foverStart = overFolder = foverComitted = 0;
 			}
@@ -197,7 +196,7 @@ function initGridTab(win, docu, host){
 				console.log('trace'+new Error().stack)  ;
 			}
 			, click : onItemClicked 
-		};
+		}, keyFun;
 
 		function SameGroup(same) {
 			FolderGrid.options.group=same?'appoug':'null';
@@ -219,7 +218,7 @@ function initGridTab(win, docu, host){
 			if(e===grido||e===foldo||e===app) {
 				ActiveGrid.multiDrag._deselectMultiDrag();
 			} else  if(readMode||e.classList.contains('fnam')){
-				onItemClicked(e);
+				//onItemClicked(e);
 			}
 		});
 
@@ -307,6 +306,7 @@ function initGridTab(win, docu, host){
 		host.onRemove=function(){
 			folderview.hidden=1;
 			w.removeEventListener('resize',wrappedResizeFunc);
+			host.save();
 			// todo 保存列表位置
 		}
 
@@ -353,21 +353,21 @@ function initGridTab(win, docu, host){
 			}
 		});
 		
-		function layoutChildren(arr, gridEl, keyFun){
-			var childs = gridEl.childNodes, ln = childs.length
-				, isFolder=gridEl==foldo;
-			for (var i = 0; i < ln; i++) {
-				gridEl.removeChild(childs[0]);
+		function layoutChildren(arr, gridEl, add, bf){
+			var isFolder=gridEl==foldo;
+			if(!add) {
+				gridEl.innerHTML='';
+				// var last;
+    			// while (last = gridEl.lastChild) 
+				// 	gridEl.removeChild(last);
 			}
 			ln = arr.length;
-			if(!keyFun) keyFun=function(e){
-				return e==0?'url':e==1?'title':'favIconUrl';
-			};
-			var keyFun=[keyFun(0), keyFun(1), keyFun(2)];
+			var kF=[keyFun(0), keyFun(1), keyFun(2)];
 			for (var i = 0; i < ln; i++) {
 				var data = arr[i];
-				var urls = data[keyFun[0]];
+				var urls = data[kF[0]];
 				var item = craft('DIV', 0, 'item-sqr')
+				item.ondblclick=host.dblclick;
 				if(isFolder) item.infolder=1;
 				var iconItem;
 				if(urls.constructor === Array) { //is folder
@@ -376,26 +376,26 @@ function initGridTab(win, docu, host){
 					item.f_=item;
 					var size = Math.min(urls.length, 4);
 					for (var j = 0; j < size; j++) {
-						var iconSmallItem = document.createElement('img');
-						iconSmallItem.className = 'fimg_'+j;
-						iconSmallItem.src = urls[j].url+'/favicon.ico';
-						iconItem.appendChild(iconSmallItem);
+						var iconSmallItem = craft('IMG', iconItem, 'fimg_'+j);
+						iconSmallItem.src = urls[j][kF[2]]||("chrome://favicon/size/48/"+urls[j][kF[0]]);
 					}
 				} else {
 					iconItem = craft('IMG', item, 'fimg')
 					//iconItem.src = urls+'/favicon.ico';
-					var favicon = data[keyFun[2]];
-					if(!favicon) favicon="chrome://favicon/size/48/"+urls+"";
-					iconItem.src = favicon;
+					iconItem.src = data[kF[2]]||("chrome://favicon/size/48/"+urls);
 				}
 				var title = craft('SPAN', item, 'fnam');
-				title.innerText=data[keyFun[1]];
+				title.innerText=data[kF[1]];
 				
 				item.iconItem=iconItem;
 				item.textItem=title;
 				item.hovable=1;
 				item.data=data;
-				gridEl.appendChild(item);
+				if(bf) {
+					gridEl.insertBefore(item, bf);
+				} else {
+					gridEl.appendChild(item);
+				}
 			}
 		}
 
@@ -431,11 +431,9 @@ function initGridTab(win, docu, host){
 			}
 			var size = Math.min(urls.length, 4);
 			for (var j = 0; j < size; j++) {
-				//console.log(urls[j]);
-				var iconSmallItem = document.createElement('img');
-				iconSmallItem.className = 'fimg_'+j;
-				iconSmallItem.src = urls[j].url+'/favicon.ico';
-				ikonItem.appendChild(iconSmallItem);
+				var data = urls[j], url=data[keyFun(0)];
+				var iconSmallItem = craft('IMG', ikonItem, 'fimg_'+j);
+				iconSmallItem.src = data[keyFun(2)]||("chrome://favicon/size/48/"+url);
 			}
 			item.textItem.innerText=iI.title;
 		}
@@ -459,31 +457,24 @@ function initGridTab(win, docu, host){
 		});
 			
 		function onItemClicked(e) {
-			//console.log('onItemClicked', e);
-			if(!e) e=funSort.d;
-			var item=e;
+			//debug('onItemClicked', e.asc);
+			//if(!e) e=funSort.d;
+			var item=funSort.d;
 			while(item && !item.classList.contains('item-sqr'))
 				item = item.parentNode
 			if(item) {
-				var showDrawer = readMode;
-				if(e==item.iconItem) { // 正主
-				}
-				else if(e==item.textItem) { // 名称
-					showDrawer = true;
-				}
-				if(showDrawer) {
+				if(!e.asc && !funSort.gridis) { // showDrawer
 					var jsonData = item.data;
 					if(jsonData&&jsonData.url) {
 						var urls = jsonData.url;
 						if(urls.constructor === Array) {
 							folderItem = item;
 							var devH = document.documentElement.clientHeight;
-							debug('openning folder...', jsonData, item);
 							var colCount = Math.max(itemCount-1, 1);
 							var rowCount = Math.ceil(urls.length/colCount);
 							var itemHeight = (itemWidth+32);
 							var rowMax = Math.floor((devH-100)/itemHeight);
-							debug(rowMax, rowCount);
+							//debug('打开文件夹...', jsonData, item, rowMax, rowCount);
 							rowCount = Math.min(rowMax, rowCount)*itemHeight;
 							
 							var currentX = item.offsetLeft+itemWidth/2+imaLeft;
@@ -499,10 +490,10 @@ function initGridTab(win, docu, host){
 							folderview.style.top = top+3+'px';
 							foldo.style.height = (rowCount)+'px';
 							
-							debug(top, min, max, 'height='+rowCount, 'devH='+devH);
+							//debug(top, min, max, 'height='+rowCount, 'devH='+devH);
 														
 							var left=32;
-							debug(111,item.offsetLeft, document.documentElement.clientWidth/2-itemWidth/2);
+							//debug(111,item.offsetLeft, document.documentElement.clientWidth/2-itemWidth/2);
 							if(item.offsetLeft>document.documentElement.clientWidth/2-itemWidth/2){
 								left=(itemWidth-left);
 							}
@@ -512,6 +503,7 @@ function initGridTab(win, docu, host){
 							folderName.innerText = jsonData.title;
 							
 							drpMask.hidden=0;
+							folderview.hidden=0;
 							folderview.classList.remove('d_hide')
 							gridview.classList.add('ovis')
 							
@@ -522,7 +514,11 @@ function initGridTab(win, docu, host){
 							w.multiDragElements = folderDragEls;
 							ActiveGrid = FolderGrid;
 							deselect = false;
+						} else {
+							host.click(e, item)
 						}
+					} else {
+						host.click(e, item)
 					}
 					//console.log(e.parentNode.data);
 				}
@@ -553,8 +549,11 @@ function initGridTab(win, docu, host){
 			//folderview.style.visibility='hidden';
 		}
 		dissmissDrawer();
-		host.layout=function(arr, keyFun) {
-			layoutChildren(arr, grido, keyFun);
+		host.layout=function(arr, kF, add, bf) {
+			if(!(keyFun=kF)) keyFun=function(e){
+				return e==0?'url':e==1?'title':'favIconUrl';
+			};
+			layoutChildren(arr, grido, add, bf);
 		}
 		host.load();
 	})()

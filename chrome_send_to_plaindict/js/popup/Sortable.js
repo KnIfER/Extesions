@@ -3440,7 +3440,6 @@ function initSortable(doc, win){
 					}
 				},
 				drop: function drop(_ref12) {
-					debug('drop')
 					var evt = _ref12.originalEvent,
 							rootEl = _ref12.rootEl,
 							parentEl = _ref12.parentEl,
@@ -3448,75 +3447,78 @@ function initSortable(doc, win){
 							dispatchSortableEvent = _ref12.dispatchSortableEvent,
 							oldIndex = _ref12.oldIndex,
 							putSortable = _ref12.putSortable;
+					// debug('Multi-drag drop...');
 					var toSortable = putSortable || this.sortable;
 					if (!evt) return;
 					var options = this.options, funs=options.funs,
 							children = parentEl.children; // Multi-drag selection
 
 					if (!dragStarted) {
-						funs.click(); // onItemClicked(onDownTarget )
-							
-						//multiDragKey... this._deselectMultiDrag();
+						var f = evt.asc = (evt.altKey||0)|(evt.shiftKey<<1)|(evt.ctrlKey<<2);
+						try{funs.click(evt)}catch(e){debug(e)}; // onItemClicked(onDownTarget )
 						
-						options.funs.trace();
-						toggleClass(dragEl$1, options.selectedClass, !~w.multiDragElements.indexOf(dragEl$1));
-						//debug('Multi-drag drop...');
-						//if(0)
-						if (!~w.multiDragElements.indexOf(dragEl$1)) {
-							w.multiDragElements.push(dragEl$1);
-							dispatchEvent({
-								sortable: sortable,
-								rootEl: rootEl,
-								name: 'select',
-								targetEl: dragEl$1,
-								originalEvt: evt
-							}); // Modifier activated, select from last to dragEl
-
-							if (evt.shiftKey && lastMultiDragSelect && sortable.el.contains(lastMultiDragSelect)) {
-								var lastIndex = index(lastMultiDragSelect),
-										currentIndex = index(dragEl$1);
-
-								if (~lastIndex && ~currentIndex && lastIndex !== currentIndex) {
-									// Must include lastMultiDragSelect (select it), in case modified selection from no selection
-									// (but previous selection existed)
-									var n, i;
-
-									if (currentIndex > lastIndex) {
-										i = lastIndex;
-										n = currentIndex;
-									} else {
-										i = currentIndex;
-										n = lastIndex + 1;
-									}
-
-									for (; i < n; i++) {
-										if (~w.multiDragElements.indexOf(children[i])) continue;
-										toggleClass(children[i], options.selectedClass, true);
-										w.multiDragElements.push(children[i]);
-										dispatchEvent({
-											sortable: sortable,
-											rootEl: rootEl,
-											name: 'select',
-											targetEl: children[i],
-											originalEvt: evt
-										});
-									}
-								}
-							} else {
-								lastMultiDragSelect = dragEl$1;
-							}
-
-							multiDragSortable = toSortable;
+						if(f == 1) {
+							this._deselectMultiDrag(); //no multiDragKey... 
 						} else {
-							w.multiDragElements.splice(w.multiDragElements.indexOf(dragEl$1), 1);
-							lastMultiDragSelect = null;
-							dispatchEvent({
-								sortable: sortable,
-								rootEl: rootEl,
-								name: 'deselect',
-								targetEl: dragEl$1,
-								originalEvt: evt
-							});
+							if(f&0x6) {
+								toggleClass(dragEl$1, options.selectedClass, !~w.multiDragElements.indexOf(dragEl$1));
+								if (!~w.multiDragElements.indexOf(dragEl$1)) {
+									w.multiDragElements.push(dragEl$1);
+									dispatchEvent({
+										sortable: sortable,
+										rootEl: rootEl,
+										name: 'select',
+										targetEl: dragEl$1,
+										originalEvt: evt
+									}); // Modifier activated, select from last to dragEl
+
+									if (f&0x2 && lastMultiDragSelect && sortable.el.contains(lastMultiDragSelect)) {
+										var lastIndex = index(lastMultiDragSelect),
+												currentIndex = index(dragEl$1);
+
+										if (~lastIndex && ~currentIndex && lastIndex !== currentIndex) {
+											// Must include lastMultiDragSelect (select it), in case modified selection from no selection
+											// (but previous selection existed)
+											var n, i;
+
+											if (currentIndex > lastIndex) {
+												i = lastIndex;
+												n = currentIndex;
+											} else {
+												i = currentIndex;
+												n = lastIndex + 1;
+											}
+
+											for (; i < n; i++) {
+												if (~w.multiDragElements.indexOf(children[i])) continue;
+												toggleClass(children[i], options.selectedClass, true);
+												w.multiDragElements.push(children[i]);
+												dispatchEvent({
+													sortable: sortable,
+													rootEl: rootEl,
+													name: 'select',
+													targetEl: children[i],
+													originalEvt: evt
+												});
+											}
+										}
+									} else {
+										lastMultiDragSelect = dragEl$1;
+									}
+
+									multiDragSortable = toSortable;
+								} else {
+									w.multiDragElements.splice(w.multiDragElements.indexOf(dragEl$1), 1);
+									lastMultiDragSelect = null;
+									dispatchEvent({
+										sortable: sortable,
+										rootEl: rootEl,
+										name: 'deselect',
+										targetEl: dragEl$1,
+										originalEvt: evt
+									});
+								}
+							}
 						}
 					} 
 
