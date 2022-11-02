@@ -600,19 +600,47 @@ function newTab(path, type) {
 	tabs.push(ret);
 }
 
-function initTabs() {
-	if(tabs.length==0) {
-		newTab('0');
-		newTab('', 1);
-	}
-	var ret=tabs.concat();
-	ret.current = tabs.current||0;
-	return ret;
+var tabsLoaded = false;
+
+function reinitTabs(cb) {
+	tabsLoaded = false;
+	tabs=[];
+	return initTabs(cb);
 }
+
+function initTabs(cb) {
+	if(!tabsLoaded) {
+		chrome.storage.local.get(['tabs', 'now'], function(ret) {
+			try{tabs = JSON.parse(ret.tabs)}catch(e){}
+			if(!tabs || tabs.constructor!==Array) {
+				tabs = [];
+			}
+			if(tabs.length==0 || 0) {
+				newTab('0');
+				newTab('', 1);
+			}
+			tabs.now = ret.now||0;
+			ret=tabs.concat();
+			ret.now = tabs.now;
+			tabsLoaded = true;
+			cb(ret);
+			log('Saved tabs is ', JSON.stringify(ret), ret);
+		});
+	} else {
+		var ret=tabs.concat();
+		ret.now = tabs.now;
+		cb(ret);
+	}
+}
+
+reinitTabs(()=>{});
 
 function saveTabs(that) {
 	tabs = that.concat();
-	tabs.current = that.current||0;
+	tabs.now = that.now;
+	chrome.storage.local.set({tabs:JSON.stringify(tabs), now:''+tabs.now}, function() {
+		log('saved!!!')
+	});
 }
 
 // chrome.contextMenus.create({
@@ -668,9 +696,9 @@ function loadJs(url,callback){
 // 	});
 // });
 
-chrome.storage.local.get(['fucked', 'lastTab'], function(result) {
-	log('Value currently is ', JSON.stringify(result));
-});
+// chrome.storage.local.get(['fucked', 'lastTab'], function(result) {
+// 	log('Value currently is ', JSON.stringify(result));
+// });
 
 // window.onclose=window.onblur = function(){
 // 	bg.log('onblur...');

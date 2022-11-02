@@ -12,23 +12,24 @@
         var debug = console.log
         var doc=document, w=window;
         function ge(e){return doc.getElementById(e)};
-        function craft(t, p, c) {
+        function craft(t, p, c, s) {
             t = doc.createElement(t||'DIV');
-            if(c)t.className=c;
+            if(c) t.className=c;
+            if(s) t.style=s;
             if(p)p.appendChild(t);
             return t;
         }
-        var data=bg.d(), tabs = bg.initTabs(), tab1
+        var data=bg.d(), tabs, tab1
             ,hideImg = craft("style", document.head);
         craft("style", document.head).innerText=`.folder-icon > .item-icon{-webkit-mask-image:url("chrome-extension://${chrome.runtime.id}/images/folder_open.svg")}`;
         hideImg.innerText='.img{display:none!important}'
         
-        var tabo = ge('tabos'), tab0 = ge('tabNew'), tabH=tab0.parentNode;
+        var tabo = ge('tabos'), tab0 = ge('tabNew'), tabH=tab0.parentNode, taNow;
 
         var bkmkAdapter;
         bg.log('popup...', data.test)
           
-        function newBookmarkTab(tD, path) {
+        function newTabBookmark(tD, path) {
             if(!bkmkAdapter) {
                 bkmkAdapter = {
                     bindFunction:function(lst,row,pos){
@@ -56,7 +57,6 @@
                         row.lv.ondragstart = bkmkAdapter.dragStart;
                         row.lv.onmousedown = bkmkAdapter.mousedown;
                         row.lv.ondblclick  = bkmkAdapter.dblclick;
-                        
                         
                         if(bk.dateGroupModified!=undefined ^ row.folder) {
                             row.folder = !row.folder;
@@ -180,14 +180,18 @@
                             requestAnimationFrame(function(){hideImg.remove();hideImg=0}, 200);
                         }
                     }
-                    , initListView : function(tD) {
-                        var tab = craft(0, 0, 'UiTab');
-                        var head = craft(0, tab, 'UiHead');
-                        var listViewP = craft(0, tab, 'UITabo');
+                    , initTab : function(tD) {
+                        var ret = craft(0, 0, 'UiTab');
+                        var head = craft(0, craft(0, ret, 'UiHead'), 0, 'display:flex;justify-content:space-around;');
+                        var listViewP = craft(0, ret, 'UITabo');
                         var listView = craft(0, listViewP, 'ListView');
                         // var foot = craft(0, tab, 'UIFoot');
-                        var loca = tab.etLoca = craft('INPUT', head);
-                        tab.etSch = craft('INPUT', head);
+                        var loca = ret.etLoca = craft('INPUT', head);
+                        loca.style.width='45%';
+                        ret.etSch = craft('INPUT', head);
+                        //ret.etSch.width='30%';
+                        var tools = craft('DIV', head);
+                        craft('BUTTON', tools, 0, 'width:2em;padding:0;').innerText = '★';
                         loca.onkeydown = function(e){
                             debug(e);
                             if(e.key=='Enter') {
@@ -204,7 +208,7 @@
                                         if(e&&e.length) {
                                             tD.path=p;
                                             bg.pullBkmk(p, function(e){
-                                                debug('pullBkmk...', e);
+                                                debug('pullBkmk...', e, tD);
                                                 bkmkAdapter.bindListView(ret.lv, e);
                                             });
                                         }
@@ -212,8 +216,8 @@
                                 }
                             }
                         }
-                        tab.lv=listView;
-                        tab.onRemove=function(){
+                        ret.lv=listView;
+                        ret.onRemove=function(){
                             var fvp=listView.fvp();
                             if(fvp) {
                                 var pos = fvp.pos;
@@ -221,12 +225,12 @@
                                 bg.log('saving...', pos, tD.pos, fvp.innerText.slice(0,10));
                             }
                         }
-                        return tab;
+                        return ret;
                     }
                 }
             }
             doc.addEventListener("mouseup",bkmkAdapter.mouseup,1);
-            var ret = bkmkAdapter.initListView(tD);
+            var ret = bkmkAdapter.initTab(tD);
             bg.pullBkmk(path, function(e){
                 debug('pullBkmk...', e);
                 bkmkAdapter.bindListView(ret.lv, e, tD);
@@ -235,45 +239,104 @@
             return ret;
         }
         
-        function newImportantTab(tD, path) {
+        function newTabImportant(tD, path) {
             var ret = craft(0, 0, 'UiTab');
             ret.load = function() {
-                var navdata;
-                var req=new XMLHttpRequest();
-                req.open('GET','appdata.json');
-                req.responseType='application/x-www-form-urlencoded';
-                req.onreadystatechange=function(e) {
-                    if(req.readyState == 4 && req.status==200) {
-                        //alert(req.responseText);
-                        //alert(JSON.parse('{"navdata":"qwqe"}').navdata);
-                        var appdata = JSON.parse(req.responseText);
-                        if(appdata.navdata) {
-                            //alert(appdata.navdata+(appdata.navdata[0].constructor === Array ));
-                            navdata = appdata.navdata; 
-                            ret.layout(navdata);
-                        }
-                    }
-                };
-                req.send(null);
-                
-                // if(!data.favTabArr||1) {
-                //     data.favTabArr = [{url:'',title:'添加当前标签页',favIconUrl:`chrome-extension://${chrome.runtime.id}/images/icon_add.ico`}];
-                //     data.favTabs = {};
-                //     chrome.tabs.query({'active': true, 'lastFocusedWindow': true}, function (tabs) {
-                //         var tab = tabs[0];
-                //         if(tab) {
-                //             var d={url:tab.url, title:tab.title, favIconUrl:tab.favIconUrl};
-                //             data.favTabs[tab.id]=d;
-                //             data.favTabArr.push(d)
-                //             debug(tab, tab.id);
+                // var navdata;
+                // var req=new XMLHttpRequest();
+                // req.open('GET','appdata.json');
+                // req.responseType='application/x-www-form-urlencoded';
+                // req.onreadystatechange=function(e) {
+                //     if(req.readyState == 4 && req.status==200) {
+                //         //alert(req.responseText);
+                //         //alert(JSON.parse('{"navdata":"qwqe"}').navdata);
+                //         var appdata = JSON.parse(req.responseText);
+                //         if(appdata.navdata) {
+                //             //alert(appdata.navdata+(appdata.navdata[0].constructor === Array ));
+                //             navdata = appdata.navdata; 
+                //             ret.layout(navdata);
                 //         }
-                        
-                //         ret.layout(data.favTabArr)
-                //     })
-                // } else {
-                //     ret.layout(data.favTabArr)
-                // }
-                    
+                //     }
+                // };
+                // req.send(null);
+                var arr = data.favTabArr;
+                if(!arr || !arr.length) {
+                    var f0=data.favPlus;
+                    if(!f0) {
+                        f0 = data.favPlus = {url:'add',title:'添加当前标签页',favIconUrl:`chrome-extension://${chrome.runtime.id}/images/icon_add.ico`};
+                    }
+                    data.favTabs = {};
+                    chrome.storage.local.get(['favTabs'], function(e) {
+                        try{arr = JSON.parse(e.favTabs)}catch(e){}
+                        if(!arr || arr.constructor!==Array || !arr.length) {
+                            arr=[];
+                            arr.push(f0);
+                            // chrome.tabs.query({'active': true, 'lastFocusedWindow': true}, function (tabs) {
+                            //     var tab = tabs[0];
+                            //     if(tab) {
+                            //         var d={url:tab.url, title:tab.title, favIconUrl:tab.favIconUrl};
+                            //         data.favTabs[tab.id]=d;
+                            //         arr.push(d)
+                            //         debug(tab, tab.id);
+                            //     }
+                            //     arr.push(f0)
+                            //     ret.layout(data.favTabArr)
+                            // })
+                        }
+                        ret.layout(data.favTabArr=arr);
+                        // todo restore scrollTop
+                    });
+                } else {
+                    ret.layout(arr)
+                }
+            }
+            ret.save = function() {
+                chrome.storage.local.set({favTabs:JSON.stringify(data.favTabArr)}, function() {
+                    debug('save important tabs!!!', data.favTabArr)
+                });
+            }
+            ret.dblclick = function(evt) {
+                debug('dblclick', evt);
+            }
+            ret.click = function(evt, e) {
+                debug('click', evt, e);
+                var dt = e.data;
+                if(dt.url == 'add' && dt.favIconUrl.indexOf('extension')) {
+                    chrome.tabs.query({'active': true, 'lastFocusedWindow': true}, function (tabs) {
+                        var tab = tabs[0];
+                        if(tab && !data.favTabs[tab.id]) {
+                            var d={url:tab.url, title:tab.title, favIconUrl:tab.favIconUrl, tabId:tab.id};
+                            data.favTabs[tab.id]=d;
+                            ret.layout([d], 0, 1, e);
+                            debug(tab, tab.id);
+                            var arr = data.favTabArr, idx=arr.indexOf(dt)||0;
+                            arr.splice(idx,0,d);
+                        }
+                    })
+                } else {
+                    focusTab(dt);
+                }
+            }
+            function focusWnd(id) {
+                chrome.windows.update(id, {focused:true}, function(e){  })
+            }
+            function focusTab(dt) {
+                chrome.tabs.update(dt.tabId||0, {active:true}, function(e){
+                    debug('update', dt, e);
+                    if(!e) {
+                        chrome.tabs.query({url:dt.url}, function(e){
+                            if(e) {
+                                var found=e[0];
+                                debug('激活的是同url标签页！', found, found.id);
+                                chrome.tabs.update(found.id, {active:true}, function(){})
+                                dt.tabId=found.id;
+                                focusWnd(found.windowId);
+                            }
+                        })
+                    } else {
+                        focusWnd(e.windowId);
+                    }
+                })
             }
             if(w.initGridTab) {
                 initGridTab(w, doc, ret);
@@ -303,20 +366,61 @@
 			document.body.appendChild(e);
 		}
         
-        // 初始化多标签页面
-        for(var i=0;i<tabs.length;i++) {
-            var d=tabs[i];
-            var t=d.type,title=d.timu;
-            if(!title) {
-                if(t==0) title='书签';
-                if(t==1) title='重要页面';
+        bg.reinitTabs(function(ret){
+            tabH.style.maxHeight = Math.ceil(tab0.offsetHeight*2+tab0.offsetTop/2)+'px';
+            tabs = ret;
+            // 初始化多标签页面
+            for(var i=0;i<tabs.length;i++) {
+                var d=tabs[i];
+                var t=d.type,title=d.timu,ico=d.ico;
+                if(!title) {
+                    if(t==0) title='书签';
+                    if(t==1) title='重要页面';
+                }
+                if(!ico) {
+                    if(t==0) ico='★';
+                }
+                var t=craft('LI',0,"tab");
+                if(ico)craft('SPAN', t).innerText=ico;
+                craft('SPAN', t).innerText=title;
+                t.onclick = onClickTab;
+                t.d=d;
+                tabH.insertBefore(t, tab0);
             }
-            var t=craft('LI',0,"tab");
-            t.onclick = onClickTab;
-            t.d=d;
-            craft('SPAN', t).innerText=title;
-            tabH.insertBefore(t, tab0);
-        }
+            //tabs.now=1;
+            switchTab(tabH.children[tabs.now||0]);
+        })
+        
+        // 空出星星
+        // var tabW, tabSpace, tabSpot=ge("tabSpot");
+        // function resizeTabH(e) {
+        //     tabW = tabH.clientWidth;
+        //     var t0 = tabH.firstElementChild
+        //     if(tabSpace) {
+        //         tabSpace.style.marginRight='';
+        //         tabSpace=0;
+        //     }
+        //     var m0=tabSpot.offsetWidth, mag=(parseInt(getComputedStyle(tab0).marginRight)||0);
+        //     if(t0) {
+        //         var top = t0.offsetTop+t0.offsetHeight/2;
+        //         while(t0=t0.nextElementSibling) {
+        //             if(t0.offsetTop>top) {
+        //                 t0 = t0.previousElementSibling.previousElementSibling;
+        //                 break;
+        //             }
+        //         }
+        //         if(!t0||t0==tabSpot) t0 = tabSpot.previousElementSibling;
+        //         while(t0 && t0.offsetLeft+t0.offsetWidth+m0+mag>tabW) {
+        //             t0 = t0.previousElementSibling;
+        //         }
+        //         if(t0) {
+        //             debug("挤下来了！B");
+        //             tabSpace=t0;
+        //             t0.style.marginRight=(tabW-t0.offsetLeft-t0.offsetWidth-mag)+'px';
+        //         }
+        //     }
+        // }
+        // w.addEventListener('resize', resizeTabH);
         
         tab0.onclick = function() {
             
@@ -332,13 +436,16 @@
         
         function switchTab(e) {
             tabs.now=[].indexOf.call(tabH.children, e);
+            if(taNow) taNow.classList.remove('tab-now');
+            taNow=e;
+            e.classList.add('tab-now');
             var d=e.d, t=e.tabView;
             if(!t) {
                 t=d.type;
                 if(t==0)
-                    t=newBookmarkTab(d, d.path);
+                    t=newTabBookmark(d, d.path);
                 else if(t==1)
-                    t=newImportantTab(d, d.path);
+                    t=newTabImportant(d, d.path);
                 e.tabView=t;
             }
             var all=tabo.children, b1=1;
@@ -360,13 +467,10 @@
             }
         }
         
-        //switchTab(tabH.children[tabs.now||0]);
-        switchTab(tabH.children[1]);
-        
         window.onblur = function(){
             bg.log('onblur...');
             if(tab1 && tab1.onRemove)tab1.onRemove();
-            if(tabs.length)
+            if(tabs && tabs.length)
                 bg.saveTabs(tabs);
         }
         
