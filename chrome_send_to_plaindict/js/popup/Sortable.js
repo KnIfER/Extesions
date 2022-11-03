@@ -3,6 +3,7 @@
  * @author  RubaXa   <trash@rubaxa.org>
  * @author  owenm    <owen23355@gmail.com>
  * @license MIT
+ * modified
  */
 function initSortable(doc, win){
 	var d=doc, w=win;
@@ -995,7 +996,6 @@ function initSortable(doc, win){
 				activeGroup,
 				putSortable,
 				awaitingDragStarted = false,
-				ignoreNextClick = false,
 				sortables = [],
 				tapEvt,
 				touchEvt,
@@ -1138,18 +1138,6 @@ function initSortable(doc, win){
 		}; // #1184 fix - Prevent click event on fallback if dragged but item not changed position
 			
 			w._prepareGroup = _prepareGroup;
-
-		if (documentExists) {
-			d.addEventListener('click', function (evt) {
-				if (ignoreNextClick) {
-					evt.preventDefault();
-					evt.stopPropagation && evt.stopPropagation();
-					evt.stopImmediatePropagation && evt.stopImmediatePropagation();
-					ignoreNextClick = false;
-					return false;
-				}
-			}, true);
-		}
 
 		var nearestEmptyInsertDetectEvent = function nearestEmptyInsertDetectEvent(evt) {
 			if (dragEl) {
@@ -1791,7 +1779,7 @@ function initSortable(doc, win){
 				!fallback && toggleClass(dragEl, options.dragClass, true); // Set proper drop events
 
 				if (fallback) {
-					ignoreNextClick = true;
+					//ignoreNextClick = true; // ??? what use
 					_this._loopId = setInterval(_this._emulateDragOver, 50);
 				} else {
 					// Undo what was set in _prepareDragStart before drag started
@@ -1968,7 +1956,7 @@ function initSortable(doc, win){
 					return completed(false);
 				}
 
-				ignoreNextClick = false;
+				//ignoreNextClick = false;
 
 				if (activeSortable && !options.disabled && !funs.gridis && (isOwner ? canSort || (revert = !rootEl.contains(dragEl)) // Reverting item into the original list
 				: putSortable === this || (this.lastPutMode = activeGroup.checkPull(this, activeSortable, dragEl, evt)) && group.checkPut(this, activeSortable, dragEl, evt))) {
@@ -2977,22 +2965,21 @@ function initSortable(doc, win){
 					putSortable = _ref.putSortable,
 					dragEl = _ref.dragEl,
 					activeSortable = _ref.activeSortable,
-					dispatchSortableEvent = _ref.dispatchSortableEvent,
-					hideGhostForTarget = _ref.hideGhostForTarget,
-					unhideGhostForTarget = _ref.unhideGhostForTarget;
+					dispatchSortableEvent = _ref.dispatchSortableEvent;
 			if (!originalEvent) return;
 			var toSortable = putSortable || activeSortable;
-			hideGhostForTarget();
-			var touch = originalEvent.changedTouches && originalEvent.changedTouches.length ? originalEvent.changedTouches[0] : originalEvent;
-			var target = d.elementFromPoint(touch.clientX, touch.clientY);
-			unhideGhostForTarget();
-
-			if (toSortable && !toSortable.el.contains(target)) {
-				dispatchSortableEvent('spill');
-				this.onSpill({
-					dragEl: dragEl,
-					putSortable: putSortable
-				});
+			if (toSortable) {
+				var touch = originalEvent.changedTouches && originalEvent.changedTouches.length ? originalEvent.changedTouches[0] : originalEvent;
+				var rect = toSortable.el.getBoundingClientRect()
+				//debug('_onSpill::', toSortable.el, originalEvent, d.hasFocus());
+				//debug('_onSpill::', rect, touch.clientX, touch.clientY);
+				if(!d.hasFocus()||touch.clientY<rect.top||touch.clientY>rect.bottom||touch.clientX<rect.left||touch.clientX>rect.right) {
+					dispatchSortableEvent('spill');
+					this.onSpill({
+						dragEl: dragEl,
+						putSortable: putSortable
+					});
+				}
 			}
 		};
 

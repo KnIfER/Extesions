@@ -196,6 +196,10 @@ function initGridTab(win, docu, host){
 				console.log('trace'+new Error().stack)  ;
 			}
 			, click : onItemClicked 
+			, setData : function (dataTransfer, dragEl) {
+				//debug('setData', dragEl, dragEl.data);
+				dataTransfer.setData('text', dragEl.data[keyFun(0)]);
+			}
 		}, keyFun;
 
 		function SameGroup(same) {
@@ -303,9 +307,11 @@ function initGridTab(win, docu, host){
 			w.addEventListener('resize',wrappedResizeFunc);
 			retrySz();
 		}
-		host.onRemove=function(){
-			folderview.hidden=1;
-			w.removeEventListener('resize',wrappedResizeFunc);
+		host.onRemove=function(pause){
+			if(!pause) {
+				folderview.hidden=1;
+				w.removeEventListener('resize',wrappedResizeFunc);	
+			}
 			host.save();
 			// todo 保存列表位置
 		}
@@ -313,6 +319,7 @@ function initGridTab(win, docu, host){
 		ActiveGrid = AppGrid = new Sortable(grido, {
 			multiDrag: true,
 			swapThreshold: 0.34,
+			revertOnSpill:true,
 			invertSwap: true,
 			selectedClass: 'selected', 
 			animation: 300,
@@ -322,6 +329,7 @@ function initGridTab(win, docu, host){
 			forceFallback: false,
 			sort:true,
 			funs:funSort,
+			setData: funSort.setData,
 			onStart: function (evt) {
 				draggingFolder = evt.item.f_;
 				//debug('onStart', draggingFolder);
@@ -331,8 +339,10 @@ function initGridTab(win, docu, host){
 				//debug('onEnd');
 			},
 			onMove(evt) {
-				//debug('onMove', evt);
+				debug('onMove', evt, evt.related);
 				//https://github.com/SortableJS/Sortable/issues/1615#issuecomment-529704348
+				if(evt.related==grido.lastElementSibling||evt.related==grido.lastElementSibling) 
+					return false;
 				if ((evt.related.f_||evt.originalEvent.shiftKey) && evt.related !== overFolder) {
 					debug('starting timeout')
 					clearTimeout(tmSwapFolder);
@@ -353,6 +363,13 @@ function initGridTab(win, docu, host){
 			}
 		});
 		
+		function dblclick(evt){
+			var item=funSort.d;
+			while(item && !item.classList.contains('item-sqr'))
+				item = item.parentNode
+			host.dblclick(evt, item);
+		}
+		
 		function layoutChildren(arr, gridEl, add, bf){
 			var isFolder=gridEl==foldo;
 			if(!add) {
@@ -363,11 +380,12 @@ function initGridTab(win, docu, host){
 			}
 			ln = arr.length;
 			var kF=[keyFun(0), keyFun(1), keyFun(2)];
+			for(var j=0;j<100;j++) // debug many dongxis
 			for (var i = 0; i < ln; i++) {
 				var data = arr[i];
 				var urls = data[kF[0]];
 				var item = craft('DIV', 0, 'item-sqr')
-				item.ondblclick=host.dblclick;
+				item.ondblclick=dblclick;
 				if(isFolder) item.infolder=1;
 				var iconItem;
 				if(urls.constructor === Array) { //is folder
@@ -419,6 +437,7 @@ function initGridTab(win, docu, host){
 			} else {
 				item.classList.remove('icon_h')
 			};
+			item.ondblclick=host.dblclick;
 			if(draggingFolder && (ti||iI.title)==='') {
 				ti=draggingFolder.data.title;
 			}
@@ -441,11 +460,13 @@ function initGridTab(win, docu, host){
 		FolderGrid = new Sortable(ge('foldo'), {
 			multiDrag: true,
 			swapThreshold: 0.34,
+			revertOnSpill:true,
 			invertSwap: true,
 			selectedClass: 'selected', 
 			animation: 300,
 			ghostClass: 'blue-background-class',
 			funs:funSort,
+			setData: funSort.setData,
 			onStart: function (evt) {
 				//console.log('onStart');
 				foverStart = evt.item;
