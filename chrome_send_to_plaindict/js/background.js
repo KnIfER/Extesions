@@ -30,30 +30,31 @@ class PLODBack {
 		}
 
 	sendText(exp, source) {
-		console.log(exp);
-				if(!exp) return;
-		if(exp.selectionText) {
-			exp = exp.selectionText;
-			source = 2;
-		}
-				var target = (this.options.firstflag>>4 + (source&3))&0x1;
-		//console.log("send source : ", source, target);
-		chrome.bookmarks.search("PD", (res) => {
-			var host = "127.0.0.1"
-			for(var bkmkI in res) {
-				bkmkI = res[bkmkI];
-				if(bkmkI.title=="PD") {
-					host = bkmkI.url;
-					break;
-				}
-			}
-			var url = host+"PLOD/?f="+(target+1);
-			console.log(exp);
-			var xmlhttp=new XMLHttpRequest();
-			xmlhttp.open("POST", url , true);
-			//xmlhttp.setRequestHeader("Access-Control-Allow-Origin", "*");
-			xmlhttp.send(exp);
-		});
+		debug('sendText', exp);
+		
+		// if(!exp) return;
+		// if(exp.selectionText) {
+		// 	exp = exp.selectionText;
+		// 	source = 2;
+		// }
+		// var target = (this.options.firstflag>>4 + (source&3))&0x1;
+		// //console.log("send source : ", source, target);
+		// chrome.bookmarks.search("PD", (res) => {
+		// 	var host = "127.0.0.1"
+		// 	for(var bkmkI in res) {
+		// 		bkmkI = res[bkmkI];
+		// 		if(bkmkI.title=="PD") {
+		// 			host = bkmkI.url;
+		// 			break;
+		// 		}
+		// 	}
+		// 	var url = host+"PLOD/?f="+(target+1);
+		// 	console.log(exp);
+		// 	var xmlhttp=new XMLHttpRequest();
+		// 	xmlhttp.open("POST", url , true);
+		// 	//xmlhttp.setRequestHeader("Access-Control-Allow-Origin", "*");
+		// 	xmlhttp.send(exp);
+		// });
 	}
 
 	// Message Hub and Handler start from here ...
@@ -705,31 +706,56 @@ function loadJs(url,callback){
 // 	chrome.storage.local.set({lastTab: 'onblur...'}, function() {
 // 	});
 // }
-// chrome.runtime.onSuspend.addListener(() => {
-// 	console.log("onSuspend");
-// 	chrome.tabs.query({'active': true, 'lastFocusedWindow': true}, function (tabs) {
-// 		var tab = tabs[0];
-// 		if(tab) {
-// 			debug(tab, tab.id)
-// 			chrome.storage.local.set({lastTab: tab.url}, function() {
-// 			});
-		
-// 		}
-// 	})
-// });
 
 
 chrome.tabs.onActivated.addListener(function(e) {
 	log('onActivated', e);
 })
 
+data.favTabsVer=data.favTabsSave=0;
+
+function saveImportabs() {
+	data.favTabsSave=data.favTabsVer;
+	chrome.storage.local.set({favTabs:JSON.stringify(data.favTabArr)}, function() {
+		debug('save important tabs!!!', data.favTabArr)
+	});
+}
   
 chrome.tabs.onUpdated.addListener(function(e, changeInfo, tab) {
 	log('onUpdated', e, changeInfo, tab, data.favTabs[e]);
+	var b1=e.status=='loading';
+	if(b1) {
+		
+	}
 	if(e=data.favTabs[e]) {
-		e.url = tab.url;
-		e.title = tab.title;
-		e.favIconUrl = tab.favIconUrl;
+		data.favTabsVer++;
+		// e.title = tab.title;
+		// e.favIconUrl = tab.favIconUrl;
+		//var url=b1?tab.pendingUrl:tab.url;
+		if(0) e.url = tab.url;
+		else e.lastUrl=e.url!=tab.url?tab.url:undefined;
 		debug('changed...', e);
 	}
 });
+
+var debug=0;
+chrome.tabs.getAllInWindow( null, function( tabs ){
+    //debug("Initial tab count: " + tabs.length);
+    num_tabs = tabs.length;
+});
+chrome.tabs.onCreated.addListener(function(tab){
+    num_tabs++;
+    //debug("Tab created event caught. Open tabs #: " + num_tabs);
+});
+
+chrome.tabs.onRemoved.addListener(function(tabId){
+    num_tabs--;
+    debug("Tab removed event caught. Open tabs #: " + num_tabs);
+    if( num_tabs == 0 ) {
+		onClose();
+	}
+});
+
+function onClose() {
+	if(data.favTabsSave!=data.favTabsVer) saveImportabs();
+}

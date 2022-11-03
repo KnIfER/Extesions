@@ -291,17 +291,24 @@
                 }
             }
             ret.save = function() {
-                chrome.storage.local.set({favTabs:JSON.stringify(data.favTabArr)}, function() {
-                    debug('save important tabs!!!', data.favTabArr)
-                });
+                // if() {
+                //     bg.saveImportabs();
+                // }
             }
-            ret.dblclick = function(evt) {
-                debug('dblclick', evt);
+            ret.dblclick = function(evt, e) { // todo 等待单击事件完成
+                //debug('dblclick', evt, e);
+                var dt = e.data;
+                if(dt.url != 'add') {
+                    chrome.tabs.create({'active': true, 'url': dt.url, 'index':activeTab.index+1}, function (e) {
+                        debug(e);
+                    })
+                }
             }
             ret.click = function(evt, e) {
-                debug('click', evt, e);
+                //debug('click', evt, e);
                 var dt = e.data;
                 if(dt.url == 'add' && dt.favIconUrl.indexOf('extension')) {
+                    // 添加
                     chrome.tabs.query({'active': true, 'lastFocusedWindow': true}, function (tabs) {
                         var tab = tabs[0];
                         if(tab && !data.favTabs[tab.id]) {
@@ -320,21 +327,41 @@
             function focusWnd(id) {
                 chrome.windows.update(id, {focused:true}, function(e){  })
             }
+            function do_focusTab(dt, e) {
+                chrome.tabs.update(e.id, {active:true}, function(){})
+                dt.tabId=e.id;
+                data.favTabs[e.id]=dt;
+                focusWnd(e.windowId);
+            }
             function focusTab(dt) {
                 chrome.tabs.update(dt.tabId||0, {active:true}, function(e){
                     debug('update', dt, e);
                     if(!e) {
                         chrome.tabs.query({url:dt.url}, function(e){
-                            if(e) {
-                                var found=e[0];
-                                debug('激活的是同url标签页！', found, found.id);
-                                chrome.tabs.update(found.id, {active:true}, function(){})
-                                dt.tabId=found.id;
-                                focusWnd(found.windowId);
+                            var found=e && e[0];
+                            debug('激活的是同url标签页！', found, dt.url);
+                            if(found) {
+                                do_focusTab(dt, found);
+                            }  else {
+                                var idx=dt.url.lastIndexOf('#');
+                                if(idx>0) {
+                                    chrome.tabs.query({url:dt.url.slice(0,idx)}, function(e){
+                                        if(e) {
+                                            var found=e && e[0];
+                                            debug('激活的是同url#标签页！', found, dt.url);
+                                            if(found) {
+                                                do_focusTab(dt, found);
+                                            }
+                                        }
+                                    })
+                                }
                             }
                         })
                     } else {
                         focusWnd(e.windowId);
+                        if(!data.favTabs[e.id]) {
+                            data.favTabs[e.id]=dt;
+                        }
                     }
                 })
             }
@@ -366,7 +393,7 @@
 			document.body.appendChild(e);
 		}
         
-        bg.reinitTabs(function(ret){
+        bg.initTabs(function(ret){
             tabH.style.maxHeight = Math.ceil(tab0.offsetHeight*2+tab0.offsetTop/2)+'px';
             tabs = ret;
             // 初始化多标签页面
@@ -454,12 +481,49 @@
             while(t && !t.classList.contains('tab')) {
                 t=t.parentNode;
             }
-            menu=makeMenu('cp2', ['openSearch', 'focusThis', '', 'autoSearch', 'reSearch', null]);
+            var opt={};
+            var settingsArr = [''
+                , [0, ['closeTab', 0], ['关闭页面'], opt.focusMode!=0
+                        , [1<<10, ['focusMode', 1], '折叠页面', opt.fml==1
+                            , [2|2<<10, ['expandFirst1N', 'expandFirst1', opt.expandFirst1], ['默认展开前几项：'], opt.expandFirst1N]
+                            ]
+                        , [1<<10, ['focusMode', 2], '限制最大高度', opt.fml==2
+                            , [2|2<<10, ['expandFirst2N', 'expandFirst2', opt.expandFirst2], ['默认展开前几项：'], opt.expandFirst2N]
+                            , [1, 'noNestedScroll2', ['禁止嵌套滚动', '但仍可点击翻页、滑动边缘'], opt.noNestedScroll2]
+                            , [1<<10, ['limHeightMode', 0], '限制最大值', opt.limHeightMode==0]
+                            , [1<<10, ['limHeightMode', 1], '固定高度值', opt.limHeightMode==1]
+                            , [2, 'maxHeight2', '高度值：', opt.maxHeight2]
+                            ]
+                        , [1, 'autoScrollFocus', ['自动滚动至展开项'], opt.autoScrollFocus]
+                        , [1, 'autoFocusOne', ['自动折叠旧展开项'], opt.autoFocusOne]
+                    ]
+            ];
             
             menuContext = t;
-            setMenuPos(e);
-            e.preventDefault();
-            e.stopPropagation();
+            
+            if(w.SettingsBuildCard) {
+                menu=makeMenu(0, settingsArr);
+                setMenuPos(e);
+                e.preventDefault();
+                e.stopPropagation();
+            } else {
+                loadJs("settings.js", function(){
+                    initSettings(w, doc, 'settings.css');
+                    if(w.SettingsBuildCard)
+                        onTabMenu(e)
+                });
+            }
+            onMenuNone(e);
+        }
+        
+        
+		function onMenuClick(e) {
+			var btn=e.button, t=e.srcElement.name;
+			debug('onMenuClick', t);
+			if(e.delay)
+                setTimeout(dismiss_menu, 10);
+            else
+                dismiss_menu();
         }
         
         function switchTab(e) {
@@ -499,7 +563,7 @@
         
         window.onblur = function(){
             bg.log('onblur...');
-            if(tab1 && tab1.onRemove)tab1.onRemove();
+            if(tab1 && tab1.onRemove)tab1.onRemove(1);
             if(tabs && tabs.length)
                 bg.saveTabs(tabs);
         }
@@ -509,18 +573,29 @@
 			if(menu) {
 				var ms=menu.style;
 				menu.p.style.display="block";
+                var x=e.clientX,y=e.clientY;
 				if(menu.revert) {
-					ms.left=(e.clientX-menu.offsetWidth-10)+"px";
-					ms.top=(e.clientY-menu.offsetHeight-10)+"px";
+					ms.left=(x-menu.offsetWidth-10)+"px";
+					ms.top=(y-menu.offsetHeight-10)+"px";
 				} else {
-					ms.left=e.clientX+"px";
-					ms.top=e.clientY+"px";
+                    var pW=menu.parentNode.offsetWidth;
+                    if(x+menu.offsetWidth>pW) {
+                        x=pW-menu.offsetWidth;
+                        y+=2;
+                    }
+					ms.maxHeight=(menu.parentNode.offsetHeight-y-5)+"px";
+					ms.left=x+"px";
+					ms.top=y+"px";
 				}
 			}
 		}
-		function makeMenu(n,l) {
+		function onMenuNone(e){
+			e.preventDefault();
+			e.stopPropagation();
+		}
+		function makeMenu(n,arr) {
 			if(lastMenu) {
-				if(lastMenu.n===n) {
+				if(n && lastMenu.n===n) {
 					if(!lastMenu.p.parentNode)
 						document.body.append(lastMenu.p);
 					return lastMenu;
@@ -557,36 +632,53 @@
 					else dismiss_menu();
 				}
 			}
-			var menu = craft(0, cover, 'menu');
-			for (var i=0,t,m;(t=l[i++])!=null;) {
-				if (t) {
-					m=craft(0, menu);
-					if(Array.isArray(t)) { // 横向子集
-						var wid=0, wids, j=0,t1,m1;
-						if(Array.isArray(t[0])) { // 宽度占比
-							wids = t[0];
-							j=1;
-						} else {
-							wid = parseInt(100/t.length)+'%';
-						}
-						for (;j<t.length;j++) {
-							m1=craft(0, m);
-							m1.name=t1=t[j];
-							m1.innerText=t1;//trans[t1];
-							m1.style.width = wid?wid:(wids[j-1]+'%');
-							//m1.onclick=onMenuClick;
-						}
-					} else {
-						m.name=t;
-						m.innerText=t;//trans[t];
-						//m.onclick=onMenuClick;
-					}
-				} else {
-					craft(0, menu, 'sep');
-				}
-			}
+			var menu = craft(0, cover, 'menu', 'max-width:35%;overflow:overlay;');
+        
+            // var dlg = SettingsGetDialogHolder('settings');
+            var host=menu;
+            if(!host.cards || true) {
+                if(host.cards) {
+                    host.cards.forEach(function(it){it.remove()});
+                    host.cards=0;
+                }
+                function pref(id, value, el) 
+                {
+                    return 1;
+                }
+                SettingsBuildCard(pref, arr, host);
+            }
+
+            // SettingsShowDialog(dlg);
+                
+			// for (var i=0,t,m;(t=arr[i++])!=null;) {
+			// 	if (t) {
+			// 		m=craft(0, menu);
+			// 		if(Array.isArray(t)) { // 横向子集
+			// 			var wid=0, wids, j=0,t1,m1;
+			// 			if(Array.isArray(t[0])) { // 宽度占比
+			// 				wids = t[0];
+			// 				j=1;
+			// 			} else {
+			// 				wid = parseInt(100/t.length)+'%';
+			// 			}
+			// 			for (;j<t.length;j++) {
+			// 				m1=craft(0, m);
+			// 				m1.name=t1=t[j];
+			// 				m1.innerText=t1;//trans[t1];
+			// 				m1.style.width = wid?wid:(wids[j-1]+'%');
+			// 				//m1.onclick=onMenuClick;
+			// 			}
+			// 		} else {
+			// 			m.name=t;
+			// 			m.innerText=t;//trans[t];
+			// 			//m.onclick=onMenuClick;
+			// 		}
+			// 	} else {
+			// 		craft(0, menu, 'sep');
+			// 	}
+			// }
 			menu.n=n;
-			menu.l=l;
+			menu.l=arr;
 			menu.p=cover;
 			lastMenu=menu;
 			return menu;
@@ -596,15 +688,14 @@
             if(menu){
                 menu.p.style.display="none";
                 menu=null;
-                if(app) app.banDbclk(sid.get());	
             }
         }
         
-        
+        var activeTab;
         chrome.tabs.query({'active': true, 'lastFocusedWindow': true}, function (tabs) {
-            var tab = tabs[0];
-            if(tab) {
-                debug(tab, tab.id)
+            activeTab = tabs[0];
+            if(activeTab) {
+                debug(activeTab, activeTab.id)
             }
         })
                     
